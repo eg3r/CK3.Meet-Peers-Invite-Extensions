@@ -1,0 +1,19 @@
+﻿l_french:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "Enfants des dirigeants voisins"
+ mpie_invite_rule_same_faith_children:0 "Enfants de la même foi"
+ mpie_invite_rule_opposite_sex_children:0 "Enfants du sexe opposé"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "Réinitialiser le délai : [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "Organiser à nouveau : [GetActivityType('activity_playdate').GetName], sans attendre la fin du délai"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F Pourquoi attendre des années pour revoir mes pairs ? Je vais les inviter de nouveau dès maintenant !#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "Invitons-les à nouveau !"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "Vous pouvez organiser immédiatement votre prochaine activité [GetActivityType('activity_playdate').GetName]. L'organiser lance un nouveau délai."
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "Réinitialisation du délai de Rencontre des pairs"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "Désactivé"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "La décision de réinitialiser le délai de Rencontre des pairs n'est pas disponible."
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "Activé"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Les joueurs peuvent prendre la décision de réinitialiser le délai de Rencontre des pairs pour organiser la suivante sans attendre."

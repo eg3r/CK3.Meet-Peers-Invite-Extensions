@@ -1,0 +1,31 @@
+﻿# Meet Peers - Invite Extensions: scripted triggers
+
+# Candidate filters for mpie_add_children_in_range_effect
+# this = candidate child, root = host of the activity
+
+mpie_same_faith_as_host_trigger = {
+	faith = root.faith
+}
+
+mpie_opposite_sex_of_host_trigger = {
+	sex_opposite_of = root
+}
+
+# Cooldown reset
+
+# Is the cooldown reset feature switched on?
+# Either by the game rule (chosen at game setup) or, for a running campaign, by the console:
+#   effect set_global_variable = mpie_meet_peers_cooldown_reset_enabled
+mpie_meet_peers_cooldown_reset_enabled_trigger = {
+	OR = {
+		has_game_rule = mpie_meet_peers_cooldown_reset_enabled
+		has_global_variable = mpie_meet_peers_cooldown_reset_enabled
+	}
+}
+
+# Should the scope character skip the Meet Peers cooldown check?
+# this = character trying to host
+mpie_meet_peers_cooldown_reset_active_trigger = {
+	mpie_meet_peers_cooldown_reset_enabled_trigger = yes
+	has_variable = mpie_meet_peers_cooldown_reset
+}

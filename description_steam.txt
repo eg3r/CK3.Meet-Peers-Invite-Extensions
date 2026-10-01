@@ -1,0 +1,30 @@
+[h1]Meet Peers - Invite Extensions[/h1]
+
+[b]Let your child ruler meet children beyond your own realm.[/b]
+
+[h2]Overview[/h2]
+In vanilla, the Meet Peers activity only offers children from your own realm and your personal relations. This mod adds new guest invite options so you can bring in the children next door, children of your faith, or children of the opposite sex.
+
+[h2]Key Features[/h2]
+[list]
+[*] [b]Neighboring Rulers' Children[/b] - Children of rulers of bordering realms, including across water and the count next door in another duchy. On by default.
+[*] [b]Children of the Same Faith[/b] - Children of your faith at any court in diplomatic range. Opt-in.
+[*] [b]Children of the Opposite Sex[/b] - Children of the opposite sex at any court in diplomatic range. Opt-in.
+[*] [b]Realm First[/b] - New options fill after your own realm's children, so they keep priority
+[*] [b]Reset Meet Peers Cooldown[/b] - A decision that lets you plan the next Meet Peers right away instead of waiting 3 years. Off by default: enable it with the "Meet Peers Cooldown Reset" game rule. This is considered cheating and should not be active for normal gameplay.
+[*] [b]Multi-Language Support[/b] - English, French, German, Spanish, Polish, Russian, Chinese, Korean, and Japanese
+[/list]
+
+[h2]Requirements[/h2]
+[list]
+[*] Vanilla Meet Peers rules still apply: guests must be children aged 4-13, healthy, free, not hostages, and within diplomatic range
+[*] Invite options add guests together: ticking both opt-in options invites children who match either one
+[/list]
+
+[h2]Compatibility[/h2]
+This mod replaces the vanilla Meet Peers activity file (playdate.txt). It is not compatible with other mods that change the Meet Peers activity.
+
+[h2]Support[/h2]
+Found a bug or have a suggestion? Please report it in the discussions section!
+
+[i]Childhood friendships across the border.[/i]

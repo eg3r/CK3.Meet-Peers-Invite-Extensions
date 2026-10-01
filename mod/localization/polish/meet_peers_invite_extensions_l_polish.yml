@@ -1,0 +1,19 @@
+﻿l_polish:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "Dzieci sąsiednich władców"
+ mpie_invite_rule_same_faith_children:0 "Dzieci tej samej wiary"
+ mpie_invite_rule_opposite_sex_children:0 "Dzieci płci przeciwnej"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "Zresetuj czas odnowienia: [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "Zaplanuj kolejne wydarzenie [GetActivityType('activity_playdate').GetName] bez czekania na koniec czasu odnowienia"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F Po co czekać latami, by znów zobaczyć rówieśników? Zaproszę ich ponownie już teraz!#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "Zaprośmy ich ponownie!"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "Następne wydarzenie [GetActivityType('activity_playdate').GetName] możesz zaplanować od razu. Zaplanowanie go rozpocznie nowy czas odnowienia."
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "Reset czasu odnowienia Spotkania z rówieśnikami"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "Wyłączone"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "Decyzja o zresetowaniu czasu odnowienia Spotkania z rówieśnikami jest niedostępna."
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "Włączone"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Gracze mogą podjąć decyzję o zresetowaniu czasu odnowienia Spotkania z rówieśnikami, aby zaplanować kolejne bez czekania."

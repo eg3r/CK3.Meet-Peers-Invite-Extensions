@@ -1,0 +1,19 @@
+﻿l_korean:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "이웃 영주의 자녀"
+ mpie_invite_rule_same_faith_children:0 "같은 신앙의 아이들"
+ mpie_invite_rule_opposite_sex_children:0 "이성의 아이들"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "재사용 대기시간 초기화: [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "재사용 대기시간을 기다리지 않고 [GetActivityType('activity_playdate').GetName]을(를) 다시 계획합니다"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F 또래들을 다시 만나려고 몇 년이나 기다릴 필요가 있을까? 지금 바로 다시 초대하겠어!#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "다시 초대하자!"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "다음 [GetActivityType('activity_playdate').GetName]을(를) 바로 계획할 수 있습니다. 계획하면 새로운 재사용 대기시간이 시작됩니다."
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "또래 회합 재사용 대기시간 초기화"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "비활성화"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "또래 회합 재사용 대기시간 초기화 결정을 사용할 수 없습니다."
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "활성화"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "플레이어는 또래 회합 재사용 대기시간 초기화 결정을 내려 기다리지 않고 다음 회합을 계획할 수 있습니다."

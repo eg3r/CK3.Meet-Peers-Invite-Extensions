@@ -1,0 +1,42 @@
+﻿# Meet Peers - Invite Extensions: extra guest invite rules for activity_playdate
+#
+# root = host of the activity
+# Rules only build the candidate pool. Every candidate is still filtered by the
+# base can_be_activity_guest rule and the playdate's own can_be_activity_guest
+# (child aged 4-13, healthy, free, not a hostage, in diplomatic range).
+
+# Children of neighboring rulers
+mpie_invite_rule_neighbors_children = {
+	effect = {
+		# Children of rulers of bordering foreign realms (same iterator as vanilla activity_invite_neighbouring_rulers)
+		top_liege ?= {
+			every_neighboring_and_across_water_top_liege_realm_owner = {
+				every_child = {
+					limit = { NOT = { is_in_list = characters } }
+					add_to_list = characters
+				}
+			}
+		}
+		# Children of same-rank rulers bordering the host, e.g. a count next door in another duchy
+		every_neighboring_and_across_water_realm_same_rank_owner = {
+			every_child = {
+				limit = { NOT = { is_in_list = characters } }
+				add_to_list = characters
+			}
+		}
+	}
+}
+
+# Children of the host's faith, at any court in diplomatic range
+mpie_invite_rule_same_faith_children = {
+	effect = {
+		mpie_add_children_in_range_effect = { FILTER = mpie_same_faith_as_host_trigger }
+	}
+}
+
+# Children of the opposite sex to the host, at any court in diplomatic range
+mpie_invite_rule_opposite_sex_children = {
+	effect = {
+		mpie_add_children_in_range_effect = { FILTER = mpie_opposite_sex_of_host_trigger }
+	}
+}

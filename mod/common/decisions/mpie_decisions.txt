@@ -1,0 +1,31 @@
+﻿# Meet Peers - Invite Extensions: decisions
+
+# Lets a player skip the Meet Peers cooldown once.
+# The engine stores the cooldown as an expiry date (activity_data.activity_type_cooldowns
+# in the save) and no effect can clear it, so this sets a variable that the playdate.txt
+# override checks instead. The variable is removed when the next Meet Peers starts,
+# which records a new cooldown.
+# Off by default: needs the mpie_meet_peers_cooldown_reset game rule or the console global variable
+# (see mpie_meet_peers_cooldown_reset_enabled_trigger).
+mpie_reset_meet_peers_cooldown_decision = {
+	picture = { reference = "gfx/interface/illustrations/decisions/bp2_playdate.dds" }
+
+	ai_check_interval = 0
+
+	is_shown = {
+		mpie_meet_peers_cooldown_reset_enabled_trigger = yes
+		is_ai = no
+		is_adult = no
+		is_activity_type_on_cooldown = activity_playdate
+		NOT = { has_variable = mpie_meet_peers_cooldown_reset }
+	}
+
+	effect = {
+		set_variable = mpie_meet_peers_cooldown_reset
+		custom_tooltip = mpie_reset_meet_peers_cooldown_decision_effect_tt
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}

@@ -1,0 +1,19 @@
+﻿l_japanese:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "隣国の統治者の子供"
+ mpie_invite_rule_same_faith_children:0 "同じ信仰の子供"
+ mpie_invite_rule_opposite_sex_children:0 "異性の子供"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "クールダウンをリセット：[GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "クールダウンを待たずに次の[GetActivityType('activity_playdate').GetName]を計画します"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F 仲間にまた会うのに何年も待つ必要があるだろうか？今すぐもう一度招待しよう！#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "もう一度招待しよう！"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "次の[GetActivityType('activity_playdate').GetName]をすぐに計画できます。計画すると新しいクールダウンが始まります。"
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "遊戯会のクールダウンリセット"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "無効"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "遊戯会のクールダウンをリセットする決断は使用できません。"
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "有効"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "プレイヤーは決断で遊戯会のクールダウンをリセットし、待たずに次の遊戯会を計画できます。"

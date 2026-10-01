@@ -1,0 +1,19 @@
+﻿l_german:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "Kinder benachbarter Herrscher"
+ mpie_invite_rule_same_faith_children:0 "Kinder gleichen Glaubens"
+ mpie_invite_rule_opposite_sex_children:0 "Kinder des anderen Geschlechts"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "Abklingzeit zurücksetzen: [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "Plant eine weitere Aktivität [GetActivityType('activity_playdate').GetName], ohne die Abklingzeit abzuwarten"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F Warum jahrelang warten, um meine Gefährten wiederzusehen? Ich lade sie sofort wieder ein!#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "Ladet sie wieder ein!"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "Eure nächste Aktivität [GetActivityType('activity_playdate').GetName] kann sofort geplant werden. Die Planung startet eine neue Abklingzeit."
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "Spieltreffen-Abklingzeit zurücksetzen"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "Aus"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "Die Entscheidung zum Zurücksetzen der Spieltreffen-Abklingzeit ist nicht verfügbar."
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "An"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Spieler können die Entscheidung treffen, die Spieltreffen-Abklingzeit zurückzusetzen, um das nächste Spieltreffen ohne Wartezeit zu planen."

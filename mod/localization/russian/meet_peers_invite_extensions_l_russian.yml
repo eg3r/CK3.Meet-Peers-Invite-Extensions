@@ -1,0 +1,19 @@
+﻿l_russian:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "Дети соседних правителей"
+ mpie_invite_rule_same_faith_children:0 "Дети той же веры"
+ mpie_invite_rule_opposite_sex_children:0 "Дети противоположного пола"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "Сбросить перезарядку: [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "Запланировать новое событие [GetActivityType('activity_playdate').GetName], не дожидаясь окончания перезарядки"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F Зачем ждать годами, чтобы снова увидеть сверстников? Я приглашу их снова прямо сейчас!#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "Пригласим их снова!"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "Следующее событие [GetActivityType('activity_playdate').GetName] можно запланировать сразу. Его планирование запустит новую перезарядку."
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "Сброс перезарядки «Встречи с ровесниками»"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "Выключено"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "Решение о сбросе перезарядки «Встречи с ровесниками» недоступно."
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "Включено"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Игроки могут принять решение о сбросе перезарядки «Встречи с ровесниками», чтобы запланировать следующую без ожидания."

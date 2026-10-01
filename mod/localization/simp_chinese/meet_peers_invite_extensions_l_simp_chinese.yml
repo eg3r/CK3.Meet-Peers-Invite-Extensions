@@ -1,0 +1,19 @@
+﻿l_simp_chinese:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "相邻统治者的孩子"
+ mpie_invite_rule_same_faith_children:0 "同信仰的孩子"
+ mpie_invite_rule_opposite_sex_children:0 "异性的孩子"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "重置冷却时间：[GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "无需等待冷却时间即可再次筹划[GetActivityType('activity_playdate').GetName]"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F 为什么要等上好几年才能再见到我的同伴？我现在就再次邀请他们！#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "再次邀请他们！"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "你可以立即筹划下一次[GetActivityType('activity_playdate').GetName]。筹划后将开始新的冷却时间。"
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "重置会见同辈冷却时间"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "禁用"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "无法使用重置会见同辈冷却时间的决议。"
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "启用"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "玩家可以通过决议重置会见同辈的冷却时间，无需等待即可筹划下一次。"

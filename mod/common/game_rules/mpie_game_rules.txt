@@ -1,0 +1,19 @@
+﻿# Meet Peers - Invite Extensions: game rules
+
+# Gates the "Reset Meet Peers Cooldown" decision (see mpie_meet_peers_cooldown_reset_enabled_trigger).
+# Game rules are fixed once a campaign starts, so the trigger also accepts the global variable
+# mpie_meet_peers_cooldown_reset_enabled, which can be set from the console in a running game.
+mpie_meet_peers_cooldown_reset = {
+	categories = {
+		tweaks
+	}
+
+	default = mpie_meet_peers_cooldown_reset_disabled
+
+	mpie_meet_peers_cooldown_reset_disabled = {
+	}
+
+	mpie_meet_peers_cooldown_reset_enabled = {
+		flag = blocks_achievements
+	}
+}

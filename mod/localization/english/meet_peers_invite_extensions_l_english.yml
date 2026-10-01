@@ -1,0 +1,19 @@
+﻿l_english:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "Neighboring Rulers' Children"
+ mpie_invite_rule_same_faith_children:0 "Children of the Same Faith"
+ mpie_invite_rule_opposite_sex_children:0 "Children of the Opposite Sex"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "Reset [GetActivityType('activity_playdate').GetNameNoTooltip] Cooldown"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "Plan another [GetActivityType('activity_playdate').GetName] without waiting for the cooldown"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F Why wait years to see my peers again? I will invite them back right away!#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "Invite them again!"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "Your next [GetActivityType('activity_playdate').GetName] can be planned right away. Planning it starts a new cooldown."
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "Meet Peers Cooldown Reset"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "Disabled"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "The Reset Meet Peers Cooldown decision is not available."
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "Enabled"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Players can take the Reset Meet Peers Cooldown decision to plan the next Meet Peers without waiting for the cooldown."

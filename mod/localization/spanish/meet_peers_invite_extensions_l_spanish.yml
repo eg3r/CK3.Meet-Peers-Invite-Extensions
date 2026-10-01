@@ -1,0 +1,19 @@
+﻿l_spanish:
+ # Meet Peers guest invite rules
+ mpie_invite_rule_neighbors_children:0 "Hijos de gobernantes vecinos"
+ mpie_invite_rule_same_faith_children:0 "Niños de la misma fe"
+ mpie_invite_rule_opposite_sex_children:0 "Niños del sexo opuesto"
+ 
+ # Meet Peers cooldown reset decision
+ mpie_reset_meet_peers_cooldown_decision:0 "Reiniciar tiempo de espera: [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_reset_meet_peers_cooldown_decision_tooltip:0 "Planea otra actividad [GetActivityType('activity_playdate').GetName] sin esperar a que termine el tiempo de espera"
+ mpie_reset_meet_peers_cooldown_decision_desc:0 "#F ¿Por qué esperar años para volver a ver a mis compañeros? ¡Los invitaré de nuevo ahora mismo!#!"
+ mpie_reset_meet_peers_cooldown_decision_confirm:0 "¡Invitémoslos de nuevo!"
+ mpie_reset_meet_peers_cooldown_decision_effect_tt:0 "Tu próxima actividad [GetActivityType('activity_playdate').GetName] se puede planear de inmediato. Planearla inicia un nuevo tiempo de espera."
+ 
+ # Game rule: cooldown reset
+ rule_mpie_meet_peers_cooldown_reset:0 "Reinicio del tiempo de espera de Encuentro con rapaces"
+ setting_mpie_meet_peers_cooldown_reset_disabled:0 "Desactivado"
+ setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "La decisión de reiniciar el tiempo de espera de Encuentro con rapaces no está disponible."
+ setting_mpie_meet_peers_cooldown_reset_enabled:0 "Activado"
+ setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Los jugadores pueden tomar la decisión de reiniciar el tiempo de espera de Encuentro con rapaces para planear el siguiente sin esperar."
