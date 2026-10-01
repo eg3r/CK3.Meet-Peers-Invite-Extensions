@@ -6,6 +6,7 @@ tags={
 supported_version="1.20.*"
 path="mod/MeetPeersInviteExtensions"
 
-# Adds extra guest invite options to the "Meet Peers" activity:
-# neighboring rulers' children, children of the same faith,
-# and children of the opposite sex
+# Expands the "Meet Peers" activity:
+# extra guest invite options (neighboring rulers' children, children of the same faith,
+# children of the opposite sex), peer goals (Befriend a Peer, Learn from a Peer, Role Model),
+# a configurable cooldown (default 2 years) and an optional cooldown reset decision

@@ -1,19 +1,35 @@
 [h1]Meet Peers - Invite Extensions[/h1]
 
-[b]Let your child ruler meet children beyond your own realm.[/b]
+[b]Let your child ruler meet children beyond your own realm, and make friends, learn and grow with them.[/b]
 
 [h2]Overview[/h2]
-In vanilla, the Meet Peers activity only offers children from your own realm and your personal relations. This mod adds new guest invite options so you can bring in the children next door, children of your faith, or children of the opposite sex.
+In vanilla, the Meet Peers activity only offers children from your own realm and your personal relations, and Recreation is its only goal. This mod adds new guest invite options so you can bring in the children next door, children of your faith, or children of the opposite sex. It also adds goals aimed at one of the other children: befriend them, learn from them, or take after them.
 
-[h2]Key Features[/h2]
+[h2]Guest Invite Options[/h2]
 [list]
 [*] [b]Neighboring Rulers' Children[/b] - Children of rulers of bordering realms, including across water and the count next door in another duchy. On by default.
 [*] [b]Children of the Same Faith[/b] - Children of your faith at any court in diplomatic range. Opt-in.
 [*] [b]Children of the Opposite Sex[/b] - Children of the opposite sex at any court in diplomatic range. Opt-in.
 [*] [b]Realm First[/b] - New options fill after your own realm's children, so they keep priority
-[*] [b]Reset Meet Peers Cooldown[/b] - A decision that lets you plan the next Meet Peers right away instead of waiting 3 years. Off by default: enable it with the "Meet Peers Cooldown Reset" game rule. This is considered cheating and should not be active for normal gameplay.
-[*] [b]Multi-Language Support[/b] - English, French, German, Spanish, Polish, Russian, Chinese, Korean, and Japanese
 [/list]
+
+[h2]Meet Peers Goals[/h2]
+Pick a goal and the child it is aimed at when planning Meet Peers, or later during the activity. Guests can pick one too.
+[list]
+[*] [b]Befriend a Peer[/b] - A chance to become friends (10-90%). It is better if you are already potential friends, if they like you, and if your diplomacy is high. Bring a gift, use your standing (prestige, or influence in administrative realms), or use your Charming, Rowdy or Curious nature, for a better chance.
+[*] [b]Learn from a Peer[/b] - A chance to gain +1 in the skill where they are furthest ahead of you, or in their second-best skill at a lower chance, prowess included (15-70%). It is better with a bigger gap and higher learning. Spend piety or standing for a better chance.
+[*] [b]Role Model[/b] - A chance to take on one of their personality traits, or another of their traits at a lower chance (20-40%). It is better if you are friends or close in age. Spend piety for a better chance. You see the trait first.
+[*] [b]A Moment Together[/b] - Once you have both arrived, a moment usually comes up (about 80%) at a random point during the Meet Peers, with a second, smaller chance (about 30%) in the last month if it doesn't. If you try and fail, you may get one more try a few weeks later. Every event also offers an alternative pastime with a small sure reward (less stress, piety or prestige). Results are recorded in the activity log, and AI children keep Recreation.
+[/list]
+
+[h2]Cooldown[/h2]
+[list]
+[*] [b]Shorter Cooldown[/b] - Meet Peers can be hosted every 2 years instead of every 3. The "Meet Peers Cooldown" game rule sets it to 1, 2 or 3 years.
+[*] [b]Reset Meet Peers Cooldown[/b] - A decision that lets you plan the next Meet Peers right away instead of waiting for the cooldown. Off by default: enable it with the "Meet Peers Cooldown Reset" game rule. This is considered cheating and should not be active for normal gameplay.
+[/list]
+
+[h2]Languages[/h2]
+English, French, German, Spanish, Polish, Russian, Chinese, Korean, and Japanese
 
 [h2]Requirements[/h2]
 [list]

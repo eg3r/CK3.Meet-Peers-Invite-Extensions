@@ -1,7 +1,8 @@
-﻿# Meet Peers - Invite Extensions - full override of vanilla CK3 1.20.0.2
+﻿# Meet Peers - Invite Extensions - full override of vanilla CK3 1.20.0.3
 # common/activities/activity_types/playdate.txt (activity_playdate).
-# Only changes are marked "MPIE": extra guest_invite_rules entries and the one-time
-# cooldown reset (mpie_meet_peers_cooldown_reset). Re-sync with vanilla on every game patch.
+# Only changes are marked "MPIE": extra guest_invite_rules entries, the script cooldown that replaces
+# the native one (var:mpie_meet_peers_cooldown, so the reset decision can clear it), and the peer goals
+# (mpie_*_intent, run from the playdate_phase). Re-sync with vanilla on every game patch.
 
 activity_playdate = {
 	is_shown = {
@@ -21,10 +22,8 @@ activity_playdate = {
 	}
 
 	can_start_showing_failures_only = {
-		trigger_if = { # MPIE: skip the cooldown once after the reset decision (if the feature is enabled)
-			limit = { mpie_meet_peers_cooldown_reset_active_trigger = no }
-			NOT = { is_activity_type_on_cooldown = activity_playdate }
-		}
+		NOT = { is_activity_type_on_cooldown = activity_playdate }
+		mpie_meet_peers_not_on_cooldown_trigger = yes # MPIE: script cooldown, replaces the native one below
 		is_available = yes
 		age >= 4
 		age < less_than_two_years_to_adulthood_value #Consistency!
@@ -125,7 +124,7 @@ activity_playdate = {
 		}
 	}
 
-	cooldown = { days = standard_playdate_cooldown_time }
+	#cooldown = { days = standard_playdate_cooldown_time } # MPIE: removed. The engine enforces a native cooldown itself and no effect can clear it, so the mod sets var:mpie_meet_peers_cooldown in on_start instead
 
 	###################
 	# PHASES
@@ -144,6 +143,7 @@ activity_playdate = {
 				else = {
 					trigger_event = playdate.2501
 				}
+				mpie_peer_intent_phase_active_effect = yes # MPIE
 			}
 
 			on_monthly_pulse = {
@@ -170,7 +170,12 @@ activity_playdate = {
 				}
 			}
 
+			on_weekly_pulse = { # MPIE: peer goal encounters
+				mpie_peer_intent_weekly_pulse_effect = yes
+			}
+
 			on_end = {
+				mpie_peer_intent_phase_end_effect = yes # MPIE
 				# Send each character back home
 				#set_location_to_default = yes
 				# Send the parents an interface notification that their child has returned from the playdate
@@ -355,12 +360,12 @@ activity_playdate = {
 
 	host_intents = {
 		default = reduce_stress_intent
-		intents = { reduce_stress_intent }
+		intents = { reduce_stress_intent mpie_befriend_peer_intent mpie_learn_from_peer_intent mpie_role_model_intent } # MPIE
 	}
 
 	guest_intents = {
 		default = reduce_stress_intent
-		intents = { reduce_stress_intent }
+		intents = { reduce_stress_intent mpie_befriend_peer_intent mpie_learn_from_peer_intent mpie_role_model_intent } # MPIE
 	}
 
 	guest_join_chance = {
@@ -934,6 +939,7 @@ activity_playdate = {
 	on_start = {
 		# Remove free credit.
 		scope:host = { remove_variable = free_meet_peers_credit }
-		scope:host = { remove_variable = mpie_meet_peers_cooldown_reset } # MPIE: the reset is used up
+		scope:host = { mpie_meet_peers_start_cooldown_effect = yes } # MPIE: script cooldown (game rule length)
+		mpie_meet_peers_started_debug_log_effect = yes # MPIE: debug mode only
 	}
 }

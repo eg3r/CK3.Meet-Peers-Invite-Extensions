@@ -11,6 +11,21 @@ mpie_opposite_sex_of_host_trigger = {
 	sex_opposite_of = root
 }
 
+# Cooldown
+
+# Is the scope character free to host another Meet Peers?
+# The cooldown is var:mpie_meet_peers_cooldown, a timed variable set on the host when a Meet Peers
+# starts (mpie_meet_peers_start_cooldown_effect). It replaces the native activity cooldown, which
+# the engine enforces by itself and no effect can clear.
+# The tooltip (common/trigger_localization) shows the date the variable runs out.
+# this = character trying to host
+mpie_meet_peers_not_on_cooldown_trigger = {
+	custom_description = {
+		text = mpie_meet_peers_on_cooldown
+		NOT = { has_variable = mpie_meet_peers_cooldown }
+	}
+}
+
 # Cooldown reset
 
 # Is the cooldown reset feature switched on?
@@ -21,11 +36,4 @@ mpie_meet_peers_cooldown_reset_enabled_trigger = {
 		has_game_rule = mpie_meet_peers_cooldown_reset_enabled
 		has_global_variable = mpie_meet_peers_cooldown_reset_enabled
 	}
-}
-
-# Should the scope character skip the Meet Peers cooldown check?
-# this = character trying to host
-mpie_meet_peers_cooldown_reset_active_trigger = {
-	mpie_meet_peers_cooldown_reset_enabled_trigger = yes
-	has_variable = mpie_meet_peers_cooldown_reset
 }

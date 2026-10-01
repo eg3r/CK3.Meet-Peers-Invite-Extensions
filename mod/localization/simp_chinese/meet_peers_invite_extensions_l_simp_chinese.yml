@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "无法使用重置会见同辈冷却时间的决议。"
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "启用"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "玩家可以通过决议重置会见同辈的冷却时间，无需等待即可筹划下一次。"
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "会见同辈冷却时间"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1年"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "举办会见同辈后，角色需要等待1年才能举办下一次。"
+ setting_mpie_meet_peers_cooldown_2_years:0 "2年"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "举办会见同辈后，角色需要等待2年才能举办下一次。"
+ setting_mpie_meet_peers_cooldown_3_years:0 "3年（原版）"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "举办会见同辈后，角色需要等待3年才能举办下一次，与原版游戏相同。"
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "在[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]之前，你无法举办下一次[GetActivityType('activity_playdate').GetName]"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "在[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]之前，[CHARACTER.GetShortUIName]无法举办下一次[GetActivityType('activity_playdate').GetName]"

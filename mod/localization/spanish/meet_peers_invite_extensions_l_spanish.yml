@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "La decisión de reiniciar el tiempo de espera de Encuentro con rapaces no está disponible."
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "Activado"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Los jugadores pueden tomar la decisión de reiniciar el tiempo de espera de Encuentro con rapaces para planear el siguiente sin esperar."
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "Tiempo de espera de Encuentro con rapaces"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1 año"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "Tras organizar un Encuentro con rapaces, un personaje debe esperar 1 año antes de organizar el siguiente."
+ setting_mpie_meet_peers_cooldown_2_years:0 "2 años"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "Tras organizar un Encuentro con rapaces, un personaje debe esperar 2 años antes de organizar el siguiente."
+ setting_mpie_meet_peers_cooldown_3_years:0 "3 años (juego base)"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "Tras organizar un Encuentro con rapaces, un personaje debe esperar 3 años antes de organizar el siguiente, como en el juego base."
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "No puedes organizar otra actividad [GetActivityType('activity_playdate').GetName] hasta [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName|U] no puede organizar otra actividad [GetActivityType('activity_playdate').GetName] hasta [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"

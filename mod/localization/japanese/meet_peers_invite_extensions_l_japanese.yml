@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "遊戯会のクールダウンをリセットする決断は使用できません。"
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "有効"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "プレイヤーは決断で遊戯会のクールダウンをリセットし、待たずに次の遊戯会を計画できます。"
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "遊戯会のクールダウン"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1年"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "遊戯会を主催した後、次の遊戯会を主催するまで1年待つ必要があります。"
+ setting_mpie_meet_peers_cooldown_2_years:0 "2年"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "遊戯会を主催した後、次の遊戯会を主催するまで2年待つ必要があります。"
+ setting_mpie_meet_peers_cooldown_3_years:0 "3年（基本ゲーム）"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "遊戯会を主催した後、次の遊戯会を主催するまで3年待つ必要があります（基本ゲームと同じ）。"
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]まで次の[GetActivityType('activity_playdate').GetName]を主催できません"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName]は[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]まで次の[GetActivityType('activity_playdate').GetName]を主催できません"

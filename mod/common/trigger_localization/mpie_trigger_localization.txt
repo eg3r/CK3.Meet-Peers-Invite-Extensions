@@ -1,0 +1,9 @@
+﻿# Meet Peers - Invite Extensions: trigger localization (for custom_description)
+
+# mpie_meet_peers_not_on_cooldown_trigger: shown while var:mpie_meet_peers_cooldown exists
+mpie_meet_peers_on_cooldown = {
+	first = MPIE_MEET_PEERS_ON_COOLDOWN_FIRST
+	first_not = MPIE_MEET_PEERS_ON_COOLDOWN_FIRST
+	third = MPIE_MEET_PEERS_ON_COOLDOWN_THIRD
+	third_not = MPIE_MEET_PEERS_ON_COOLDOWN_THIRD
+}

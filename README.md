@@ -1,19 +1,35 @@
 # Meet Peers - Invite Extensions
 
-A Crusader Kings III mod that adds new guest invite options to the **Meet Peers** activity, so child rulers can invite children from beyond their own realm.
+A Crusader Kings III mod that expands the **Meet Peers** activity: child rulers can invite children from beyond their own realm, pick a goal aimed at one of the other children, and host Meet Peers more often.
 
 ## Features
 
-### Current
+### Guest invite options
 - **Neighboring Rulers' Children** (on by default): children of
   - rulers of bordering foreign realms (including across water)
   - same-rank rulers bordering you, e.g. the count next door in another duchy
 - **Children of the Same Faith** (opt-in): children of your faith at any court in diplomatic range
 - **Children of the Opposite Sex** (opt-in): children of the opposite sex at any court in diplomatic range
 - **Vanilla rules still apply**: guests must be children aged 4–13, healthy, free, not hostages, and within diplomatic range
-- **Reset Meet Peers Cooldown** decision (off by default): lets a child ruler plan the next Meet Peers right away instead of waiting 3 years. Planning it starts a new cooldown.
 
 Invite options add guests together: with both opt-in options ticked you get children who are of your faith **or** of the opposite sex, not only those who are both. The guest list is capped at 30, and the new options fill after your own realm's children.
+
+### Meet Peers goals
+In vanilla, Recreation is the only goal (intent) for Meet Peers. Player children, whether hosting or attending as a guest, can now also pick a goal aimed at another child:
+- **Befriend a Peer**: a chance to become friends with your target (10–90%). It is better if you are already potential friends, if they like you, and if your diplomacy is high; Gregarious or Trusting children make friends more easily, Shy, Callous or Paranoid ones less. Bringing a gift (10 gold) or using your standing adds 15%. Standing costs 50 prestige and makes them a little annoyed with you (-10 opinion); administrative governments pay 30 influence instead, without the annoyance. A Charming child can make them laugh (+20%), and a Rowdy or Curious child has their own approach (+10%). If it fails, you may still become potential friends.
+- **Learn from a Peer**: a chance to gain +1 in the skill where your target is furthest ahead of you (15–70%), or in their second-best skill at a lower chance. Any of the six skills counts, prowess included. The bigger the gap and the better your learning, the better the chance; a lesson in your education focus, or being Diligent or Curious, helps, being Lazy hurts. Praying for wisdom first (75 piety) or using your standing adds 15%.
+- **Role Model**: a chance to take on one of your target's personality traits (10–50%), or another of their traits at a lower chance. It is better if you are friends or no more than 2 years apart, and easier for Fickle children than for Stubborn ones; asking the chaplain for guidance (75 piety) adds 15%. It never picks a trait you have or one that conflicts with yours, never lustful or chaste, and only applies while you have fewer than 4 personality traits.
+
+How the goals work:
+- Once you and your target have both arrived, a moment together usually comes up (about 80%: more for Gregarious, Charming or Rowdy children, less for Shy ones). It comes at a random point during the Meet Peers, not right at the start. If it doesn't, you get a second, smaller chance (about 30%) in the last month. If you try and fail, another moment may come about three weeks later (about 30%, once per goal in each Meet Peers).
+- The event shows the skill or trait and the chance of each option before you decide. As in vanilla Meet Peers, the choices also cost or relieve stress depending on your child's traits (Shy, Gregarious, Rowdy, Pensive, Curious, Diligent, Lazy and more).
+- Every event also offers an alternative pastime instead: play with the others or find a quiet corner (less stress), visit the chapel (piety), or show off (prestige).
+- Successes and failures are recorded in the activity log. If no moment came up, or your target never showed up, the conclusion says so.
+- AI children keep Recreation.
+
+### Cooldown
+- **Shorter Meet Peers cooldown**: 2 years instead of the vanilla 3. The **Meet Peers Cooldown** game rule (Tweaks) can set it to 1, 2 or 3 years.
+- **Reset Meet Peers Cooldown** decision (off by default): lets a child ruler plan the next Meet Peers right away instead of waiting for the cooldown. Planning it starts a new cooldown.
 
 ## Installation
 
@@ -40,9 +56,12 @@ Invite options add guests together: with both opt-in options ticked you get chil
 1. Play a landed child ruler aged 4–13 (Count or higher)
 2. Plan the **Meet Peers** activity from the Activities menu
 3. In the guest list, tick the invite options you want
-4. To host again before the 3-year cooldown ends, take the **Reset Meet Peers Cooldown** decision from the Decisions menu. It's off by default:
+4. To pick a goal, open the goal (intent) selection in the planner, choose **Befriend a Peer**, **Learn from a Peer** or **Role Model**, and pick the child it is aimed at. The goal only plays out if that child accepts the invitation and attends. You can also pick or change the goal during the activity, and guests can pick one too.
+5. To change how long you wait between Meet Peers, set the **Meet Peers Cooldown** game rule (Tweaks) when starting a new game. Saves from before this rule existed use the 2-year default. A cooldown that is already running keeps its end date; the new length applies from the next Meet Peers.
+6. To host again before the cooldown ends, take the **Reset Meet Peers Cooldown** decision from the Decisions menu. It's off by default:
    - **New game:** set the **Meet Peers Cooldown Reset** game rule (Tweaks) to *Enabled*
    - **Running game:** game rules can't be changed after the start, so enable it from the console (debug mode): `effect set_global_variable = mpie_meet_peers_cooldown_reset_enabled`
+   - A cooldown from a Meet Peers hosted with an older version of this mod is stored by the game itself. It can't be reset and simply runs out.
 
 ## Compatibility
 

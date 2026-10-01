@@ -1,0 +1,19 @@
+﻿# Meet Peers - Invite Extensions: script values
+
+# Meet Peers cooldown in days, chosen by the mpie_meet_peers_cooldown game rule.
+# Used as the duration of var:mpie_meet_peers_cooldown (mpie_meet_peers_start_cooldown_effect).
+# Any other setting (e.g. a save from before the rule existed) uses the rule's default, 2 years.
+mpie_meet_peers_cooldown_days_value = {
+	value = 0
+	if = {
+		limit = { has_game_rule = mpie_meet_peers_cooldown_1_year }
+		add = 365
+	}
+	else_if = {
+		limit = { has_game_rule = mpie_meet_peers_cooldown_3_years }
+		add = standard_playdate_cooldown_time # vanilla, 1095 days
+	}
+	else = {
+		add = 730
+	}
+}

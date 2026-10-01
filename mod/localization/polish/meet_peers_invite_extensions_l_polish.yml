@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "Decyzja o zresetowaniu czasu odnowienia Spotkania z rówieśnikami jest niedostępna."
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "Włączone"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Gracze mogą podjąć decyzję o zresetowaniu czasu odnowienia Spotkania z rówieśnikami, aby zaplanować kolejne bez czekania."
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "Czas odnowienia Spotkania z rówieśnikami"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1 rok"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "Po zorganizowaniu Spotkania z rówieśnikami postać musi odczekać 1 rok, zanim zorganizuje kolejne."
+ setting_mpie_meet_peers_cooldown_2_years:0 "2 lata"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "Po zorganizowaniu Spotkania z rówieśnikami postać musi odczekać 2 lata, zanim zorganizuje kolejne."
+ setting_mpie_meet_peers_cooldown_3_years:0 "3 lata (gra podstawowa)"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "Po zorganizowaniu Spotkania z rówieśnikami postać musi odczekać 3 lata, zanim zorganizuje kolejne, tak jak w grze podstawowej."
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "Nie możesz zorganizować kolejnego wydarzenia [GetActivityType('activity_playdate').GetName] przed [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName|U] nie może zorganizować kolejnego wydarzenia [GetActivityType('activity_playdate').GetName] przed [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"

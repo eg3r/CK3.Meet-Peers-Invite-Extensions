@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "또래 회합 재사용 대기시간 초기화 결정을 사용할 수 없습니다."
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "활성화"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "플레이어는 또래 회합 재사용 대기시간 초기화 결정을 내려 기다리지 않고 다음 회합을 계획할 수 있습니다."
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "또래 회합 재사용 대기시간"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1년"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "또래 회합을 주최한 후 다음 회합을 주최하려면 1년을 기다려야 합니다."
+ setting_mpie_meet_peers_cooldown_2_years:0 "2년"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "또래 회합을 주최한 후 다음 회합을 주최하려면 2년을 기다려야 합니다."
+ setting_mpie_meet_peers_cooldown_3_years:0 "3년 (기본 게임)"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "또래 회합을 주최한 후 다음 회합을 주최하려면 기본 게임과 같이 3년을 기다려야 합니다."
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]까지 다음 [GetActivityType('activity_playdate').GetName]을(를) 주최할 수 없습니다"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName]은(는) [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]까지 다음 [GetActivityType('activity_playdate').GetName]을(를) 주최할 수 없습니다"

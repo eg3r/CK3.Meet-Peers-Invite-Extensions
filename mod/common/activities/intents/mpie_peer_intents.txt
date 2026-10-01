@@ -1,0 +1,156 @@
+﻿# Meet Peers - Invite Extensions: peer goals (intents) for activity_playdate
+#
+# Registered in host_intents and guest_intents of the playdate.txt override.
+# Shown to player children only; AI attendees keep Recreation (reduce_stress_intent).
+# Picking a goal only selects it. The encounter and its reward come from
+# mpie_peer_intent_weekly_pulse_effect (mpie_peer_intent_effects.txt) and the mpie_peer events.
+#
+# is_shown / is_valid: root = character picking the intent
+# is_target_valid: root = character picking the intent, scope:target = selected peer
+#
+# Once the encounter for a goal has been offered, the target stays valid for the rest of the
+# activity (mpie_peer_goal_offered_trigger). Otherwise our own reward (a new friend, a closed
+# skill gap, an adopted trait) would invalidate the target right after the goal was completed.
+
+# Befriend a Peer: chance to become friends with the selected child
+mpie_befriend_peer_intent = {
+	icon = befriend_intent
+
+	is_shown = {
+		mpie_peer_intent_shown_trigger = yes
+	}
+
+	is_valid = {
+		is_adult = no
+	}
+
+	is_target_valid = {
+		mpie_peer_intent_target_trigger = { ACTOR = root PEER = scope:target }
+		OR = {
+			can_set_relation_friend_trigger = { CHARACTER = scope:target }
+			# Became friends during this Meet Peers, e.g. through a vanilla playdate event
+			mpie_befriend_friend_made_here_trigger = { ACTOR = root PEER = scope:target }
+			mpie_peer_goal_offered_trigger = { ACTOR = root GOAL = befriend }
+		}
+	}
+
+	on_invalidated = {
+		trigger_event = activity_system.0090
+	}
+
+	on_target_invalidated = {
+		trigger_event = activity_system.0091
+	}
+
+	ai_will_do = {
+		value = 0
+	}
+
+	# Never used (AI never sees these intents), but without them the game logs
+	# "has a target trigger but no target score or ai_targets" at startup
+	ai_targets = {
+		ai_recipients = activity_guests
+	}
+
+	ai_target_score = {
+		value = 0
+	}
+
+	scripted_animation = {
+		animation = admiration
+	}
+}
+
+# Learn from a Peer: chance to gain +1 in the skill where the selected child is furthest ahead
+mpie_learn_from_peer_intent = {
+	icon = intent_study_hard
+
+	is_shown = {
+		mpie_peer_intent_shown_trigger = yes
+	}
+
+	is_valid = {
+		is_adult = no
+	}
+
+	is_target_valid = {
+		mpie_peer_intent_target_trigger = { ACTOR = root PEER = scope:target }
+		OR = {
+			mpie_peer_can_teach_trigger = { ACTOR = root PEER = scope:target }
+			mpie_peer_goal_offered_trigger = { ACTOR = root GOAL = learn }
+		}
+	}
+
+	on_invalidated = {
+		trigger_event = activity_system.0090
+	}
+
+	on_target_invalidated = {
+		trigger_event = activity_system.0091
+	}
+
+	ai_will_do = {
+		value = 0
+	}
+
+	# Never used (AI never sees these intents), but without them the game logs
+	# "has a target trigger but no target score or ai_targets" at startup
+	ai_targets = {
+		ai_recipients = activity_guests
+	}
+
+	ai_target_score = {
+		value = 0
+	}
+
+	scripted_animation = {
+		animation = reading
+	}
+}
+
+# Role Model: chance to adopt one personality trait of the selected child
+mpie_role_model_intent = {
+	icon = intent_curiosity
+
+	is_shown = {
+		mpie_peer_intent_shown_trigger = yes
+	}
+
+	is_valid = {
+		is_adult = no
+	}
+
+	is_target_valid = {
+		mpie_peer_intent_target_trigger = { ACTOR = root PEER = scope:target }
+		OR = {
+			mpie_role_model_has_candidate_trigger = { ACTOR = root PEER = scope:target }
+			mpie_peer_goal_offered_trigger = { ACTOR = root GOAL = role_model }
+		}
+	}
+
+	on_invalidated = {
+		trigger_event = activity_system.0090
+	}
+
+	on_target_invalidated = {
+		trigger_event = activity_system.0091
+	}
+
+	ai_will_do = {
+		value = 0
+	}
+
+	# Never used (AI never sees these intents), but without them the game logs
+	# "has a target trigger but no target score or ai_targets" at startup
+	ai_targets = {
+		ai_recipients = activity_guests
+	}
+
+	ai_target_score = {
+		value = 0
+	}
+
+	scripted_animation = {
+		animation = thinking
+	}
+}

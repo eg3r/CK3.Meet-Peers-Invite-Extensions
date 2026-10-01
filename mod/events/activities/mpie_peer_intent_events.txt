@@ -1,0 +1,419 @@
+﻿namespace = mpie_peer
+
+# Meet Peers - Invite Extensions: peer goal encounters for Meet Peers (activity_playdate)
+#
+# Scheduled by mpie_peer_roll_encounter_effect (weekly pulse) with a random delay, after an
+# opportunity roll (about 80%; if that fails, a second chance of about 30% in the last month).
+# Player children only.
+# root = scope:mpie_actor = child who picked the goal (host or guest)
+# scope:mpie_peer = their intent target, scope:activity = the Meet Peers
+#
+# trigger rechecks everything when the delayed event fires; on_trigger_fail logs a missed chance.
+# The lessons, traits, chances and the alternative pastime are picked in immediate and saved in the
+# event, so the text, the tooltips and the rolls agree. The options recheck everything before
+# changing anything.
+#
+# Options (roll = chance shown in the option name, from mpie_peer_intent_values.txt):
+#   mpie_peer.1001 Befriend a Peer: ask to play / gift (+15%, gold) / standing (+15%, influence or prestige) /
+#                  childhood trait approach (charming +20%, rowdy or curious +10%) / pastime
+#   mpie_peer.2001 Learn from a Peer: best skill / pray (best skill +15%, piety) /
+#                  standing (best skill +15%, influence or prestige) / second-best skill (own gap, -10%) / pastime
+#   mpie_peer.3001 Role Model: a trait / chaplain (that trait +15%, piety) / a second trait (-10%) / pastime
+# Investment options cost vanilla "minor" amounts (mpie_peer_pay_<cost>_effect), paid only if the attempt
+# happens, and show as unavailable when the actor can't pay.
+# The pastime (mpie_peer_pick_pastime_effect) gives a small sure reward instead of a roll.
+
+##################################################
+# Befriend a Peer
+##################################################
+
+mpie_peer.1001 = {
+	type = activity_event
+	title = mpie_peer.1001.t
+	desc = mpie_peer.1001.desc
+	theme = playdate_activity
+	left_portrait = {
+		character = root
+		animation = happiness
+	}
+	right_portrait = {
+		character = scope:mpie_peer
+		animation = clutching_ball
+	}
+
+	trigger = {
+		exists = scope:mpie_peer
+		mpie_peer_encounter_still_valid_trigger = { GOAL = befriend INTENT = mpie_befriend_peer_intent }
+		can_set_relation_friend_trigger = { CHARACTER = scope:mpie_peer }
+	}
+
+	on_trigger_fail = {
+		# Became friends in the meantime: that completes the goal
+		mpie_befriend_complete_if_friends_effect = yes
+		mpie_peer_encounter_did_not_open_effect = { GOAL = befriend INTENT = mpie_befriend_peer_intent }
+	}
+
+	immediate = {
+		save_scope_as = mpie_actor
+		save_scope_value_as = {
+			name = mpie_befriend_chance
+			value = mpie_befriend_chance_value
+		}
+		save_scope_value_as = {
+			name = mpie_befriend_invest_chance
+			value = mpie_befriend_invest_chance_value
+		}
+		save_scope_value_as = {
+			name = mpie_befriend_trait_chance
+			value = mpie_befriend_trait_chance_value
+		}
+		mpie_peer_pick_pastime_effect = yes
+		mpie_debug_log_effect = { MSG = MPIE_event_befriend_opened }
+	}
+
+	option = { # Ask them to play
+		name = mpie_peer.1001.a
+		mpie_befriend_attempt_effect = { CHANCE = mpie_befriend_chance COST = none APPROACH = plain }
+	}
+
+	option = { # Investment: bring them a gift (gold)
+		name = mpie_peer.1001.b
+		trigger = { gold >= mpie_befriend_gift_gold_value }
+		show_as_unavailable = { always = yes }
+		mpie_befriend_attempt_effect = { CHANCE = mpie_befriend_invest_chance COST = gold APPROACH = plain }
+	}
+
+	option = { # Investment: use my standing (influence for governments that use it, prestige otherwise)
+		name = {
+			trigger = { government_has_flag = government_has_influence }
+			text = mpie_peer.1001.f.influence
+		}
+		name = {
+			trigger = { NOT = { government_has_flag = government_has_influence } }
+			text = mpie_peer.1001.f.prestige
+		}
+		trigger = { mpie_peer_can_afford_standing_trigger = yes }
+		show_as_unavailable = { always = yes }
+		mpie_befriend_attempt_effect = { CHANCE = mpie_befriend_invest_chance COST = standing APPROACH = plain }
+	}
+
+	option = { # Charming: make them laugh
+		name = mpie_peer.1001.c
+		trigger = { has_trait = charming }
+		trait = charming
+		mpie_befriend_attempt_effect = { CHANCE = mpie_befriend_trait_chance COST = none APPROACH = charming }
+	}
+
+	option = { # Rowdy: challenge them to a race
+		name = mpie_peer.1001.d
+		trigger = {
+			has_trait = rowdy
+			NOT = { has_trait = charming }
+		}
+		trait = rowdy
+		mpie_befriend_attempt_effect = { CHANCE = mpie_befriend_trait_chance COST = none APPROACH = rowdy }
+	}
+
+	option = { # Curious: ask about their home
+		name = mpie_peer.1001.e
+		trigger = {
+			has_trait = curious
+			NOR = {
+				has_trait = charming
+				has_trait = rowdy
+			}
+		}
+		trait = curious
+		mpie_befriend_attempt_effect = { CHANCE = mpie_befriend_trait_chance COST = none APPROACH = curious }
+	}
+
+	option = { # Alternative pastime
+		name = {
+			trigger = { scope:mpie_pastime = flag:chapel }
+			text = mpie_peer_pastime.chapel
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:quiet }
+			text = mpie_peer_pastime.quiet
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:showoff }
+			text = mpie_peer_pastime.showoff
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:games }
+			text = mpie_peer_pastime.games
+		}
+		mpie_peer_take_pastime_effect = { GOAL = befriend }
+	}
+}
+
+##################################################
+# Learn from a Peer
+##################################################
+
+mpie_peer.2001 = {
+	type = activity_event
+	title = mpie_peer.2001.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:mpie_learn_skill = flag:diplomacy }
+				desc = mpie_peer.2001.desc.diplomacy
+			}
+			triggered_desc = {
+				trigger = { scope:mpie_learn_skill = flag:martial }
+				desc = mpie_peer.2001.desc.martial
+			}
+			triggered_desc = {
+				trigger = { scope:mpie_learn_skill = flag:stewardship }
+				desc = mpie_peer.2001.desc.stewardship
+			}
+			triggered_desc = {
+				trigger = { scope:mpie_learn_skill = flag:intrigue }
+				desc = mpie_peer.2001.desc.intrigue
+			}
+			triggered_desc = {
+				trigger = { scope:mpie_learn_skill = flag:learning }
+				desc = mpie_peer.2001.desc.learning
+			}
+			desc = mpie_peer.2001.desc.prowess
+		}
+		desc = mpie_peer.2001.desc.gap
+	}
+	theme = playdate_activity
+	left_portrait = {
+		character = root
+		animation = thinking
+	}
+	right_portrait = {
+		character = scope:mpie_peer
+		animation = reading
+	}
+
+	trigger = {
+		exists = scope:mpie_peer
+		mpie_peer_encounter_still_valid_trigger = { GOAL = learn INTENT = mpie_learn_from_peer_intent }
+		mpie_peer_can_teach_trigger = { ACTOR = root PEER = scope:mpie_peer }
+	}
+
+	on_trigger_fail = {
+		mpie_peer_encounter_did_not_open_effect = { GOAL = learn INTENT = mpie_learn_from_peer_intent }
+	}
+
+	immediate = {
+		save_scope_as = mpie_actor
+		mpie_learn_pick_subject_effect = yes
+		save_scope_value_as = {
+			name = mpie_learn_chance
+			value = mpie_learn_chance_value
+		}
+		save_scope_value_as = {
+			name = mpie_learn_invest_chance
+			value = mpie_learn_invest_chance_value
+		}
+		mpie_learn_pick_second_subject_effect = yes
+		mpie_peer_pick_pastime_effect = yes
+		mpie_debug_log_effect = { MSG = MPIE_event_learn_opened }
+	}
+
+	option = { # Best skill
+		name = {
+			trigger = { scope:mpie_learn_skill = flag:diplomacy }
+			text = mpie_peer.2001.a.diplomacy
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill = flag:martial }
+			text = mpie_peer.2001.a.martial
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill = flag:stewardship }
+			text = mpie_peer.2001.a.stewardship
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill = flag:intrigue }
+			text = mpie_peer.2001.a.intrigue
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill = flag:learning }
+			text = mpie_peer.2001.a.learning
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill = flag:prowess }
+			text = mpie_peer.2001.a.prowess
+		}
+		mpie_learn_attempt_effect = { SKILL = mpie_learn_skill CHANCE = mpie_learn_chance COST = none }
+	}
+
+	option = { # Investment: pray for wisdom first (piety), best skill
+		name = mpie_peer.2001.c
+		trigger = { piety >= mpie_invest_piety_value }
+		show_as_unavailable = { always = yes }
+		mpie_learn_attempt_effect = { SKILL = mpie_learn_skill CHANCE = mpie_learn_invest_chance COST = piety }
+	}
+
+	option = { # Investment: use my standing (influence or prestige), best skill
+		name = {
+			trigger = { government_has_flag = government_has_influence }
+			text = mpie_peer.2001.d.influence
+		}
+		name = {
+			trigger = { NOT = { government_has_flag = government_has_influence } }
+			text = mpie_peer.2001.d.prestige
+		}
+		trigger = { mpie_peer_can_afford_standing_trigger = yes }
+		show_as_unavailable = { always = yes }
+		mpie_learn_attempt_effect = { SKILL = mpie_learn_skill CHANCE = mpie_learn_invest_chance COST = standing }
+	}
+
+	option = { # Second-best skill
+		trigger = { exists = scope:mpie_learn_skill_2 }
+		name = {
+			trigger = { scope:mpie_learn_skill_2 = flag:diplomacy }
+			text = mpie_peer.2001.b.diplomacy
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill_2 = flag:martial }
+			text = mpie_peer.2001.b.martial
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill_2 = flag:stewardship }
+			text = mpie_peer.2001.b.stewardship
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill_2 = flag:intrigue }
+			text = mpie_peer.2001.b.intrigue
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill_2 = flag:learning }
+			text = mpie_peer.2001.b.learning
+		}
+		name = {
+			trigger = { scope:mpie_learn_skill_2 = flag:prowess }
+			text = mpie_peer.2001.b.prowess
+		}
+		mpie_learn_attempt_effect = { SKILL = mpie_learn_skill_2 CHANCE = mpie_learn_chance_2 COST = none }
+	}
+
+	option = { # Alternative pastime
+		name = {
+			trigger = { scope:mpie_pastime = flag:chapel }
+			text = mpie_peer_pastime.chapel
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:quiet }
+			text = mpie_peer_pastime.quiet
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:showoff }
+			text = mpie_peer_pastime.showoff
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:games }
+			text = mpie_peer_pastime.games
+		}
+		mpie_peer_take_pastime_effect = { GOAL = learn }
+	}
+}
+
+##################################################
+# Role Model
+##################################################
+
+mpie_peer.3001 = {
+	type = activity_event
+	title = mpie_peer.3001.t
+	desc = {
+		desc = mpie_peer.3001.desc
+		triggered_desc = {
+			trigger = { exists = scope:mpie_modeled_trait_2 }
+			desc = mpie_peer.3001.desc.second
+		}
+	}
+	theme = playdate_activity
+	left_portrait = {
+		character = root
+		animation = admiration
+	}
+	right_portrait = {
+		character = scope:mpie_peer
+		animation = happiness
+	}
+
+	trigger = {
+		exists = scope:mpie_peer
+		mpie_peer_encounter_still_valid_trigger = { GOAL = role_model INTENT = mpie_role_model_intent }
+		mpie_role_model_has_candidate_trigger = { ACTOR = root PEER = scope:mpie_peer }
+	}
+
+	on_trigger_fail = {
+		mpie_peer_encounter_did_not_open_effect = { GOAL = role_model INTENT = mpie_role_model_intent }
+	}
+
+	immediate = {
+		save_scope_as = mpie_actor
+		mpie_role_model_pick_trait_effect = yes
+		save_scope_value_as = {
+			name = mpie_role_model_chance
+			value = mpie_role_model_chance_value
+		}
+		save_scope_value_as = {
+			name = mpie_role_model_invest_chance
+			value = mpie_role_model_invest_chance_value
+		}
+		if = {
+			limit = { exists = scope:mpie_modeled_trait_2 }
+			save_scope_value_as = {
+				name = mpie_role_model_chance_2
+				value = mpie_role_model_chance_2_value
+			}
+		}
+		mpie_peer_pick_pastime_effect = yes
+		if = {
+			limit = { exists = scope:mpie_modeled_trait }
+			mpie_debug_log_effect = { MSG = MPIE_event_role_model_opened }
+		}
+		else = {
+			# Should not happen: the event trigger checked that a trait exists
+			mpie_debug_log_effect = { MSG = MPIE_event_role_model_opened_without_trait }
+		}
+	}
+
+	option = { # First trait
+		name = mpie_peer.3001.a
+		mpie_role_model_attempt_effect = { TRAIT = mpie_modeled_trait CHANCE = mpie_role_model_chance COST = none }
+	}
+
+	option = { # Investment: ask the chaplain for guidance (piety), first trait
+		name = mpie_peer.3001.c
+		trigger = { piety >= mpie_invest_piety_value }
+		show_as_unavailable = { always = yes }
+		mpie_role_model_attempt_effect = { TRAIT = mpie_modeled_trait CHANCE = mpie_role_model_invest_chance COST = piety }
+	}
+
+	option = { # Second trait
+		name = mpie_peer.3001.b
+		trigger = { exists = scope:mpie_modeled_trait_2 }
+		mpie_role_model_attempt_effect = { TRAIT = mpie_modeled_trait_2 CHANCE = mpie_role_model_chance_2 COST = none }
+	}
+
+	option = { # Alternative pastime
+		name = {
+			trigger = { scope:mpie_pastime = flag:chapel }
+			text = mpie_peer_pastime.chapel
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:quiet }
+			text = mpie_peer_pastime.quiet
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:showoff }
+			text = mpie_peer_pastime.showoff
+		}
+		name = {
+			trigger = { scope:mpie_pastime = flag:games }
+			text = mpie_peer_pastime.games
+		}
+		mpie_peer_take_pastime_effect = { GOAL = role_model }
+	}
+}
