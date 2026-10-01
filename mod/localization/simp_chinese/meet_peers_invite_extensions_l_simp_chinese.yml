@@ -1,8 +1,9 @@
 ﻿l_simp_chinese:
  # Meet Peers guest invite rules
- mpie_invite_rule_neighbors_children:0 "相邻统治者的孩子"
+ mpie_invite_rule_neighbors_children:0 "邻近的孩子"
  mpie_invite_rule_same_faith_children:0 "同信仰的孩子"
  mpie_invite_rule_opposite_sex_children:0 "异性的孩子"
+ mpie_invite_rule_nearby_player_children:0 "附近的玩家孩子"
  
  # Meet Peers cooldown reset decision
  mpie_reset_meet_peers_cooldown_decision:0 "重置冷却时间：[GetActivityType('activity_playdate').GetNameNoTooltip]"
@@ -26,6 +27,22 @@
  setting_mpie_meet_peers_cooldown_2_years_desc:0 "举办会见同辈后，角色需要等待2年才能举办下一次。"
  setting_mpie_meet_peers_cooldown_3_years:0 "3年（原版）"
  setting_mpie_meet_peers_cooldown_3_years_desc:0 "举办会见同辈后，角色需要等待3年才能举办下一次，与原版游戏相同。"
+
+ # Game rule: AI Meet Peers and player children
+ rule_mpie_ai_invites_players:0 "AI会见同辈与玩家孩子"
+ setting_mpie_ai_invites_players_off:0 "关闭"
+ setting_mpie_ai_invites_players_off_desc:0 "AI孩子与原版游戏一样举办会见同辈，不会寻找附近的玩家孩子。"
+ setting_mpie_ai_invites_players_near:0 "附近"
+ setting_mpie_ai_invites_players_near_desc:0 "AI孩子会更常举办会见同辈（伯爵在童年约一次，皇帝最多四次），邀请来自同一或相邻国家、或住在附近的玩家孩子，并在有玩家孩子在附近时更积极地举办。"
+ setting_mpie_ai_invites_players_near_and_faith:0 "附近及同一信仰"
+ setting_mpie_ai_invites_players_near_and_faith_desc:0 "与“附近”相同，且AI孩子还会邀请住得更远的同一信仰的玩家孩子。"
+
+ # Game rule: Meet Peers guests at war
+ rule_mpie_meet_peers_guests_at_war:0 "交战中的会见同辈宾客"
+ setting_mpie_meet_peers_guests_at_war_disabled:0 "不允许"
+ setting_mpie_meet_peers_guests_at_war_disabled_desc:0 "与原版游戏相同，交战中的孩子不能参加会见同辈。"
+ setting_mpie_meet_peers_guests_at_war_enabled:0 "允许玩家"
+ setting_mpie_meet_peers_guests_at_war_enabled_desc:0 "交战中的玩家孩子仍可作为宾客参加会见同辈。AI孩子不变。"
  
  # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
  MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "在[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]之前，你无法举办下一次[GetActivityType('activity_playdate').GetName]"

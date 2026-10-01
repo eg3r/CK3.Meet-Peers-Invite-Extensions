@@ -1,11 +1,13 @@
 ﻿# Meet Peers - Invite Extensions - full override of vanilla CK3 1.20.0.3
 # common/activities/activity_types/playdate.txt (activity_playdate).
 # Only changes are marked "MPIE": extra guest_invite_rules entries, the script cooldown that replaces
-# the native one (var:mpie_meet_peers_cooldown, so the reset decision can clear it), and the peer goals
-# (mpie_*_intent, run from the playdate_phase). Re-sync with vanilla on every game patch.
+# the native one (var:mpie_meet_peers_cooldown, so the reset decision can clear it), the peer goals
+# (mpie_*_intent, run from the playdate_phase), AI hosting (count throttle, ai_will_do, check intervals)
+# and the guest check (at-war game rule). Re-sync with vanilla on every game patch.
 
 activity_playdate = {
 	is_shown = {
+		is_adult = no # MPIE: moved up from below, cheap early exit for adults
 		highest_held_title_tier > tier_barony
 		trigger_if = {
 			trigger_if = { # Throttle Counts
@@ -13,10 +15,13 @@ activity_playdate = {
 					is_ai = yes
 					highest_held_title_tier = tier_county
 				}
-				ai_sociability >= 100
+				OR = { # MPIE: was ai_sociability >= 100; lower threshold, skipped near a player child
+					ai_sociability >= mpie_ai_count_host_sociability_value
+					mpie_ai_host_near_player_child_trigger = yes
+				}
 			}
 		}
-		is_adult = no
+		#is_adult = no # MPIE: moved to the top
 		ai_activity_war_check = yes
 		ai_activity_coronation_check = yes
 	}
@@ -299,15 +304,17 @@ activity_playdate = {
 			add = -75
 		}
 		add = activity_general_ai_will_do_value
+		add = mpie_ai_meet_peers_will_do_bonus_value # MPIE: with the mpie_ai_invites_players rule on: +50 base, +50/+25 near a player child, -1000 at the per-childhood maximum
+		multiply = mpie_ai_meet_peers_will_do_factor_value # MPIE: with the rule off, evens out the shorter check intervals below
 	}
 
-	ai_check_interval_by_tier = {
+	ai_check_interval_by_tier = { # MPIE: was 60 for every tier; with the rule on about 1 (capped)/2/3/4/4 Meet Peers per childhood (ages 4-13)
 		barony = 0
 		county = 60
 		duchy = 60
-		kingdom = 60
-		empire = 60
-		hegemony = 60
+		kingdom = 40 # MPIE
+		empire = 30 # MPIE
+		hegemony = 30 # MPIE
 	}
 
 	ai_will_select_province = {
@@ -342,6 +349,7 @@ activity_playdate = {
 			2 = activity_invite_rule_fellow_vassals
 			3 = activity_invite_rule_fellow_vassals_children
 			4 = mpie_invite_rule_neighbors_children # MPIE
+			1 = mpie_invite_rule_nearby_player_children # MPIE
 			
 		}
 		rules = {
@@ -354,7 +362,7 @@ activity_playdate = {
 	}
 
 	can_be_activity_guest = {
-		is_available_for_child_activity_trigger = yes
+		mpie_meet_peers_guest_available_trigger = yes # MPIE: vanilla is_available_for_child_activity_trigger, plus the at-war game rule
 		in_diplomatic_range = scope:host
 	}
 
@@ -940,6 +948,7 @@ activity_playdate = {
 		# Remove free credit.
 		scope:host = { remove_variable = free_meet_peers_credit }
 		scope:host = { mpie_meet_peers_start_cooldown_effect = yes } # MPIE: script cooldown (game rule length)
+		scope:host = { mpie_meet_peers_count_hosting_effect = yes } # MPIE: per-childhood count for the AI hosting maximum
 		mpie_meet_peers_started_debug_log_effect = yes # MPIE: debug mode only
 	}
 }

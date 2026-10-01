@@ -1,0 +1,148 @@
+﻿# Meet Peers - Invite Extensions: AI hosts and player children
+#
+# Design and evidence: documentation/03_ai_meet_peers_invites_to_player.md
+# Game rules: mpie_ai_invites_players (Off / Near / Near and same faith) and
+# mpie_meet_peers_guests_at_war (player children at war may attend).
+#
+# $HOST$ = the (AI) host of a Meet Peers, this = a player child unless noted.
+# "Near": same top realm, neighboring top realms, or capitals within squared_distance_medium (~one Ireland).
+# "Same faith": the host's faith and capitals within squared_distance_large (~one France).
+
+########################
+# Game rule switches
+########################
+
+# Do AI hosts invite nearby player children (and get the near-player boosts)?
+# Anything but "off" counts, so a save from before the rule existed uses the default.
+mpie_ai_invites_players_enabled_trigger = {
+	NOT = { has_game_rule = mpie_ai_invites_players_off }
+}
+
+# Does a shared faith widen the range (rule "Near and same faith", the default)?
+mpie_ai_invites_players_faith_enabled_trigger = {
+	NOR = {
+		has_game_rule = mpie_ai_invites_players_off
+		has_game_rule = mpie_ai_invites_players_near
+	}
+}
+
+########################
+# Range
+########################
+
+# A child who could be a Meet Peers guest by age (the playdate guest window, 4-13)
+mpie_player_child_eligible_trigger = {
+	is_adult = no
+	age >= 4
+	age < less_than_two_years_to_adulthood_value
+}
+
+# Is this character's capital (their location, without a capital) within $DISTANCE$
+# (squared map pixels, e.g. squared_distance_medium) of $HOST$'s capital?
+mpie_near_host_capital_trigger = {
+	exists = $HOST$.capital_province
+	trigger_if = {
+		limit = { exists = capital_province }
+		capital_province = {
+			squared_distance = {
+				target = $HOST$.capital_province
+				value <= $DISTANCE$
+			}
+		}
+	}
+	trigger_else = {
+		location ?= {
+			squared_distance = {
+				target = $HOST$.capital_province
+				value <= $DISTANCE$
+			}
+		}
+	}
+}
+
+# "Near": same top realm, neighboring top realms (incl. across water), or capitals within ~one Ireland
+mpie_player_child_near_host_trigger = {
+	OR = {
+		top_liege = $HOST$.top_liege
+		top_liege = {
+			any_neighboring_and_across_water_top_liege_realm_owner = { this = $HOST$.top_liege }
+		}
+		mpie_near_host_capital_trigger = { HOST = $HOST$ DISTANCE = squared_distance_medium }
+	}
+}
+
+# "Same faith": the host's faith and capitals within ~one France
+mpie_player_child_same_faith_near_host_trigger = {
+	faith = $HOST$.faith
+	mpie_near_host_capital_trigger = { HOST = $HOST$ DISTANCE = squared_distance_large }
+}
+
+# Within the range the game rule allows
+mpie_player_child_in_invite_range_trigger = {
+	OR = {
+		mpie_player_child_near_host_trigger = { HOST = $HOST$ }
+		AND = {
+			mpie_ai_invites_players_faith_enabled_trigger = yes
+			mpie_player_child_same_faith_near_host_trigger = { HOST = $HOST$ }
+		}
+	}
+}
+
+########################
+# AI hosting boosts
+# root = this = character considering to host
+########################
+
+# A player child is "near" (and the rule is on)
+mpie_ai_host_near_player_child_trigger = {
+	mpie_ai_invites_players_enabled_trigger = yes
+	any_player = {
+		this != root
+		mpie_player_child_eligible_trigger = yes
+		mpie_player_child_near_host_trigger = { HOST = root }
+	}
+}
+
+# A player child of the host's faith within ~one France (and the rule allows faith)
+mpie_ai_host_same_faith_player_child_trigger = {
+	mpie_ai_invites_players_faith_enabled_trigger = yes
+	any_player = {
+		this != root
+		mpie_player_child_eligible_trigger = yes
+		mpie_player_child_same_faith_near_host_trigger = { HOST = root }
+	}
+}
+
+########################
+# Guests at war
+########################
+
+# Meet Peers guest availability, used instead of is_available_for_child_activity_trigger in the
+# playdate.txt override. With the mpie_meet_peers_guests_at_war rule (allowed by default), player
+# children at war may attend: the same checks as vanilla's trigger (00_activity_triggers.txt) minus
+# at_war = no. Anything but "Not Allowed" counts, so a save from before the rule existed uses the default.
+# this = candidate guest
+mpie_meet_peers_guest_available_trigger = {
+	trigger_if = {
+		limit = {
+			is_ai = no
+			NOT = { has_game_rule = mpie_meet_peers_guests_at_war_disabled }
+		}
+		is_available_quick = {
+			adult = no
+			imprisoned = no
+			activity = no
+			hostage = no
+		}
+		age >= 4
+		age < less_than_two_years_to_adulthood_value
+		is_healthy = yes
+		NOR = {
+			exists = var:hostage_travelling_to_warden
+			exists = var:ward_travelling_to_guardian
+		}
+	}
+	trigger_else = {
+		is_available_for_child_activity_trigger = yes
+	}
+}

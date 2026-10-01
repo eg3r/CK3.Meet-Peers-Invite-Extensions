@@ -43,6 +43,7 @@ mpie_debug_log_effect = {
 	if = {
 		limit = { debug_only = yes }
 		debug_log = $MSG$
+		debug_log_date = yes
 		debug_log_scopes = yes
 	}
 }
@@ -57,6 +58,27 @@ mpie_meet_peers_started_debug_log_effect = {
 			value = mpie_meet_peers_cooldown_days_value
 		}
 		mpie_debug_log_effect = { MSG = MPIE_meet_peers_started }
+	}
+}
+
+# AI hosting
+
+# Counts the Meet Peers a child has hosted, for the per-childhood maximum of AI hosts
+# (mpie_ai_meet_peers_max_hosted_value). Counted for every host; only the AI uses it.
+# root = host, called from on_start
+mpie_meet_peers_count_hosting_effect = {
+	if = {
+		limit = { has_variable = mpie_meet_peers_hosted_as_child }
+		change_variable = {
+			name = mpie_meet_peers_hosted_as_child
+			add = 1
+		}
+	}
+	else = {
+		set_variable = {
+			name = mpie_meet_peers_hosted_as_child
+			value = 1
+		}
 	}
 }
 

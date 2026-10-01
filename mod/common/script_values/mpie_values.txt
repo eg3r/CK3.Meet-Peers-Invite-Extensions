@@ -17,3 +17,86 @@ mpie_meet_peers_cooldown_days_value = {
 		add = 730
 	}
 }
+
+# AI hosting (see documentation/03_ai_meet_peers_invites_to_player.md)
+# Everything here follows the mpie_ai_invites_players game rule: with it "Off", AI hosting is vanilla
+# (only ai_check_interval_by_tier differs, which mpie_ai_meet_peers_will_do_factor_value evens out).
+
+# AI child counts need at least this ai_sociability to host Meet Peers.
+# Vanilla 100 (i.e. Gregarious); 50 with the rule on (e.g. charming + trusting). Counts near a player child skip it.
+mpie_ai_count_host_sociability_value = {
+	value = 100
+	if = {
+		limit = { mpie_ai_invites_players_enabled_trigger = yes }
+		value = 50
+	}
+}
+
+# Most Meet Peers an AI child hosts per childhood with the rule on, by highest title tier
+# (county 1, duchy 2, kingdom 3, empire and hegemony 4). Counted in var:mpie_meet_peers_hosted_as_child.
+# root = AI character considering to host
+mpie_ai_meet_peers_max_hosted_value = {
+	value = 4
+	if = {
+		limit = { highest_held_title_tier <= tier_county }
+		value = 1
+	}
+	else_if = {
+		limit = { highest_held_title_tier = tier_duchy }
+		value = 2
+	}
+	else_if = {
+		limit = { highest_held_title_tier = tier_kingdom }
+		value = 3
+	}
+}
+
+# Added to the playdate ai_will_do (a percentage) with the rule on:
+# +50 base (100 instead of vanilla 50, so AI children host at about every check),
+# +50 when a player child is near, or +25 when one is only of the same faith within ~one France,
+# and -1000 once the per-childhood maximum (mpie_ai_meet_peers_max_hosted_value) is reached.
+# root = AI character considering to host
+mpie_ai_meet_peers_will_do_bonus_value = {
+	value = 0
+	if = {
+		limit = { mpie_ai_invites_players_enabled_trigger = yes }
+		add = 50
+		if = {
+			limit = { mpie_ai_host_near_player_child_trigger = yes }
+			add = 50
+		}
+		else_if = {
+			limit = { mpie_ai_host_same_faith_player_child_trigger = yes }
+			add = 25
+		}
+		if = {
+			limit = {
+				has_variable = mpie_meet_peers_hosted_as_child
+				var:mpie_meet_peers_hosted_as_child >= mpie_ai_meet_peers_max_hosted_value
+			}
+			add = -1000
+		}
+	}
+}
+
+# Multiplies the playdate ai_will_do with the rule "Off", so tiers whose check interval is shorter
+# than vanilla's 60 months host as often as in vanilla on average (kingdom 40 -> x0.67, empire and
+# hegemony 30 -> x0.5). 1 with the rule on, and for county and duchy (vanilla interval).
+# root = AI character considering to host
+mpie_ai_meet_peers_will_do_factor_value = {
+	value = 1
+	if = {
+		limit = {
+			NOT = { mpie_ai_invites_players_enabled_trigger = yes }
+			highest_held_title_tier = tier_kingdom
+		}
+		value = 0.67
+	}
+	else_if = {
+		limit = {
+			NOT = { mpie_ai_invites_players_enabled_trigger = yes }
+			highest_held_title_tier >= tier_empire
+		}
+		value = 0.5
+	}
+}
