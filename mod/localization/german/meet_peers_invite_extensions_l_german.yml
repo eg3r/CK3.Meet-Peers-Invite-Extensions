@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "Die Entscheidung zum Zurücksetzen der Spieltreffen-Abklingzeit ist nicht verfügbar."
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "An"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Spieler können die Entscheidung treffen, die Spieltreffen-Abklingzeit zurückzusetzen, um das nächste Spieltreffen ohne Wartezeit zu planen."
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "Spieltreffen-Abklingzeit"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1 Jahr"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "Nach einem Spieltreffen muss ein Charakter 1 Jahr warten, bevor er das nächste ausrichten kann."
+ setting_mpie_meet_peers_cooldown_2_years:0 "2 Jahre"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "Nach einem Spieltreffen muss ein Charakter 2 Jahre warten, bevor er das nächste ausrichten kann."
+ setting_mpie_meet_peers_cooldown_3_years:0 "3 Jahre (Grundspiel)"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "Nach einem Spieltreffen muss ein Charakter 3 Jahre warten, bevor er das nächste ausrichten kann, wie im Grundspiel."
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "Ihr könnt bis [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )] keine weitere Aktivität [GetActivityType('activity_playdate').GetName] ausrichten"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName|U] kann bis [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )] keine weitere Aktivität [GetActivityType('activity_playdate').GetName] ausrichten"

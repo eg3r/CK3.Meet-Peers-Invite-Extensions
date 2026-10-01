@@ -1,0 +1,384 @@
+﻿# Meet Peers - Invite Extensions: peer goal (intent) triggers
+#
+# $ACTOR$ = child who picked the goal, $PEER$ = the selected peer (their intent target)
+# $GOAL$ = befriend, learn or role_model (used in the activity variable list names)
+#
+# Two stages, checked differently:
+#   - Selection (is_target_valid): the activity may not exist yet, so no attendance checks.
+#   - Encounter (weekly pulse and event options): both children must be in THIS activity,
+#     in the active state, at the activity location. scope:activity = the Meet Peers.
+
+########################
+# Selection
+########################
+
+# Goals are offered to player children only; AI attendees keep Recreation.
+# root = character picking the intent
+mpie_peer_intent_shown_trigger = {
+	is_ai = no
+	is_adult = no
+}
+
+# Does the scope character have one of the peer goals in their current activity?
+mpie_has_peer_intent_trigger = {
+	OR = {
+		has_activity_intent = mpie_befriend_peer_intent
+		has_activity_intent = mpie_learn_from_peer_intent
+		has_activity_intent = mpie_role_model_intent
+	}
+}
+
+# Target rules shared by all peer goals
+mpie_peer_intent_target_trigger = {
+	$PEER$ = {
+		this != $ACTOR$
+		is_alive = yes
+		is_adult = no
+	}
+	# While planning, use the Meet Peers guest age window (4-13).
+	# Once the activity runs, a peer who turns 14 stays a valid target.
+	trigger_if = {
+		limit = {
+			$ACTOR$ = {
+				NOT = { exists = involved_activity }
+			}
+		}
+		$PEER$ = {
+			age >= 4
+			age < less_than_two_years_to_adulthood_value
+		}
+	}
+}
+
+# Has $ACTOR$ been offered the encounter for $GOAL$ in their current activity?
+mpie_peer_goal_offered_trigger = {
+	$ACTOR$.involved_activity ?= {
+		is_target_in_variable_list = {
+			name = mpie_$GOAL$_offered
+			target = $ACTOR$
+		}
+	}
+}
+
+# Has root been offered the encounter for the goal they currently have?
+# root = actor (the lists hold root, so this cannot run on another character)
+mpie_peer_current_goal_offered_trigger = {
+	OR = {
+		AND = {
+			has_activity_intent = mpie_befriend_peer_intent
+			mpie_peer_goal_offered_trigger = { ACTOR = root GOAL = befriend }
+		}
+		AND = {
+			has_activity_intent = mpie_learn_from_peer_intent
+			mpie_peer_goal_offered_trigger = { ACTOR = root GOAL = learn }
+		}
+		AND = {
+			has_activity_intent = mpie_role_model_intent
+			mpie_peer_goal_offered_trigger = { ACTOR = root GOAL = role_model }
+		}
+	}
+}
+
+# Is $ACTOR$ waiting for a second chance at $GOAL$ (first roll failed, second not rolled yet)?
+mpie_peer_goal_second_chance_trigger = {
+	$ACTOR$.involved_activity ?= {
+		is_target_in_variable_list = {
+			name = mpie_$GOAL$_second
+			target = $ACTOR$
+		}
+	}
+	NOT = { mpie_peer_goal_resolved_trigger = { ACTOR = $ACTOR$ GOAL = $GOAL$ } }
+}
+
+# Is root waiting for a second chance at the goal they currently have?
+# root = actor
+mpie_peer_current_goal_second_chance_trigger = {
+	OR = {
+		AND = {
+			has_activity_intent = mpie_befriend_peer_intent
+			mpie_peer_goal_second_chance_trigger = { ACTOR = root GOAL = befriend }
+		}
+		AND = {
+			has_activity_intent = mpie_learn_from_peer_intent
+			mpie_peer_goal_second_chance_trigger = { ACTOR = root GOAL = learn }
+		}
+		AND = {
+			has_activity_intent = mpie_role_model_intent
+			mpie_peer_goal_second_chance_trigger = { ACTOR = root GOAL = role_model }
+		}
+	}
+}
+
+# Is $ACTOR$ in the activity list mpie_$GOAL$_$LIST$ of their current activity?
+mpie_peer_goal_listed_trigger = {
+	$ACTOR$.involved_activity ?= {
+		is_target_in_variable_list = {
+			name = mpie_$GOAL$_$LIST$
+			target = $ACTOR$
+		}
+	}
+}
+
+# Is $ACTOR$ waiting for a retry of $GOAL$ (an attempt failed, retry not rolled yet)?
+mpie_peer_goal_retry_waiting_trigger = {
+	mpie_peer_goal_listed_trigger = { ACTOR = $ACTOR$ GOAL = $GOAL$ LIST = retry }
+	NOT = { mpie_peer_goal_resolved_trigger = { ACTOR = $ACTOR$ GOAL = $GOAL$ } }
+}
+
+# Is root waiting for a retry of the goal they currently have?
+# root = actor
+mpie_peer_current_goal_retry_waiting_trigger = {
+	OR = {
+		AND = {
+			has_activity_intent = mpie_befriend_peer_intent
+			mpie_peer_goal_retry_waiting_trigger = { ACTOR = root GOAL = befriend }
+		}
+		AND = {
+			has_activity_intent = mpie_learn_from_peer_intent
+			mpie_peer_goal_retry_waiting_trigger = { ACTOR = root GOAL = learn }
+		}
+		AND = {
+			has_activity_intent = mpie_role_model_intent
+			mpie_peer_goal_retry_waiting_trigger = { ACTOR = root GOAL = role_model }
+		}
+	}
+}
+
+# Is the encounter for $GOAL$ scheduled or open but not answered yet?
+# (rolled with success: offered, not waiting for a second chance or a retry, not resolved)
+mpie_peer_goal_pending_trigger = {
+	mpie_peer_goal_offered_trigger = { ACTOR = $ACTOR$ GOAL = $GOAL$ }
+	NOT = { mpie_peer_goal_second_chance_trigger = { ACTOR = $ACTOR$ GOAL = $GOAL$ } }
+	NOT = { mpie_peer_goal_retry_waiting_trigger = { ACTOR = $ACTOR$ GOAL = $GOAL$ } }
+	NOT = { mpie_peer_goal_resolved_trigger = { ACTOR = $ACTOR$ GOAL = $GOAL$ } }
+}
+
+# Is the encounter for root's current goal scheduled or open but not answered yet?
+# root = actor
+mpie_peer_current_goal_pending_trigger = {
+	OR = {
+		AND = {
+			has_activity_intent = mpie_befriend_peer_intent
+			mpie_peer_goal_pending_trigger = { ACTOR = root GOAL = befriend }
+		}
+		AND = {
+			has_activity_intent = mpie_learn_from_peer_intent
+			mpie_peer_goal_pending_trigger = { ACTOR = root GOAL = learn }
+		}
+		AND = {
+			has_activity_intent = mpie_role_model_intent
+			mpie_peer_goal_pending_trigger = { ACTOR = root GOAL = role_model }
+		}
+	}
+}
+
+# Has $ACTOR$ resolved (chosen an option in) the encounter for $GOAL$ in their current activity?
+mpie_peer_goal_resolved_trigger = {
+	$ACTOR$.involved_activity ?= {
+		is_target_in_variable_list = {
+			name = mpie_$GOAL$_resolved
+			target = $ACTOR$
+		}
+	}
+}
+
+########################
+# Encounter
+########################
+
+# this = actor
+mpie_peer_actor_present_trigger = {
+	is_alive = yes
+	is_adult = no
+	is_imprisoned = no
+	is_incapable = no
+	involved_activity ?= scope:activity
+	has_activity_state = active
+	location = scope:activity.activity_location
+}
+
+# this = peer
+mpie_peer_present_trigger = {
+	this != $ACTOR$
+	is_alive = yes
+	is_adult = no
+	is_imprisoned = no
+	is_incapable = no
+	involved_activity ?= scope:activity
+	has_activity_state = active
+	location = scope:activity.activity_location
+}
+
+# Rechecked in the event options before anything changes.
+# root = actor, scope:mpie_peer = peer from the event, scope:activity = the Meet Peers
+# $INTENT$ = the goal's intent key
+mpie_peer_encounter_still_valid_trigger = {
+	exists = scope:activity
+	mpie_peer_actor_present_trigger = yes
+	has_activity_intent = $INTENT$
+	intent_target ?= scope:mpie_peer
+	scope:mpie_peer = {
+		mpie_peer_present_trigger = { ACTOR = root }
+	}
+	NOT = { mpie_peer_goal_resolved_trigger = { ACTOR = root GOAL = $GOAL$ } }
+}
+
+########################
+# Investment options (costs in mpie_peer_pay_<cost>_effect)
+########################
+
+# Can the actor pay for a "standing" option? Influence for governments that use it, prestige otherwise
+# (the same split as vanilla coronation events). this = actor
+mpie_peer_can_afford_standing_trigger = {
+	trigger_if = {
+		limit = { government_has_flag = government_has_influence }
+		influence >= mpie_invest_influence_value
+	}
+	trigger_else = {
+		prestige >= mpie_invest_prestige_value
+	}
+}
+
+########################
+# Befriend a Peer
+########################
+
+# $ACTOR$ and $PEER$ became friends after the Meet Peers phase began.
+# var:mpie_befriend_peer is set by mpie_befriend_track_target_effect while they were not yet friends.
+mpie_befriend_friend_made_here_trigger = {
+	$ACTOR$ = {
+		exists = involved_activity
+		var:mpie_befriend_peer ?= $PEER$
+		OR = {
+			has_relation_friend = $PEER$
+			has_relation_best_friend = $PEER$
+		}
+	}
+}
+
+########################
+# Learn from a Peer
+########################
+
+# Is $PEER$ ahead of $ACTOR$ in at least one skill (prowess included)?
+mpie_peer_can_teach_trigger = {
+	$PEER$ = {
+		OR = {
+			diplomacy > $ACTOR$.diplomacy
+			martial > $ACTOR$.martial
+			stewardship > $ACTOR$.stewardship
+			intrigue > $ACTOR$.intrigue
+			learning > $ACTOR$.learning
+			prowess > $ACTOR$.prowess
+		}
+	}
+}
+
+# Does scope:mpie_actor's education focus match the lesson skill saved as scope:$SKILL$?
+# Prowess has no focus of its own; the martial focus covers it.
+mpie_learn_focus_matches_trigger = {
+	scope:mpie_actor = {
+		OR = {
+			AND = {
+				scope:$SKILL$ = flag:diplomacy
+				has_focus = education_diplomacy
+			}
+			AND = {
+				OR = {
+					scope:$SKILL$ = flag:martial
+					scope:$SKILL$ = flag:prowess
+				}
+				has_focus = education_martial
+			}
+			AND = {
+				scope:$SKILL$ = flag:stewardship
+				has_focus = education_stewardship
+			}
+			AND = {
+				scope:$SKILL$ = flag:intrigue
+				has_focus = education_intrigue
+			}
+			AND = {
+				scope:$SKILL$ = flag:learning
+				has_focus = education_learning
+			}
+		}
+	}
+}
+
+# Is scope:mpie_peer still ahead of scope:mpie_actor in the lesson skill saved as scope:$SKILL$
+# (a flag: flag:diplomacy ... flag:prowess)?
+mpie_learn_skill_still_ahead_trigger = {
+	scope:mpie_peer = {
+		OR = {
+			AND = {
+				scope:$SKILL$ = flag:diplomacy
+				diplomacy > scope:mpie_actor.diplomacy
+			}
+			AND = {
+				scope:$SKILL$ = flag:martial
+				martial > scope:mpie_actor.martial
+			}
+			AND = {
+				scope:$SKILL$ = flag:stewardship
+				stewardship > scope:mpie_actor.stewardship
+			}
+			AND = {
+				scope:$SKILL$ = flag:intrigue
+				intrigue > scope:mpie_actor.intrigue
+			}
+			AND = {
+				scope:$SKILL$ = flag:learning
+				learning > scope:mpie_actor.learning
+			}
+			AND = {
+				scope:$SKILL$ = flag:prowess
+				prowess > scope:mpie_actor.prowess
+			}
+		}
+	}
+}
+
+########################
+# Role Model
+########################
+
+# Does $PEER$ have a personality trait that $ACTOR$ could adopt?
+mpie_role_model_has_candidate_trigger = {
+	$ACTOR$ = {
+		number_of_personality_traits < personality_trait_limit
+	}
+	$PEER$ = {
+		any_character_trait = {
+			mpie_role_model_candidate_trait_trigger = { ACTOR = $ACTOR$ }
+		}
+	}
+}
+
+# Could $ACTOR$ adopt this trait?
+# this = trait
+# Checks opposites in both directions, so traits from other mods with one-sided opposites are handled.
+mpie_role_model_candidate_trait_trigger = {
+	has_trait_category = personality
+	# Lustful and chaste are sexuality traits; vanilla only hands them to older children
+	NOR = {
+		this = trait:lustful
+		this = trait:chaste
+	}
+	save_temporary_scope_as = mpie_candidate_trait
+	$ACTOR$ = {
+		NOT = { has_trait = scope:mpie_candidate_trait }
+	}
+	NOT = {
+		any_opposite_trait = {
+			$ACTOR$ = { has_trait = prev }
+		}
+	}
+	$ACTOR$ = {
+		NOT = {
+			any_character_trait = {
+				any_opposite_trait = { this = scope:mpie_candidate_trait }
+			}
+		}
+	}
+}

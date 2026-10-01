@@ -1,0 +1,1176 @@
+﻿# Meet Peers - Invite Extensions: peer goal (intent) effects
+#
+# Lifecycle (called from the playdate_phase in the playdate.txt override):
+#   on_phase_active -> mpie_peer_intent_phase_active_effect
+#   on_weekly_pulse -> mpie_peer_intent_weekly_pulse_effect (schedules the encounter)
+#   on_end          -> mpie_peer_intent_phase_end_effect (logs a missed goal, cleans up)
+# There: root = participant, scope:activity = the Meet Peers, scope:host = its host.
+#
+# Encounter flow, at most one encounter per goal, per actor, per activity:
+#   1. First weekly pulse with both children at the activity: roll mpie_peer_encounter_chance_value
+#      (about 80%). On a success the goal's event fires after a random delay (longer early in the phase).
+#   2. On a failure the actor gets a second chance in the last month of the active phase:
+#      mpie_peer_encounter_second_chance_value (about 30%), event 2-10 days later.
+#      If that fails too (or never comes), the goal is used up ("No Moment Together" in the conclusion).
+#   3. The event rechecks everything when it fires. If it can't open, on_trigger_fail logs a missed chance.
+#   4. Options: one or more rolls (different chances), or an alternative pastime with a small sure reward.
+#   5. A failed attempt roll reopens the goal once: after mpie_peer_retry_wait_days_value (21 days),
+#      mpie_peer_encounter_retry_chance_value (about 30%) decides whether the event comes again.
+#
+# State, all on the activity, so it ends with the activity and never carries over to a new Meet Peers:
+#   variable list mpie_<goal>_offered  = actors whose first roll for <goal> was made
+#   variable list mpie_<goal>_second   = actors whose first roll failed, waiting for the second chance
+#   variable list mpie_<goal>_retry    = actors whose attempt failed, waiting for the retry roll
+#   variable list mpie_<goal>_retried  = actors who already had their retry roll (at most one per goal)
+#   var:mpie_peer_retry_wait (on the actor, 21 days) = the wait before the retry roll
+#   variable list mpie_<goal>_resolved = actors whose encounter for <goal> is over (option, no moment, missed)
+#   variable mpie_phase_first_half      = exists during the first 45 days of the active phase
+#   variable mpie_phase_first_two_months = exists during the first 60 days (second chances wait for it to end)
+#   variable mpie_phase_first_80_days    = exists during the first 80 days (shorter event delays after it)
+# <goal> = befriend, learn or role_model. Picking a different goal later in the same activity
+# can still give that goal's encounter.
+#
+# Debug log (debug mode only, see mpie_debug_log_effect): every step writes an MPIE_goal_* or
+# MPIE_event_* tag plus a scope dump. scope:mpie_actor / scope:mpie_peer are saved first, so the dump
+# shows who is involved; the events add their chances, lesson skills, gaps and traits.
+
+########################
+# Lifecycle
+########################
+
+mpie_peer_intent_phase_active_effect = {
+	# Once per activity (from the host): mark the first half and the first two months
+	# of the 3-month active phase (event delays and the second-chance window)
+	if = {
+		limit = { this = scope:host }
+		scope:activity = {
+			set_variable = {
+				name = mpie_phase_first_half
+				value = yes
+				days = 45
+			}
+			set_variable = {
+				name = mpie_phase_first_two_months
+				value = yes
+				days = 60
+			}
+			set_variable = {
+				name = mpie_phase_first_80_days
+				value = yes
+				days = 80
+			}
+		}
+	}
+	if = {
+		limit = {
+			is_ai = no
+			mpie_has_peer_intent_trigger = yes
+		}
+		mpie_peer_save_debug_scopes_effect = yes
+		mpie_debug_log_effect = { MSG = MPIE_goal_phase_active }
+		mpie_befriend_track_target_effect = yes
+	}
+}
+
+mpie_peer_intent_weekly_pulse_effect = {
+	if = {
+		limit = {
+			is_ai = no
+			mpie_has_peer_intent_trigger = yes
+		}
+		mpie_befriend_track_target_effect = yes
+		mpie_befriend_complete_if_friends_effect = yes
+		mpie_peer_try_start_encounter_effect = yes
+	}
+}
+
+mpie_peer_intent_phase_end_effect = {
+	# The chosen peer never met the actor during the active phase
+	if = {
+		limit = {
+			is_ai = no
+			exists = intent_target
+			mpie_has_peer_intent_trigger = yes
+			NOT = { mpie_peer_current_goal_offered_trigger = yes }
+		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mpie_peer_goal_missed_log
+				tags = { bad }
+				score = 5
+				show_in_conclusion = yes
+				character = root
+				target = root.intent_target
+			}
+		}
+		mpie_peer_save_debug_scopes_effect = yes
+		mpie_debug_log_effect = { MSG = MPIE_goal_missed_at_phase_end }
+	}
+	# The first roll failed and the second chance never came (peer away during the last month)
+	else_if = {
+		limit = {
+			is_ai = no
+			exists = intent_target
+			mpie_peer_current_goal_second_chance_trigger = yes
+		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mpie_peer_goal_no_moment_log
+				tags = { bad }
+				score = 5
+				show_in_conclusion = yes
+				character = root
+				target = root.intent_target
+			}
+		}
+		mpie_peer_save_debug_scopes_effect = yes
+		mpie_debug_log_effect = { MSG = MPIE_goal_no_second_chance_at_phase_end }
+	}
+	# The encounter was scheduled but its event is still queued (would fire after the phase)
+	# or still open: close it now so the conclusion shows it. The late event then fails its
+	# trigger (or its options report "The moment has passed") without logging again.
+	else_if = {
+		limit = {
+			is_ai = no
+			exists = intent_target
+			mpie_peer_current_goal_pending_trigger = yes
+		}
+		if = {
+			limit = { has_activity_intent = mpie_befriend_peer_intent }
+			mpie_peer_mark_goal_effect = { ACTOR = root GOAL = befriend LIST = resolved }
+		}
+		else_if = {
+			limit = { has_activity_intent = mpie_learn_from_peer_intent }
+			mpie_peer_mark_goal_effect = { ACTOR = root GOAL = learn LIST = resolved }
+		}
+		else = {
+			mpie_peer_mark_goal_effect = { ACTOR = root GOAL = role_model LIST = resolved }
+		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mpie_peer_goal_missed_log
+				tags = { bad }
+				score = 5
+				show_in_conclusion = yes
+				character = root
+				target = root.intent_target
+			}
+		}
+		mpie_peer_save_debug_scopes_effect = yes
+		mpie_debug_log_effect = { MSG = MPIE_goal_pending_closed_at_phase_end }
+	}
+	# An attempt failed and its retry never came: nothing to add to the conclusion
+	# (the failed attempt is already logged)
+	else_if = {
+		limit = {
+			is_ai = no
+			mpie_peer_current_goal_retry_waiting_trigger = yes
+		}
+		mpie_peer_save_debug_scopes_effect = yes
+		mpie_debug_log_effect = { MSG = MPIE_goal_no_retry_at_phase_end }
+	}
+	remove_variable = mpie_befriend_peer
+	remove_variable = mpie_peer_retry_wait
+}
+
+# Saves the actor and their current target for the debug scope dump
+# root = actor
+mpie_peer_save_debug_scopes_effect = {
+	save_scope_as = mpie_actor
+	intent_target ?= { save_scope_as = mpie_peer }
+}
+
+########################
+# Encounter scheduling
+########################
+
+# Rolls for the encounter of the actor's current goal once both children are at the activity:
+# the first roll as soon as possible, the second chance (after a failed first roll) once the
+# last month of the active phase starts. While waiting, logs why every week (debug mode only).
+# Otherwise does nothing.
+# root = actor
+mpie_peer_try_start_encounter_effect = {
+	if = {
+		limit = {
+			OR = {
+				# First roll still to come
+				NOT = { mpie_peer_current_goal_offered_trigger = yes }
+				# Second chance due
+				AND = {
+					mpie_peer_current_goal_second_chance_trigger = yes
+					scope:activity = {
+						NOT = { has_variable = mpie_phase_first_two_months }
+					}
+				}
+				# Retry due (an attempt failed, the wait is over)
+				AND = {
+					mpie_peer_current_goal_retry_waiting_trigger = yes
+					NOT = { has_variable = mpie_peer_retry_wait }
+				}
+			}
+		}
+		mpie_peer_save_debug_scopes_effect = yes
+		if = {
+			limit = {
+				NOT = { exists = intent_target }
+			}
+			mpie_debug_log_effect = { MSG = MPIE_goal_waiting_no_target }
+		}
+		else_if = {
+			limit = {
+				NOT = { mpie_peer_actor_present_trigger = yes }
+			}
+			mpie_debug_log_effect = { MSG = MPIE_goal_waiting_actor_not_at_activity }
+		}
+		else_if = {
+			limit = {
+				NOT = {
+					scope:mpie_peer = { mpie_peer_present_trigger = { ACTOR = root } }
+				}
+			}
+			mpie_debug_log_effect = { MSG = MPIE_goal_waiting_peer_not_at_activity }
+		}
+		else_if = {
+			limit = {
+				has_activity_intent = mpie_befriend_peer_intent
+				can_set_relation_friend_trigger = { CHARACTER = scope:mpie_peer }
+			}
+			mpie_peer_roll_encounter_effect = { GOAL = befriend EVENT = mpie_peer.1001 }
+		}
+		else_if = {
+			limit = {
+				has_activity_intent = mpie_learn_from_peer_intent
+				mpie_peer_can_teach_trigger = { ACTOR = root PEER = scope:mpie_peer }
+			}
+			mpie_peer_roll_encounter_effect = { GOAL = learn EVENT = mpie_peer.2001 }
+		}
+		else_if = {
+			limit = {
+				has_activity_intent = mpie_role_model_intent
+				mpie_role_model_has_candidate_trigger = { ACTOR = root PEER = scope:mpie_peer }
+			}
+			mpie_peer_roll_encounter_effect = { GOAL = role_model EVENT = mpie_peer.3001 }
+		}
+		else = {
+			# Both present, but already friends, no skill gap, or no trait to adopt
+			mpie_debug_log_effect = { MSG = MPIE_goal_waiting_goal_not_possible }
+		}
+	}
+}
+
+# First roll, second chance or retry for $GOAL$, whichever is due (see mpie_peer_try_start_encounter_effect)
+# root = actor, scope:mpie_actor and scope:mpie_peer saved
+mpie_peer_roll_encounter_effect = {
+	if = {
+		limit = {
+			NOT = { mpie_peer_goal_offered_trigger = { ACTOR = root GOAL = $GOAL$ } }
+		}
+		mpie_peer_first_roll_effect = { GOAL = $GOAL$ EVENT = $EVENT$ }
+	}
+	else_if = {
+		limit = {
+			mpie_peer_goal_retry_waiting_trigger = { ACTOR = root GOAL = $GOAL$ }
+		}
+		mpie_peer_retry_roll_effect = { GOAL = $GOAL$ EVENT = $EVENT$ }
+	}
+	else = {
+		mpie_peer_second_chance_roll_effect = { GOAL = $GOAL$ EVENT = $EVENT$ }
+	}
+}
+
+# Retry after a failed attempt (mpie_peer_encounter_retry_chance_value), at most once per goal.
+# On a success, the goal's event comes again (fresh chances). On a failure, the goal is over;
+# nothing more is logged, the failed attempt is already in the activity log.
+mpie_peer_retry_roll_effect = {
+	mpie_peer_unmark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = retry }
+	mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = retried }
+	save_scope_value_as = {
+		name = mpie_encounter_chance
+		value = mpie_peer_encounter_retry_chance_value
+	}
+	random_list = {
+		0 = {
+			modifier = { add = scope:mpie_encounter_chance }
+			mpie_debug_log_effect = { MSG = MPIE_goal_scheduled_retry_$GOAL$ }
+			mpie_peer_queue_event_effect = { EVENT = $EVENT$ }
+		}
+		0 = {
+			modifier = {
+				add = {
+					value = 100
+					subtract = scope:mpie_encounter_chance
+				}
+			}
+			mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
+			mpie_debug_log_effect = { MSG = MPIE_goal_no_retry_$GOAL$ }
+		}
+	}
+}
+
+# After a failed attempt roll: reopen the goal for one retry, if it hasn't had one yet in this
+# activity. The retry is rolled once mpie_peer_retry_wait_days_value have passed (var:mpie_peer_retry_wait).
+# Hidden on purpose: the player is not told about the retry, it just happens.
+# Called in the failure branch of the attempt effects. root = actor
+mpie_peer_offer_retry_effect = {
+	hidden_effect = {
+		if = {
+			limit = {
+				NOT = { mpie_peer_goal_listed_trigger = { ACTOR = root GOAL = $GOAL$ LIST = retried } }
+			}
+			mpie_peer_unmark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
+			mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = retry }
+			set_variable = {
+				name = mpie_peer_retry_wait
+				value = yes
+				days = mpie_peer_retry_wait_days_value
+			}
+			mpie_debug_log_effect = { MSG = MPIE_goal_retry_offered_$GOAL$ }
+		}
+	}
+}
+
+# First roll: does a moment for this goal come up (mpie_peer_encounter_chance_value)?
+# On a success, fires $EVENT$ after a random delay so it doesn't always open at the start:
+# 5-40 days during the first half of the active phase, 2-10 days later (late arrivals).
+# On a failure, the actor waits for the second chance (list mpie_$GOAL$_second).
+mpie_peer_first_roll_effect = {
+	mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = offered }
+	save_scope_value_as = {
+		name = mpie_encounter_chance
+		value = mpie_peer_encounter_chance_value
+	}
+	random_list = {
+		0 = {
+			modifier = { add = scope:mpie_encounter_chance }
+			mpie_debug_log_effect = { MSG = MPIE_goal_scheduled_$GOAL$ }
+			mpie_peer_queue_event_effect = { EVENT = $EVENT$ }
+		}
+		0 = {
+			modifier = {
+				add = {
+					value = 100
+					subtract = scope:mpie_encounter_chance
+				}
+			}
+			mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = second }
+			mpie_debug_log_effect = { MSG = MPIE_goal_waiting_second_chance_$GOAL$ }
+		}
+	}
+}
+
+# Second chance, in the last month of the active phase (mpie_peer_encounter_second_chance_value).
+# On a success, fires $EVENT$ 2-10 days later. On a failure, the goal is used up ("No Moment Together").
+mpie_peer_second_chance_roll_effect = {
+	mpie_peer_unmark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = second }
+	save_scope_value_as = {
+		name = mpie_encounter_chance
+		value = mpie_peer_encounter_second_chance_value
+	}
+	random_list = {
+		0 = {
+			modifier = { add = scope:mpie_encounter_chance }
+			mpie_debug_log_effect = { MSG = MPIE_goal_scheduled_second_chance_$GOAL$ }
+			mpie_peer_queue_event_effect = { EVENT = $EVENT$ }
+		}
+		0 = {
+			modifier = {
+				add = {
+					value = 100
+					subtract = scope:mpie_encounter_chance
+				}
+			}
+			mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
+			scope:activity = {
+				add_activity_log_entry = {
+					key = mpie_peer_goal_no_moment_log
+					tags = { bad }
+					score = 5
+					show_in_conclusion = yes
+					character = root
+					target = scope:mpie_peer
+				}
+			}
+			mpie_debug_log_effect = { MSG = MPIE_goal_no_moment_$GOAL$ }
+		}
+	}
+}
+
+# Fires $EVENT$ after a random delay that fits the rest of the active phase:
+# 5-40 days in the first 45 days, 2-10 days until day 80, 1-3 days after that.
+# An event that still ends up after the phase end is closed by mpie_peer_intent_phase_end_effect.
+mpie_peer_queue_event_effect = {
+	if = {
+		limit = {
+			scope:activity = { has_variable = mpie_phase_first_half }
+		}
+		trigger_event = {
+			id = $EVENT$
+			days = { 5 40 }
+		}
+	}
+	else_if = {
+		limit = {
+			scope:activity = { has_variable = mpie_phase_first_80_days }
+		}
+		trigger_event = {
+			id = $EVENT$
+			days = { 2 10 }
+		}
+	}
+	else = {
+		trigger_event = {
+			id = $EVENT$
+			days = { 1 3 }
+		}
+	}
+}
+
+# The scheduled event could not open (peer left, goal or target changed, phase over, ...).
+# Called from the events' on_trigger_fail. Does nothing if the encounter was already closed,
+# e.g. by mpie_peer_intent_phase_end_effect, so a missed chance is never logged twice.
+# root = actor
+mpie_peer_encounter_did_not_open_effect = {
+	if = {
+		limit = {
+			NOT = { mpie_peer_goal_resolved_trigger = { ACTOR = root GOAL = $GOAL$ } }
+		}
+		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
+		if = {
+			limit = {
+				NOT = { has_completed_activity_intent = $INTENT$ }
+				exists = scope:mpie_peer
+				involved_activity ?= scope:activity
+			}
+			scope:activity = {
+				add_activity_log_entry = {
+					key = mpie_peer_goal_missed_log
+					tags = { bad }
+					score = 5
+					show_in_conclusion = yes
+					character = root
+					target = scope:mpie_peer
+				}
+			}
+		}
+	}
+	mpie_debug_log_effect = { MSG = MPIE_event_$GOAL$_did_not_open }
+}
+
+# Adds $ACTOR$ to the activity list mpie_$GOAL$_$LIST$ (LIST = offered, second or resolved)
+# ?= because an event option can run after the activity has ended
+mpie_peer_mark_goal_effect = {
+	scope:activity ?= {
+		if = {
+			limit = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = mpie_$GOAL$_$LIST$
+						target = $ACTOR$
+					}
+				}
+			}
+			add_to_variable_list = {
+				name = mpie_$GOAL$_$LIST$
+				target = $ACTOR$
+			}
+		}
+	}
+}
+
+# Removes $ACTOR$ from the activity list mpie_$GOAL$_$LIST$
+mpie_peer_unmark_goal_effect = {
+	scope:activity ?= {
+		if = {
+			limit = {
+				is_target_in_variable_list = {
+					name = mpie_$GOAL$_$LIST$
+					target = $ACTOR$
+				}
+			}
+			remove_list_variable = {
+				name = mpie_$GOAL$_$LIST$
+				target = $ACTOR$
+			}
+		}
+	}
+}
+
+########################
+# Shared outcomes
+# root = actor, scope:mpie_peer = peer, scope:activity = the Meet Peers
+########################
+
+# Picks the alternative pastime offered instead of the goal (saved as scope:mpie_pastime),
+# weighted by the actor's traits. Rewards follow vanilla Meet Peers scales
+# (apa_visited_friends_chapel: minor_piety_gain; stress_and_fulfillment_impact in playdate events).
+#   flag:games   - play with the others: stress loss
+#   flag:chapel  - visit the chapel: piety
+#   flag:quiet   - find a quiet corner: stress loss, more for shy and pensive children
+#   flag:showoff - show off in front of the others: prestige
+# Called in each event's immediate. root = actor
+mpie_peer_pick_pastime_effect = {
+	random_list = {
+		40 = {
+			modifier = {
+				add = 30
+				has_trait = gregarious
+			}
+			save_scope_value_as = { name = mpie_pastime value = flag:games }
+		}
+		20 = {
+			modifier = {
+				add = 30
+				has_trait = zealous
+			}
+			save_scope_value_as = { name = mpie_pastime value = flag:chapel }
+		}
+		20 = {
+			modifier = {
+				add = 40
+				OR = {
+					has_trait = shy
+					has_trait = pensive
+				}
+			}
+			save_scope_value_as = { name = mpie_pastime value = flag:quiet }
+		}
+		20 = {
+			modifier = {
+				add = 30
+				OR = {
+					has_trait = rowdy
+					has_trait = arrogant
+				}
+			}
+			save_scope_value_as = { name = mpie_pastime value = flag:showoff }
+		}
+	}
+}
+
+# The alternative pastime option: uses up this goal's encounter, with a small sure reward.
+# Only while the encounter is still open and the actor is still at the activity (the peer
+# doesn't need to be there, the actor does something else); otherwise "The moment has passed".
+mpie_peer_take_pastime_effect = {
+	if = {
+		limit = {
+			exists = scope:activity
+			mpie_peer_actor_present_trigger = yes
+			NOT = { mpie_peer_goal_resolved_trigger = { ACTOR = root GOAL = $GOAL$ } }
+		}
+		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
+		if = {
+			limit = { scope:mpie_pastime = flag:chapel }
+			add_piety = minor_piety_gain
+			stress_and_fulfillment_impact = {
+				zealous = minor_stress_impact_loss
+			}
+		}
+		else_if = {
+			limit = { scope:mpie_pastime = flag:quiet }
+			stress_and_fulfillment_impact = {
+				base = minor_stress_impact_loss
+				shy = minor_stress_impact_loss
+				pensive = minor_stress_impact_loss
+				rowdy = minor_stress_impact_gain
+			}
+		}
+		else_if = {
+			limit = { scope:mpie_pastime = flag:showoff }
+			add_prestige = minor_prestige_gain
+			stress_and_fulfillment_impact = {
+				rowdy = minor_stress_impact_loss
+				arrogant = minor_stress_impact_loss
+				bossy = minor_stress_impact_loss
+				shy = minor_stress_impact_gain
+			}
+		}
+		else = {
+			stress_and_fulfillment_impact = {
+				base = minor_stress_impact_loss
+				gregarious = minor_stress_impact_loss
+				rowdy = minor_stress_impact_loss
+			}
+		}
+		custom_tooltip = mpie_peer_decline_tt
+		mpie_debug_log_effect = { MSG = MPIE_event_$GOAL$_pastime }
+	}
+	else = {
+		mpie_peer_encounter_lost_effect = { GOAL = $GOAL$ }
+	}
+}
+
+# Investment costs, paid inside the attempt effects only when the attempt actually happens.
+# Called as mpie_peer_pay_$COST$_effect = yes, COST = none, gold, piety or standing.
+# Amounts are in mpie_peer_intent_values.txt (mpie_invest_*); the options check them with show_as_unavailable.
+# Each cost also carries the trait stress reactions to paying it, so those only apply with the cost.
+# root = actor, scope:mpie_peer = peer
+mpie_peer_pay_none_effect = {}
+
+mpie_peer_pay_gold_effect = {
+	remove_short_term_gold = mpie_befriend_gift_gold_value
+	stress_and_fulfillment_impact = {
+		greedy = minor_stress_impact_gain
+		generous = minor_stress_impact_loss
+	}
+}
+
+mpie_peer_pay_piety_effect = {
+	add_piety = mpie_invest_piety_loss_value
+	stress_and_fulfillment_impact = {
+		zealous = minor_stress_impact_loss
+		cynical = minor_stress_impact_gain
+	}
+}
+
+# Influence for governments that use it, prestige otherwise (mpie_peer_can_afford_standing_trigger).
+# Pulling rank with prestige also annoys the peer a little (haughty_opinion).
+# Stress follows vanilla playdate.3010.b ("I'm a lord!": arrogant and bossy like it, the humble don't)
+# and playdate.3005.b (promising a favor: the arrogant hate owing, charmers like the deal).
+mpie_peer_pay_standing_effect = {
+	if = {
+		limit = { government_has_flag = government_has_influence }
+		change_influence = mpie_invest_influence_loss_value
+		stress_and_fulfillment_impact = {
+			arrogant = minor_stress_impact_gain
+			charming = minor_stress_impact_loss
+		}
+	}
+	else = {
+		add_prestige = mpie_invest_prestige_loss_value
+		reverse_add_opinion = {
+			target = scope:mpie_peer
+			modifier = haughty_opinion
+			opinion = mpie_invest_haughty_opinion_value
+		}
+		stress_and_fulfillment_impact = {
+			arrogant = minor_stress_impact_loss
+			bossy = minor_stress_impact_loss
+			humble = minor_stress_impact_gain
+		}
+	}
+}
+
+# The peer left, the goal changed, or the encounter was already resolved
+mpie_peer_encounter_lost_effect = {
+	mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
+	custom_tooltip = mpie_peer_encounter_lost_tt
+	mpie_debug_log_effect = { MSG = MPIE_event_$GOAL$_lost }
+}
+
+########################
+# Befriend a Peer
+########################
+
+# Remembers the befriend target while the two are not yet friends,
+# so a friendship made later in this Meet Peers keeps the target valid and completes the goal.
+# Bounded so a cancelled activity cannot leave it behind for long.
+# root = actor
+mpie_befriend_track_target_effect = {
+	if = {
+		limit = {
+			has_activity_intent = mpie_befriend_peer_intent
+			exists = intent_target
+			can_set_relation_friend_trigger = { CHARACTER = intent_target }
+		}
+		set_variable = {
+			name = mpie_befriend_peer
+			value = intent_target
+			years = 1
+		}
+	}
+}
+
+# Completes the goal if the two became friends some other way, e.g. a vanilla playdate event
+# root = actor
+mpie_befriend_complete_if_friends_effect = {
+	if = {
+		limit = {
+			has_activity_intent = mpie_befriend_peer_intent
+			NOT = { has_completed_activity_intent = mpie_befriend_peer_intent }
+			exists = intent_target
+			intent_target.involved_activity ?= scope:activity
+			mpie_befriend_friend_made_here_trigger = { ACTOR = root PEER = intent_target }
+		}
+		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = befriend LIST = offered }
+		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = befriend LIST = resolved }
+		mpie_peer_save_debug_scopes_effect = yes
+		send_interface_toast = {
+			title = activity_intent_complete_toast
+			left_icon = scope:mpie_peer
+			complete_activity_intent = yes
+		}
+		mpie_debug_log_effect = { MSG = MPIE_goal_befriend_completed_outside_event }
+	}
+}
+
+# Stress reactions to how the actor approaches the peer (vanilla playdate pattern: going up to
+# others relieves gregarious and charming children and stresses shy ones, e.g. playdate.1001;
+# a childhood-trait approach relieves that trait).
+# Called as mpie_befriend_approach_$APPROACH$_effect, APPROACH = plain, charming, rowdy or curious.
+mpie_befriend_approach_plain_effect = {
+	stress_and_fulfillment_impact = {
+		gregarious = minor_stress_impact_loss
+		charming = minor_stress_impact_loss
+		shy = minor_stress_impact_gain
+	}
+}
+
+mpie_befriend_approach_charming_effect = {
+	stress_and_fulfillment_impact = {
+		charming = minor_stress_impact_loss
+	}
+}
+
+mpie_befriend_approach_rowdy_effect = {
+	stress_and_fulfillment_impact = {
+		rowdy = minor_stress_impact_loss
+	}
+}
+
+mpie_befriend_approach_curious_effect = {
+	stress_and_fulfillment_impact = {
+		curious = minor_stress_impact_loss
+	}
+}
+
+# One befriend attempt.
+# $CHANCE$ = name of the saved chance (mpie_befriend_chance, mpie_befriend_invest_chance, mpie_befriend_trait_chance)
+# $COST$ = none, gold or standing (mpie_peer_pay_<cost>_effect, paid only when the attempt actually happens)
+# $APPROACH$ = plain, charming, rowdy or curious (mpie_befriend_approach_<approach>_effect stress reactions)
+mpie_befriend_attempt_effect = {
+	if = {
+		limit = {
+			mpie_peer_encounter_still_valid_trigger = { GOAL = befriend INTENT = mpie_befriend_peer_intent }
+			can_set_relation_friend_trigger = { CHARACTER = scope:mpie_peer }
+		}
+		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = befriend LIST = resolved }
+		mpie_peer_pay_$COST$_effect = yes
+		mpie_befriend_approach_$APPROACH$_effect = yes
+		random_list = {
+			0 = {
+				modifier = { add = scope:$CHANCE$ }
+				desc = mpie_befriend_success_tt
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = mpie_befriend_success_tt
+					left_icon = scope:mpie_peer
+					set_relation_friend = {
+						reason = mpie_friend_meet_peers_reason
+						target = scope:mpie_peer
+					}
+					complete_activity_intent = yes
+				}
+				scope:activity = {
+					add_activity_log_entry = {
+						key = activity_generic_friend_log
+						tags = { good }
+						score = 10
+						show_in_conclusion = yes
+						character = root
+						target = scope:mpie_peer
+					}
+				}
+				mpie_debug_log_effect = { MSG = MPIE_event_befriend_success }
+			}
+			0 = {
+				modifier = {
+					add = {
+						value = 100
+						subtract = scope:$CHANCE$
+					}
+				}
+				desc = mpie_befriend_failure_tt
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = mpie_befriend_failure_tt
+					left_icon = scope:mpie_peer
+					if = {
+						limit = {
+							can_set_relation_potential_friend_trigger = { CHARACTER = scope:mpie_peer }
+						}
+						set_relation_potential_friend = scope:mpie_peer
+					}
+				}
+				scope:activity = {
+					add_activity_log_entry = {
+						key = mpie_peer_befriend_failed_log
+						tags = { bad }
+						score = 5
+						character = root
+						target = scope:mpie_peer
+					}
+				}
+				mpie_peer_offer_retry_effect = { GOAL = befriend }
+				mpie_debug_log_effect = { MSG = MPIE_event_befriend_failure }
+			}
+		}
+	}
+	else = {
+		mpie_peer_encounter_lost_effect = { GOAL = befriend }
+	}
+}
+
+########################
+# Learn from a Peer
+########################
+
+# Picks the lesson: the skill with the largest positive gap, a random one of them on a tie.
+# Saves scope:mpie_learn_gap and scope:mpie_learn_skill (flag:diplomacy ... flag:prowess).
+# Needs scope:mpie_actor and scope:mpie_peer, and mpie_peer_can_teach_trigger to pass.
+mpie_learn_pick_subject_effect = {
+	save_scope_value_as = {
+		name = mpie_learn_gap
+		value = mpie_learn_best_gap_value
+	}
+	random_list = {
+		1 = {
+			trigger = { mpie_learn_gap_diplomacy_value >= scope:mpie_learn_gap }
+			save_scope_value_as = { name = mpie_learn_skill value = flag:diplomacy }
+		}
+		1 = {
+			trigger = { mpie_learn_gap_martial_value >= scope:mpie_learn_gap }
+			save_scope_value_as = { name = mpie_learn_skill value = flag:martial }
+		}
+		1 = {
+			trigger = { mpie_learn_gap_stewardship_value >= scope:mpie_learn_gap }
+			save_scope_value_as = { name = mpie_learn_skill value = flag:stewardship }
+		}
+		1 = {
+			trigger = { mpie_learn_gap_intrigue_value >= scope:mpie_learn_gap }
+			save_scope_value_as = { name = mpie_learn_skill value = flag:intrigue }
+		}
+		1 = {
+			trigger = { mpie_learn_gap_learning_value >= scope:mpie_learn_gap }
+			save_scope_value_as = { name = mpie_learn_skill value = flag:learning }
+		}
+		1 = {
+			trigger = { mpie_learn_gap_prowess_value >= scope:mpie_learn_gap }
+			save_scope_value_as = { name = mpie_learn_skill value = flag:prowess }
+		}
+	}
+}
+
+# Picks a second lesson: the largest positive gap among the other skills, if any.
+# Saves scope:mpie_learn_gap_2 and, if positive, scope:mpie_learn_skill_2 and scope:mpie_learn_chance_2.
+# Needs scope:mpie_learn_skill (mpie_learn_pick_subject_effect first).
+mpie_learn_pick_second_subject_effect = {
+	save_scope_value_as = {
+		name = mpie_learn_gap_2
+		value = mpie_learn_second_best_gap_value
+	}
+	if = {
+		limit = { scope:mpie_learn_gap_2 > 0 }
+		random_list = {
+			1 = {
+				trigger = {
+					NOT = { scope:mpie_learn_skill = flag:diplomacy }
+					mpie_learn_gap_diplomacy_value >= scope:mpie_learn_gap_2
+				}
+				save_scope_value_as = { name = mpie_learn_skill_2 value = flag:diplomacy }
+			}
+			1 = {
+				trigger = {
+					NOT = { scope:mpie_learn_skill = flag:martial }
+					mpie_learn_gap_martial_value >= scope:mpie_learn_gap_2
+				}
+				save_scope_value_as = { name = mpie_learn_skill_2 value = flag:martial }
+			}
+			1 = {
+				trigger = {
+					NOT = { scope:mpie_learn_skill = flag:stewardship }
+					mpie_learn_gap_stewardship_value >= scope:mpie_learn_gap_2
+				}
+				save_scope_value_as = { name = mpie_learn_skill_2 value = flag:stewardship }
+			}
+			1 = {
+				trigger = {
+					NOT = { scope:mpie_learn_skill = flag:intrigue }
+					mpie_learn_gap_intrigue_value >= scope:mpie_learn_gap_2
+				}
+				save_scope_value_as = { name = mpie_learn_skill_2 value = flag:intrigue }
+			}
+			1 = {
+				trigger = {
+					NOT = { scope:mpie_learn_skill = flag:learning }
+					mpie_learn_gap_learning_value >= scope:mpie_learn_gap_2
+				}
+				save_scope_value_as = { name = mpie_learn_skill_2 value = flag:learning }
+			}
+			1 = {
+				trigger = {
+					NOT = { scope:mpie_learn_skill = flag:prowess }
+					mpie_learn_gap_prowess_value >= scope:mpie_learn_gap_2
+				}
+				save_scope_value_as = { name = mpie_learn_skill_2 value = flag:prowess }
+			}
+		}
+		save_scope_value_as = {
+			name = mpie_learn_chance_2
+			value = mpie_learn_chance_2_value
+		}
+	}
+}
+
+# Exactly one point in the skill saved as scope:$SKILL$
+# root = actor
+mpie_learn_add_skill_point_effect = {
+	if = {
+		limit = { scope:$SKILL$ = flag:diplomacy }
+		add_diplomacy_skill = 1
+	}
+	else_if = {
+		limit = { scope:$SKILL$ = flag:martial }
+		add_martial_skill = 1
+	}
+	else_if = {
+		limit = { scope:$SKILL$ = flag:stewardship }
+		add_stewardship_skill = 1
+	}
+	else_if = {
+		limit = { scope:$SKILL$ = flag:intrigue }
+		add_intrigue_skill = 1
+	}
+	else_if = {
+		limit = { scope:$SKILL$ = flag:learning }
+		add_learning_skill = 1
+	}
+	else_if = {
+		limit = { scope:$SKILL$ = flag:prowess }
+		add_prowess_skill = 1
+	}
+}
+
+# Stress reactions to taking a lesson in the skill saved as scope:$SKILL$ (vanilla playdate pattern):
+# active lessons (martial, prowess) relieve rowdy children and stress pensive ones (playdate.3007, 3012);
+# the other lessons relieve curious and pensive children and stress rowdy ones (playdate.4001, 5003, 3014).
+# Diligent children like any lesson, lazy ones don't.
+mpie_learn_lesson_stress_effect = {
+	if = {
+		limit = {
+			OR = {
+				scope:$SKILL$ = flag:martial
+				scope:$SKILL$ = flag:prowess
+			}
+		}
+		stress_and_fulfillment_impact = {
+			rowdy = minor_stress_impact_loss
+			pensive = minor_stress_impact_gain
+			diligent = minor_stress_impact_loss
+			lazy = minor_stress_impact_gain
+		}
+	}
+	else = {
+		stress_and_fulfillment_impact = {
+			curious = minor_stress_impact_loss
+			pensive = minor_stress_impact_loss
+			rowdy = minor_stress_impact_gain
+			diligent = minor_stress_impact_loss
+			lazy = minor_stress_impact_gain
+		}
+	}
+}
+
+# One lesson attempt.
+# $SKILL$ = name of the saved skill flag (mpie_learn_skill or mpie_learn_skill_2)
+# $CHANCE$ = name of the saved chance (mpie_learn_chance, mpie_learn_invest_chance or mpie_learn_chance_2)
+# $COST$ = none, piety or standing (mpie_peer_pay_<cost>_effect, paid only when the attempt actually happens)
+mpie_learn_attempt_effect = {
+	if = {
+		limit = {
+			mpie_peer_encounter_still_valid_trigger = { GOAL = learn INTENT = mpie_learn_from_peer_intent }
+			# The peer must still be ahead in the skill picked when the event opened
+			mpie_learn_skill_still_ahead_trigger = { SKILL = $SKILL$ }
+		}
+		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = learn LIST = resolved }
+		mpie_peer_pay_$COST$_effect = yes
+		mpie_learn_lesson_stress_effect = { SKILL = $SKILL$ }
+		random_list = {
+			0 = {
+				modifier = { add = scope:$CHANCE$ }
+				desc = mpie_learn_success_tt
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = mpie_learn_success_tt
+					left_icon = scope:mpie_peer
+					mpie_learn_add_skill_point_effect = { SKILL = $SKILL$ }
+					complete_activity_intent = yes
+				}
+				scope:activity = {
+					add_activity_log_entry = {
+						key = mpie_peer_learned_log
+						tags = { good }
+						score = 10
+						show_in_conclusion = yes
+						character = root
+						target = scope:mpie_peer
+					}
+				}
+				mpie_debug_log_effect = { MSG = MPIE_event_learn_success }
+			}
+			0 = {
+				modifier = {
+					add = {
+						value = 100
+						subtract = scope:$CHANCE$
+					}
+				}
+				desc = mpie_learn_failure_tt
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = mpie_learn_failure_tt
+					left_icon = scope:mpie_peer
+					custom_tooltip = mpie_learn_failure_effect_tt
+				}
+				scope:activity = {
+					add_activity_log_entry = {
+						key = mpie_peer_learn_failed_log
+						tags = { bad }
+						score = 5
+						character = root
+						target = scope:mpie_peer
+					}
+				}
+				mpie_peer_offer_retry_effect = { GOAL = learn }
+				mpie_debug_log_effect = { MSG = MPIE_event_learn_failure }
+			}
+		}
+	}
+	else = {
+		mpie_peer_encounter_lost_effect = { GOAL = learn }
+	}
+}
+
+########################
+# Role Model
+########################
+
+# Picks up to two different personality traits of the peer that the actor could adopt.
+# Saves scope:mpie_modeled_trait and, if there is another one, scope:mpie_modeled_trait_2.
+# Needs scope:mpie_actor and scope:mpie_peer, and mpie_role_model_has_candidate_trigger to pass.
+mpie_role_model_pick_trait_effect = {
+	scope:mpie_peer = {
+		random_character_trait = {
+			limit = {
+				mpie_role_model_candidate_trait_trigger = { ACTOR = scope:mpie_actor }
+			}
+			save_scope_as = mpie_modeled_trait
+		}
+		if = {
+			limit = { exists = scope:mpie_modeled_trait }
+			random_character_trait = {
+				limit = {
+					NOT = { this = scope:mpie_modeled_trait }
+					mpie_role_model_candidate_trait_trigger = { ACTOR = scope:mpie_actor }
+				}
+				save_scope_as = mpie_modeled_trait_2
+			}
+		}
+	}
+}
+
+# Adds the trait saved as scope:$TRAIT$.
+# add_trait can silently refuse a trait, so success is only reported once the actor has it.
+# Saves scope:mpie_adopted_trait for the toast text.
+# root = actor
+mpie_role_model_adopt_trait_effect = {
+	scope:$TRAIT$ = { save_scope_as = mpie_adopted_trait }
+	add_trait = scope:mpie_adopted_trait
+	if = {
+		limit = { has_trait = scope:mpie_adopted_trait }
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = mpie_role_model_success_tt
+			left_icon = scope:mpie_peer
+			custom_tooltip = mpie_role_model_adopted_effect_tt
+			complete_activity_intent = yes
+		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mpie_peer_role_model_log
+				tags = { good }
+				score = 10
+				show_in_conclusion = yes
+				character = root
+				target = scope:mpie_peer
+			}
+		}
+		mpie_debug_log_effect = { MSG = MPIE_event_role_model_success }
+	}
+	else = {
+		send_interface_toast = {
+			type = event_toast_effect_neutral
+			title = mpie_role_model_rejected_tt
+			left_icon = scope:mpie_peer
+			custom_tooltip = mpie_role_model_rejected_effect_tt
+		}
+		mpie_debug_log_effect = { MSG = MPIE_event_role_model_trait_refused_by_engine }
+	}
+}
+
+# One attempt to take on a trait.
+# $TRAIT$ = name of the saved trait (mpie_modeled_trait or mpie_modeled_trait_2)
+# $CHANCE$ = name of the saved chance (mpie_role_model_chance, mpie_role_model_invest_chance or mpie_role_model_chance_2)
+# $COST$ = none or piety (mpie_peer_pay_<cost>_effect, paid only when the attempt actually happens)
+mpie_role_model_attempt_effect = {
+	if = {
+		limit = {
+			mpie_peer_encounter_still_valid_trigger = { GOAL = role_model INTENT = mpie_role_model_intent }
+			# The trait picked when the event opened must still be one the actor could adopt
+			exists = scope:$TRAIT$
+			scope:mpie_peer = { has_trait = scope:$TRAIT$ }
+			number_of_personality_traits < personality_trait_limit
+			scope:$TRAIT$ = {
+				mpie_role_model_candidate_trait_trigger = { ACTOR = root }
+			}
+		}
+		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = role_model LIST = resolved }
+		mpie_peer_pay_$COST$_effect = yes
+		# Trying to change yourself: fickle children enjoy it, stubborn ones resist
+		stress_and_fulfillment_impact = {
+			fickle = minor_stress_impact_loss
+			stubborn = minor_stress_impact_gain
+		}
+		random_list = {
+			0 = {
+				modifier = { add = scope:$CHANCE$ }
+				desc = mpie_role_model_success_tt
+				show_as_tooltip = {
+					add_trait = scope:$TRAIT$
+					complete_activity_intent = yes
+				}
+				hidden_effect = {
+					mpie_role_model_adopt_trait_effect = { TRAIT = $TRAIT$ }
+				}
+			}
+			0 = {
+				modifier = {
+					add = {
+						value = 100
+						subtract = scope:$CHANCE$
+					}
+				}
+				desc = mpie_role_model_failure_tt
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = mpie_role_model_failure_tt
+					left_icon = scope:mpie_peer
+					custom_tooltip = mpie_role_model_failure_effect_tt
+				}
+				scope:activity = {
+					add_activity_log_entry = {
+						key = mpie_peer_role_model_failed_log
+						tags = { bad }
+						score = 5
+						character = root
+						target = scope:mpie_peer
+					}
+				}
+				mpie_peer_offer_retry_effect = { GOAL = role_model }
+				mpie_debug_log_effect = { MSG = MPIE_event_role_model_failure }
+			}
+		}
+	}
+	else = {
+		mpie_peer_encounter_lost_effect = { GOAL = role_model }
+	}
+}

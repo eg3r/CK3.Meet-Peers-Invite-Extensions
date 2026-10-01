@@ -17,3 +17,24 @@ mpie_meet_peers_cooldown_reset = {
 		flag = blocks_achievements
 	}
 }
+
+# Length of the Meet Peers cooldown (vanilla: 3 years, standard_playdate_cooldown_time).
+# Read by mpie_meet_peers_cooldown_days_value, the duration of var:mpie_meet_peers_cooldown
+# (set when a Meet Peers starts), so a cooldown already running keeps its end date.
+mpie_meet_peers_cooldown = {
+	categories = {
+		tweaks
+	}
+
+	default = mpie_meet_peers_cooldown_2_years
+
+	mpie_meet_peers_cooldown_1_year = {
+		flag = blocks_achievements
+	}
+
+	mpie_meet_peers_cooldown_2_years = {
+	}
+
+	mpie_meet_peers_cooldown_3_years = {
+	}
+}

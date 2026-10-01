@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "Решение о сбросе перезарядки «Встречи с ровесниками» недоступно."
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "Включено"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Игроки могут принять решение о сбросе перезарядки «Встречи с ровесниками», чтобы запланировать следующую без ожидания."
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "Перезарядка «Встречи с ровесниками»"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1 год"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "После проведения «Встречи с ровесниками» персонаж должен подождать 1 год, прежде чем провести следующую."
+ setting_mpie_meet_peers_cooldown_2_years:0 "2 года"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "После проведения «Встречи с ровесниками» персонаж должен подождать 2 года, прежде чем провести следующую."
+ setting_mpie_meet_peers_cooldown_3_years:0 "3 года (базовая игра)"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "После проведения «Встречи с ровесниками» персонаж должен подождать 3 года, прежде чем провести следующую, как в базовой игре."
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "Вы не можете провести следующее событие [GetActivityType('activity_playdate').GetName] до [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName|U] не может провести следующее событие [GetActivityType('activity_playdate').GetName] до [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"

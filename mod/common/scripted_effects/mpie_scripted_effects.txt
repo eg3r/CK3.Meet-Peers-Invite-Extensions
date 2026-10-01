@@ -32,3 +32,44 @@ mpie_add_children_in_range_effect = {
 		}
 	}
 }
+
+# Debug logging
+
+# Writes $MSG$ followed by a dump of all current scopes (saved scopes and scope values included)
+# to Documents\Paradox Interactive\Crusader Kings III\logs\debug.log.
+# Debug mode only (-debug_mode launch option), so normal games write nothing.
+# $MSG$ = one tag without spaces, always starting with MPIE_ so the log is easy to search
+mpie_debug_log_effect = {
+	if = {
+		limit = { debug_only = yes }
+		debug_log = $MSG$
+		debug_log_scopes = yes
+	}
+}
+
+# Logs the cooldown this Meet Peers sets.
+# root = the activity, scope:host = host. Called from on_start.
+mpie_meet_peers_started_debug_log_effect = {
+	if = {
+		limit = { debug_only = yes }
+		save_scope_value_as = {
+			name = mpie_debug_cooldown_days
+			value = mpie_meet_peers_cooldown_days_value
+		}
+		mpie_debug_log_effect = { MSG = MPIE_meet_peers_started }
+	}
+}
+
+# Cooldown
+
+# Starts the Meet Peers cooldown: a timed variable that blocks hosting
+# (mpie_meet_peers_not_on_cooldown_trigger) until it runs out or the reset decision removes it.
+# Length from the mpie_meet_peers_cooldown game rule.
+# root = host, called from on_start
+mpie_meet_peers_start_cooldown_effect = {
+	set_variable = {
+		name = mpie_meet_peers_cooldown
+		value = yes
+		days = mpie_meet_peers_cooldown_days_value
+	}
+}

@@ -17,3 +17,108 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "The Reset Meet Peers Cooldown decision is not available."
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "Enabled"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Players can take the Reset Meet Peers Cooldown decision to plan the next Meet Peers without waiting for the cooldown."
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "Meet Peers Cooldown"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1 Year"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "After hosting a Meet Peers, a character must wait 1 year before hosting the next one."
+ setting_mpie_meet_peers_cooldown_2_years:0 "2 Years"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "After hosting a Meet Peers, a character must wait 2 years before hosting the next one."
+ setting_mpie_meet_peers_cooldown_3_years:0 "3 Years (Vanilla)"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "After hosting a Meet Peers, a character must wait 3 years before hosting the next one, as in the base game."
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "You cannot host another [GetActivityType('activity_playdate').GetName] until [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName|U] cannot host another [GetActivityType('activity_playdate').GetName] until [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
+
+ # Meet Peers goals (intents)
+ mpie_befriend_peer_intent:0 "Befriend a Peer"
+ mpie_befriend_peer_intent_desc:0 "You want to become [friends|E] with your target. Once you have both arrived, a moment alone with them usually comes up, with a few ways to win their friendship. It is more likely if they already like you."
+ mpie_learn_from_peer_intent:0 "Learn from a Peer"
+ mpie_learn_from_peer_intent_desc:0 "You want to learn from your target. Once you have both arrived, a lesson usually comes up: a point in the skill where they are furthest ahead of you, or in their second-best. The bigger the gap and the better your [learning|E], the better the chance."
+ mpie_role_model_intent:0 "Role Model"
+ mpie_role_model_intent_desc:0 "You look up to your target. Once you have both arrived, a moment usually comes up to take on one of their [personality_traits|E]. It is more likely if you are friends or close in age."
+
+ # Befriend a Peer encounter
+ mpie_peer.1001.t:0 "A Friend in the Making"
+ mpie_peer.1001.desc:0 "Ever since I arrived, I have wanted to get to know [mpie_peer.GetTitledFirstName] better. Today I finally find [mpie_peer.GetHerHim] alone, bouncing a ball against the garden wall.\n\nIf I want us to be friends, this is my chance!"
+ mpie_peer.1001.a:0 "Ask [mpie_peer.GetHerHim] to play with me ([mpie_befriend_chance|0]%)"
+ mpie_peer.1001.b:0 "Bring [mpie_peer.GetHerHim] some sweets as a gift ([mpie_befriend_invest_chance|0]%)"
+ mpie_peer.1001.f.prestige:0 "Invite [mpie_peer.GetHerHim] to sit beside me at the high table ([mpie_befriend_invest_chance|0]%)"
+ mpie_peer.1001.f.influence:0 "Promise to speak for [mpie_peer.GetHerHis] family at court ([mpie_befriend_invest_chance|0]%)"
+ mpie_peer.1001.c:0 "Make [mpie_peer.GetHerHim] laugh until [mpie_peer.GetSheHe] cries ([mpie_befriend_trait_chance|0]%)"
+ mpie_peer.1001.d:0 "Race [mpie_peer.GetHerHim] to the old oak tree! ([mpie_befriend_trait_chance|0]%)"
+ mpie_peer.1001.e:0 "Ask [mpie_peer.GetHerHim] all about [mpie_peer.GetHerHis] home ([mpie_befriend_trait_chance|0]%)"
+ mpie_befriend_success_tt:0 "Friends!"
+ mpie_befriend_failure_tt:0 "Not Friends Yet"
+
+ # Learn from a Peer encounter
+ mpie_peer.2001.t:0 "A Lesson from a Peer"
+ mpie_peer.2001.desc.diplomacy:0 "[mpie_peer.GetTitledFirstName] always seems to know what to say. The other children listen when [mpie_peer.GetSheHe] speaks, and even the grown-ups smile at [mpie_peer.GetHerHim].\n\nIf [mpie_peer.GetSheHe] showed me how, I could get much better at [diplomacy|E]."
+ mpie_peer.2001.desc.martial:0 "Whenever we play at war, [mpie_peer.GetTitledFirstName] is the one giving the orders, and [mpie_peer.GetHerHis] side always wins.\n\nIf [mpie_peer.GetSheHe] showed me how, I could get much better at [martial|E]."
+ mpie_peer.2001.desc.stewardship:0 "[mpie_peer.GetTitledFirstName] keeps track of every marble, sweet and copper coin we trade, and somehow always ends up with more than [mpie_peer.GetSheHe] started with.\n\nIf [mpie_peer.GetSheHe] showed me how, I could get much better at [stewardship|E]."
+ mpie_peer.2001.desc.intrigue:0 "Nothing happens here without [mpie_peer.GetTitledFirstName] knowing about it first. [mpie_peer.GetSheHe|U] hears every whisper and finds every hiding place.\n\nIf [mpie_peer.GetSheHe] showed me how, I could get much better at [intrigue|E]."
+ mpie_peer.2001.desc.learning:0 "[mpie_peer.GetTitledFirstName] has read more books than anyone I know, and [mpie_peer.GetSheHe] can answer questions that stump even our tutors.\n\nIf [mpie_peer.GetSheHe] showed me how, I could get much better at [learning|E]."
+ mpie_peer.2001.desc.prowess:0 "[mpie_peer.GetTitledFirstName] is quick, strong, and never drops [mpie_peer.GetHerHis] wooden sword, no matter how hard the blow.\n\nIf [mpie_peer.GetSheHe] showed me how, I could get much better at [prowess|E]."
+ mpie_peer.2001.desc.gap:0 "\n\n#weak [mpie_peer.GetSheHe|U] is [mpie_learn_gap|0] ahead of me.#!"
+ mpie_peer.2001.a.diplomacy:0 "Ask [mpie_peer.GetHerHim] to teach me [diplomacy|E] ([mpie_learn_chance|0]%)"
+ mpie_peer.2001.a.martial:0 "Ask [mpie_peer.GetHerHim] to teach me [martial|E] ([mpie_learn_chance|0]%)"
+ mpie_peer.2001.a.stewardship:0 "Ask [mpie_peer.GetHerHim] to teach me [stewardship|E] ([mpie_learn_chance|0]%)"
+ mpie_peer.2001.a.intrigue:0 "Ask [mpie_peer.GetHerHim] to teach me [intrigue|E] ([mpie_learn_chance|0]%)"
+ mpie_peer.2001.a.learning:0 "Ask [mpie_peer.GetHerHim] to teach me [learning|E] ([mpie_learn_chance|0]%)"
+ mpie_peer.2001.a.prowess:0 "Ask [mpie_peer.GetHerHim] to teach me [prowess|E] ([mpie_learn_chance|0]%)"
+ mpie_peer.2001.b.diplomacy:0 "Ask about [diplomacy|E] instead ([mpie_learn_chance_2|0]%)"
+ mpie_peer.2001.b.martial:0 "Ask about [martial|E] instead ([mpie_learn_chance_2|0]%)"
+ mpie_peer.2001.b.stewardship:0 "Ask about [stewardship|E] instead ([mpie_learn_chance_2|0]%)"
+ mpie_peer.2001.b.intrigue:0 "Ask about [intrigue|E] instead ([mpie_learn_chance_2|0]%)"
+ mpie_peer.2001.b.learning:0 "Ask about [learning|E] instead ([mpie_learn_chance_2|0]%)"
+ mpie_peer.2001.b.prowess:0 "Ask about [prowess|E] instead ([mpie_learn_chance_2|0]%)"
+ mpie_peer.2001.c:0 "Say a prayer for wisdom together first ([mpie_learn_invest_chance|0]%)"
+ mpie_peer.2001.d.prestige:0 "Remind [mpie_peer.GetHerHim] who I am, [mpie_peer.GetSheHe] will not refuse me ([mpie_learn_invest_chance|0]%)"
+ mpie_peer.2001.d.influence:0 "Offer [mpie_peer.GetHerHis] family my favor at court in return ([mpie_learn_invest_chance|0]%)"
+ mpie_learn_success_tt:0 "A Lesson Learned"
+ mpie_learn_failure_tt:0 "A Lesson Lost"
+ mpie_learn_failure_effect_tt:0 "[mpie_peer.GetShortUIName] tried to teach you, but it did not stick"
+
+ # Role Model encounter
+ mpie_peer.3001.t:0 "Someone to Look Up To"
+ mpie_peer.3001.desc:0 "I can't stop watching [mpie_peer.GetTitledFirstName]. Everyone notices how [mpie_modeled_trait.GetName( mpie_peer )|l] [mpie_peer.GetSheHe] is, and they all seem to admire [mpie_peer.GetHerHim] for it.\n\nMaybe I could be more like that?"
+ mpie_peer.3001.desc.second:0 " Then again, [mpie_peer.GetSheHe] can be so [mpie_modeled_trait_2.GetName( mpie_peer )|l], too..."
+ mpie_peer.3001.a:0 "I want to be [mpie_modeled_trait.GetName( ROOT.Char )|l] too! ([mpie_role_model_chance|0]%)"
+ mpie_peer.3001.b:0 "Maybe I should be [mpie_modeled_trait_2.GetName( ROOT.Char )|l] instead ([mpie_role_model_chance_2|0]%)"
+ mpie_peer.3001.c:0 "Ask the chaplain to help me become [mpie_modeled_trait.GetName( ROOT.Char )|l] ([mpie_role_model_invest_chance|0]%)"
+ mpie_role_model_success_tt:0 "Taking After a Peer"
+ mpie_role_model_failure_tt:0 "Still Myself"
+ mpie_role_model_failure_effect_tt:0 "You tried to be more like [mpie_peer.GetShortUIName], but it did not suit you"
+ mpie_role_model_adopted_effect_tt:0 "Took on the [mpie_adopted_trait.GetName( mpie_actor )] [trait|E] from [mpie_peer.GetShortUIName]"
+ mpie_role_model_rejected_tt:0 "Not Meant to Be"
+ mpie_role_model_rejected_effect_tt:0 "You could not take on the [mpie_adopted_trait.GetName( mpie_actor )] [trait|E] after all"
+
+ # Alternative pastime (instead of the goal; small sure reward)
+ mpie_peer_pastime.games:0 "Run off to play with the others instead"
+ mpie_peer_pastime.chapel:0 "Slip away to the chapel instead"
+ mpie_peer_pastime.quiet:0 "Find a quiet corner instead"
+ mpie_peer_pastime.showoff:0 "Show off in front of the others instead"
+
+ # Shared encounter tooltips
+ mpie_peer_decline_tt:0 "You will not get another chance at this goal during this [GetActivityType('activity_playdate').GetName]"
+ mpie_peer_encounter_lost_tt:0 "The moment has passed"
+
+ # Activity log
+ mpie_peer_goal_missed_log_title:0 "A Missed Chance"
+ mpie_peer_goal_missed_log:0 "[CHARACTER.GetTitledFirstName] never got the chance to spend time with [TARGET_CHARACTER.GetTitledFirstName]"
+ mpie_peer_goal_no_moment_log_title:0 "No Moment Together"
+ mpie_peer_goal_no_moment_log:0 "[CHARACTER.GetTitledFirstName] never found the right moment with [TARGET_CHARACTER.GetTitledFirstName]"
+ mpie_peer_befriend_failed_log_title:0 "Not Friends Yet"
+ mpie_peer_befriend_failed_log:0 "[CHARACTER.GetTitledFirstName] tried to befriend [TARGET_CHARACTER.GetTitledFirstName], without success"
+ mpie_peer_learned_log_title:0 "A Lesson Learned"
+ mpie_peer_learned_log:0 "[CHARACTER.GetTitledFirstName] learned a thing or two from [TARGET_CHARACTER.GetTitledFirstName]"
+ mpie_peer_learn_failed_log_title:0 "A Lesson Lost"
+ mpie_peer_learn_failed_log:0 "[CHARACTER.GetTitledFirstName] tried to learn from [TARGET_CHARACTER.GetTitledFirstName], but could not keep up"
+ mpie_peer_role_model_log_title:0 "Taking After a Peer"
+ mpie_peer_role_model_log:0 "[CHARACTER.GetTitledFirstName] began to take after [TARGET_CHARACTER.GetTitledFirstName]"
+ mpie_peer_role_model_failed_log_title:0 "Still Myself"
+ mpie_peer_role_model_failed_log:0 "[CHARACTER.GetTitledFirstName] tried to be more like [TARGET_CHARACTER.GetTitledFirstName], but it did not suit [CHARACTER.GetHerHim]"
+
+ # Relationship reason
+ mpie_friend_meet_peers_reason:0 "[CHARACTER.GetShortUIName|U] and [TARGET_CHARACTER.GetShortUIName] became friends at a [GetActivityType('activity_playdate').GetNameNoTooltip]."

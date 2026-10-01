@@ -1,0 +1,377 @@
+﻿# Meet Peers - Invite Extensions: peer goal (intent) values
+#
+# Evaluated in the mpie_peer events, where these scopes are saved:
+#   scope:mpie_actor = child who picked the goal, scope:mpie_peer = the selected peer
+# Chances are percentages (0-100) and are saved in the event's immediate block,
+# so the chance shown in an option is the one that is rolled.
+# Failure weights are inline in the roll (100 - chance), see mpie_peer_intent_effects.txt.
+#
+# Script value min/max are bounds: "min = X" means "at least X", "max = X" means "at most X".
+
+########################
+# Encounter
+########################
+
+# Chance that a moment for the goal comes up during this Meet Peers
+# (first roll, when both children are first at the activity).
+# 80 base, +10 for gregarious, charming or rowdy, -15 for shy; clamped to 50-95
+mpie_peer_encounter_chance_value = {
+	value = 80
+	if = {
+		limit = {
+			scope:mpie_actor = {
+				OR = {
+					has_trait = gregarious
+					has_trait = charming
+					has_trait = rowdy
+				}
+			}
+		}
+		add = 10
+	}
+	if = {
+		limit = {
+			scope:mpie_actor = { has_trait = shy }
+		}
+		add = -15
+	}
+	min = 50
+	max = 95
+}
+
+# Second chance, rolled in the last month of the active phase if the first roll failed:
+# the first chance -50 (80 -> 30, gregarious/charming/rowdy 90 -> 40, shy 65 -> 15); at least 10
+mpie_peer_encounter_second_chance_value = {
+	value = mpie_peer_encounter_chance_value
+	subtract = 50
+	min = 10
+}
+
+# Retry after a failed attempt (once per goal, per activity): another moment comes up with
+# the same chance as the second chance, rolled once mpie_peer_retry_wait_days_value have passed
+mpie_peer_encounter_retry_chance_value = {
+	value = mpie_peer_encounter_second_chance_value
+}
+
+mpie_peer_retry_wait_days_value = 21
+
+########################
+# Investment costs (mpie_peer_pay_<cost>_effect, checked by the options)
+########################
+
+# Piety for the prayer options (no other downside)
+mpie_invest_piety_value = 75
+mpie_invest_piety_loss_value = {
+	value = 0
+	subtract = mpie_invest_piety_value
+}
+
+# Prestige for the "standing" options; pulling rank also costs some of the peer's opinion
+# (mpie_invest_haughty_opinion_value, vanilla haughty_opinion)
+mpie_invest_prestige_value = 50
+mpie_invest_prestige_loss_value = {
+	value = 0
+	subtract = mpie_invest_prestige_value
+}
+mpie_invest_haughty_opinion_value = -10
+
+# Influence for the "standing" options of governments that use influence (vanilla minor amount)
+mpie_invest_influence_value = minor_influence_value
+mpie_invest_influence_loss_value = {
+	value = 0
+	subtract = mpie_invest_influence_value
+}
+
+########################
+# Befriend a Peer
+########################
+
+# 35 base, +25 if already potential friends, +/-20 from the peer's opinion (opinion / 4),
+# + actor's diplomacy (up to 10), + personality as in the vanilla befriend scheme
+# (common/schemes/scheme_types/befriend_scheme.txt): actor gregarious +5 / shy -5 / callous -4,
+# peer gregarious +5 / shy -5 / callous -4 / paranoid -4 / trusting +4; clamped to 10-90
+mpie_befriend_chance_value = {
+	value = 35
+	if = {
+		limit = {
+			scope:mpie_actor = { has_relation_potential_friend = scope:mpie_peer }
+		}
+		add = 25
+	}
+	add = {
+		value = "scope:mpie_peer.opinion(scope:mpie_actor)"
+		divide = 4
+		min = -20
+		max = 20
+	}
+	add = {
+		value = scope:mpie_actor.diplomacy
+		max = 10
+	}
+	if = {
+		limit = { scope:mpie_actor = { has_trait = gregarious } }
+		add = 5
+	}
+	if = {
+		limit = { scope:mpie_actor = { has_trait = shy } }
+		add = -5
+	}
+	if = {
+		limit = { scope:mpie_actor = { has_trait = callous } }
+		add = -4
+	}
+	if = {
+		limit = { scope:mpie_peer = { has_trait = gregarious } }
+		add = 5
+	}
+	if = {
+		limit = { scope:mpie_peer = { has_trait = shy } }
+		add = -5
+	}
+	if = {
+		limit = { scope:mpie_peer = { has_trait = callous } }
+		add = -4
+	}
+	if = {
+		limit = { scope:mpie_peer = { has_trait = paranoid } }
+		add = -4
+	}
+	if = {
+		limit = { scope:mpie_peer = { has_trait = trusting } }
+		add = 4
+	}
+	min = 10
+	max = 90
+}
+
+# Gold for the gift option (vanilla playdate events spend 5-10 gold on such things)
+mpie_befriend_gift_gold_value = 10
+
+# Investment options (gift, standing): base chance +15, at most 95
+mpie_befriend_invest_chance_value = {
+	value = scope:mpie_befriend_chance
+	add = 15
+	max = 95
+}
+
+# Childhood trait option: base chance +20 (charming) or +10 (rowdy, curious), at most 95
+mpie_befriend_trait_chance_value = {
+	value = scope:mpie_befriend_chance
+	if = {
+		limit = {
+			scope:mpie_actor = { has_trait = charming }
+		}
+		add = 20
+	}
+	else_if = {
+		limit = {
+			scope:mpie_actor = {
+				OR = {
+					has_trait = rowdy
+					has_trait = curious
+				}
+			}
+		}
+		add = 10
+	}
+	max = 95
+}
+
+########################
+# Learn from a Peer
+########################
+
+# Skill gaps: peer's skill minus actor's skill (positive = the peer is ahead)
+mpie_learn_gap_diplomacy_value = {
+	value = scope:mpie_peer.diplomacy
+	subtract = scope:mpie_actor.diplomacy
+}
+
+mpie_learn_gap_martial_value = {
+	value = scope:mpie_peer.martial
+	subtract = scope:mpie_actor.martial
+}
+
+mpie_learn_gap_stewardship_value = {
+	value = scope:mpie_peer.stewardship
+	subtract = scope:mpie_actor.stewardship
+}
+
+mpie_learn_gap_intrigue_value = {
+	value = scope:mpie_peer.intrigue
+	subtract = scope:mpie_actor.intrigue
+}
+
+mpie_learn_gap_learning_value = {
+	value = scope:mpie_peer.learning
+	subtract = scope:mpie_actor.learning
+}
+
+mpie_learn_gap_prowess_value = {
+	value = scope:mpie_peer.prowess
+	subtract = scope:mpie_actor.prowess
+}
+
+# Largest of the six gaps ("min = X" keeps the larger of the two values)
+mpie_learn_best_gap_value = {
+	value = mpie_learn_gap_diplomacy_value
+	min = mpie_learn_gap_martial_value
+	min = mpie_learn_gap_stewardship_value
+	min = mpie_learn_gap_intrigue_value
+	min = mpie_learn_gap_learning_value
+	min = mpie_learn_gap_prowess_value
+}
+
+# Largest gap among the other five skills (all but scope:mpie_learn_skill)
+mpie_learn_second_best_gap_value = {
+	value = -100
+	if = {
+		limit = { NOT = { scope:mpie_learn_skill = flag:diplomacy } }
+		min = mpie_learn_gap_diplomacy_value
+	}
+	if = {
+		limit = { NOT = { scope:mpie_learn_skill = flag:martial } }
+		min = mpie_learn_gap_martial_value
+	}
+	if = {
+		limit = { NOT = { scope:mpie_learn_skill = flag:stewardship } }
+		min = mpie_learn_gap_stewardship_value
+	}
+	if = {
+		limit = { NOT = { scope:mpie_learn_skill = flag:intrigue } }
+		min = mpie_learn_gap_intrigue_value
+	}
+	if = {
+		limit = { NOT = { scope:mpie_learn_skill = flag:learning } }
+		min = mpie_learn_gap_learning_value
+	}
+	if = {
+		limit = { NOT = { scope:mpie_learn_skill = flag:prowess } }
+		min = mpie_learn_gap_prowess_value
+	}
+}
+
+# How readily the actor learns, for any lesson: diligent +5, lazy -5, curious (childhood) +5
+mpie_learn_aptitude_value = {
+	value = 0
+	if = {
+		limit = { scope:mpie_actor = { has_trait = diligent } }
+		add = 5
+	}
+	if = {
+		limit = { scope:mpie_actor = { has_trait = lazy } }
+		add = -5
+	}
+	if = {
+		limit = { scope:mpie_actor = { has_trait = curious } }
+		add = 5
+	}
+}
+
+# 15 + 5 per point of gap (up to 8) + 2 per point of the actor's learning (up to 10)
+# + aptitude (mpie_learn_aptitude_value) + 10 if the actor's education focus matches the lesson
+# (vanilla playdate events also favor children by focus); clamped to 15-70
+# Examples without traits or focus: gap 1, learning 4 = 28; gap 4, learning 6 = 47; gap 10, learning 10 = 70
+mpie_learn_chance_value = {
+	value = scope:mpie_learn_gap
+	max = 8
+	multiply = 5
+	add = 15
+	add = {
+		value = scope:mpie_actor.learning
+		max = 10
+		multiply = 2
+	}
+	add = mpie_learn_aptitude_value
+	if = {
+		limit = { mpie_learn_focus_matches_trigger = { SKILL = mpie_learn_skill } }
+		add = 10
+	}
+	min = 15
+	max = 70
+}
+
+# Second-best skill: the same formula with its own gap and focus match, -10 (the peer is less of an expert);
+# clamped to 10-60
+mpie_learn_chance_2_value = {
+	value = scope:mpie_learn_gap_2
+	max = 8
+	multiply = 5
+	add = 15
+	add = {
+		value = scope:mpie_actor.learning
+		max = 10
+		multiply = 2
+	}
+	add = mpie_learn_aptitude_value
+	if = {
+		limit = { mpie_learn_focus_matches_trigger = { SKILL = mpie_learn_skill_2 } }
+		add = 10
+	}
+	subtract = 10
+	min = 10
+	max = 60
+}
+
+# Investment options on the best skill (pray, standing): its chance +15, at most 85
+mpie_learn_invest_chance_value = {
+	value = scope:mpie_learn_chance
+	add = 15
+	max = 85
+}
+
+########################
+# Role Model
+########################
+
+# Age difference in years
+mpie_peer_age_gap_value = {
+	value = scope:mpie_peer.age
+	subtract = scope:mpie_actor.age
+	abs = yes
+}
+
+# 20 base, +10 if friends, +10 if at most 2 years apart,
+# +10 for fickle / -10 for stubborn (how easily the actor changes); clamped to 10-50
+mpie_role_model_chance_value = {
+	value = 20
+	if = {
+		limit = {
+			scope:mpie_actor = {
+				OR = {
+					has_relation_friend = scope:mpie_peer
+					has_relation_best_friend = scope:mpie_peer
+				}
+			}
+		}
+		add = 10
+	}
+	if = {
+		limit = { mpie_peer_age_gap_value <= 2 }
+		add = 10
+	}
+	if = {
+		limit = { scope:mpie_actor = { has_trait = fickle } }
+		add = 10
+	}
+	if = {
+		limit = { scope:mpie_actor = { has_trait = stubborn } }
+		add = -10
+	}
+	min = 10
+	max = 50
+}
+
+# Second trait: base chance -10 (a less obvious side of the peer), at least 10
+mpie_role_model_chance_2_value = {
+	value = scope:mpie_role_model_chance
+	subtract = 10
+	min = 10
+}
+
+# Investment option on the first trait (pray): its chance +15, at most 65
+mpie_role_model_invest_chance_value = {
+	value = scope:mpie_role_model_chance
+	add = 15
+	max = 65
+}

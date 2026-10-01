@@ -17,3 +17,16 @@
  setting_mpie_meet_peers_cooldown_reset_disabled_desc:0 "La décision de réinitialiser le délai de Rencontre des pairs n'est pas disponible."
  setting_mpie_meet_peers_cooldown_reset_enabled:0 "Activé"
  setting_mpie_meet_peers_cooldown_reset_enabled_desc:0 "Les joueurs peuvent prendre la décision de réinitialiser le délai de Rencontre des pairs pour organiser la suivante sans attendre."
+ 
+ # Game rule: cooldown length
+ rule_mpie_meet_peers_cooldown:0 "Délai de Rencontre des pairs"
+ setting_mpie_meet_peers_cooldown_1_year:0 "1 an"
+ setting_mpie_meet_peers_cooldown_1_year_desc:0 "Après avoir organisé une Rencontre des pairs, un personnage doit attendre 1 an avant d'en organiser une autre."
+ setting_mpie_meet_peers_cooldown_2_years:0 "2 ans"
+ setting_mpie_meet_peers_cooldown_2_years_desc:0 "Après avoir organisé une Rencontre des pairs, un personnage doit attendre 2 ans avant d'en organiser une autre."
+ setting_mpie_meet_peers_cooldown_3_years:0 "3 ans (jeu de base)"
+ setting_mpie_meet_peers_cooldown_3_years_desc:0 "Après avoir organisé une Rencontre des pairs, un personnage doit attendre 3 ans avant d'en organiser une autre, comme dans le jeu de base."
+ 
+ # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
+ MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "Vous ne pouvez pas organiser une nouvelle activité [GetActivityType('activity_playdate').GetName] avant [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
+ MPIE_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName|U] ne peut pas organiser une nouvelle activité [GetActivityType('activity_playdate').GetName] avant [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
