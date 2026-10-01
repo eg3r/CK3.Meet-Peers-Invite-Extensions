@@ -1,8 +1,9 @@
 ﻿l_polish:
  # Meet Peers guest invite rules
- mpie_invite_rule_neighbors_children:0 "Dzieci sąsiednich władców"
+ mpie_invite_rule_neighbors_children:0 "Dzieci z sąsiedztwa"
  mpie_invite_rule_same_faith_children:0 "Dzieci tej samej wiary"
  mpie_invite_rule_opposite_sex_children:0 "Dzieci płci przeciwnej"
+ mpie_invite_rule_nearby_player_children:0 "Pobliskie dzieci graczy"
  
  # Meet Peers cooldown reset decision
  mpie_reset_meet_peers_cooldown_decision:0 "Zresetuj czas odnowienia: [GetActivityType('activity_playdate').GetNameNoTooltip]"
@@ -26,6 +27,22 @@
  setting_mpie_meet_peers_cooldown_2_years_desc:0 "Po zorganizowaniu Spotkania z rówieśnikami postać musi odczekać 2 lata, zanim zorganizuje kolejne."
  setting_mpie_meet_peers_cooldown_3_years:0 "3 lata (gra podstawowa)"
  setting_mpie_meet_peers_cooldown_3_years_desc:0 "Po zorganizowaniu Spotkania z rówieśnikami postać musi odczekać 3 lata, zanim zorganizuje kolejne, tak jak w grze podstawowej."
+
+ # Game rule: AI Meet Peers and player children
+ rule_mpie_ai_invites_players:0 "Spotkania z rówieśnikami SI a dzieci graczy"
+ setting_mpie_ai_invites_players_off:0 "Wyłączone"
+ setting_mpie_ai_invites_players_off_desc:0 "Dzieci SI organizują Spotkania z rówieśnikami jak w grze podstawowej i nie szukają pobliskich dzieci graczy."
+ setting_mpie_ai_invites_players_near:0 "W pobliżu"
+ setting_mpie_ai_invites_players_near_desc:0 "Dzieci SI częściej organizują Spotkania z rówieśnikami (jako hrabiowie ok. raz w dzieciństwie, jako cesarze do czterech razy), zapraszają dzieci graczy z tego samego lub sąsiedniego państwa albo mieszkające w pobliżu i chętniej je organizują, gdy któreś jest blisko."
+ setting_mpie_ai_invites_players_near_and_faith:0 "W pobliżu i ta sama wiara"
+ setting_mpie_ai_invites_players_near_and_faith_desc:0 "Jak „W pobliżu”, a dzieci SI zapraszają także dzieci graczy swojej wiary z dalszych stron."
+
+ # Game rule: Meet Peers guests at war
+ rule_mpie_meet_peers_guests_at_war:0 "Goście Spotkania z rówieśnikami w czasie wojny"
+ setting_mpie_meet_peers_guests_at_war_disabled:0 "Niedozwolone"
+ setting_mpie_meet_peers_guests_at_war_disabled_desc:0 "Jak w grze podstawowej dzieci w stanie wojny nie mogą brać udziału w Spotkaniu z rówieśnikami."
+ setting_mpie_meet_peers_guests_at_war_enabled:0 "Dozwolone dla graczy"
+ setting_mpie_meet_peers_guests_at_war_enabled_desc:0 "Dzieci graczy w stanie wojny mogą mimo to brać udział w Spotkaniach z rówieśnikami jako goście. Dzieci SI bez zmian."
  
  # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
  MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "Nie możesz zorganizować kolejnego wydarzenia [GetActivityType('activity_playdate').GetName] przed [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"

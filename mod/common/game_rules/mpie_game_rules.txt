@@ -38,3 +38,39 @@ mpie_meet_peers_cooldown = {
 	mpie_meet_peers_cooldown_3_years = {
 	}
 }
+
+# Do AI-hosted Meet Peers invite nearby player children (mpie_invite_rule_nearby_player_children),
+# and do AI children near a player child host more often (ai_will_do bonus, count throttle bypass)?
+# Read by mpie_ai_invites_players_enabled_trigger / mpie_ai_invites_players_faith_enabled_trigger.
+mpie_ai_invites_players = {
+	categories = {
+		tweaks
+	}
+
+	default = mpie_ai_invites_players_near_and_faith
+
+	mpie_ai_invites_players_off = {
+	}
+
+	mpie_ai_invites_players_near = {
+	}
+
+	mpie_ai_invites_players_near_and_faith = {
+	}
+}
+
+# May player children who are at war attend Meet Peers as guests? (Vanilla: no child at war can.)
+# Allowed by default. Read by mpie_meet_peers_guest_available_trigger. AI children are unchanged.
+mpie_meet_peers_guests_at_war = {
+	categories = {
+		tweaks
+	}
+
+	default = mpie_meet_peers_guests_at_war_enabled
+
+	mpie_meet_peers_guests_at_war_disabled = {
+	}
+
+	mpie_meet_peers_guests_at_war_enabled = {
+	}
+}

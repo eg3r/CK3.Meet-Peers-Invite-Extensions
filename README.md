@@ -1,18 +1,18 @@
 # Meet Peers - Invite Extensions
 
-A Crusader Kings III mod that expands the **Meet Peers** activity: child rulers can invite children from beyond their own realm, pick a goal aimed at one of the other children, and host Meet Peers more often.
+A Crusader Kings III mod that expands the **Meet Peers** activity: child rulers can invite children from beyond their own realm, pick a goal aimed at one of the other children, host Meet Peers more often, and get invited by AI children nearby.
 
 ## Features
 
 ### Guest invite options
-- **Neighboring Rulers' Children** (on by default): children of
+- **Neighboring Children** (on by default): the rulers next door who are children themselves, and the children of
   - rulers of bordering foreign realms (including across water)
   - same-rank rulers bordering you, e.g. the count next door in another duchy
+- **Nearby Player Children** (on by default): in multiplayer, other players whose characters are children living nearby. The same rule makes nearby AI children invite you (see below).
 - **Children of the Same Faith** (opt-in): children of your faith at any court in diplomatic range
-- **Children of the Opposite Sex** (opt-in): children of the opposite sex at any court in diplomatic range
 - **Vanilla rules still apply**: guests must be children aged 4–13, healthy, free, not hostages, and within diplomatic range
 
-Invite options add guests together: with both opt-in options ticked you get children who are of your faith **or** of the opposite sex, not only those who are both. The guest list is capped at 30, and the new options fill after your own realm's children.
+Invite options add guests together: a child is invited if any ticked option includes them. The guest list is capped at 30, and the new options fill after your own realm's children.
 
 ### Meet Peers goals
 In vanilla, Recreation is the only goal (intent) for Meet Peers. Player children, whether hosting or attending as a guest, can now also pick a goal aimed at another child:
@@ -30,6 +30,14 @@ How the goals work:
 ### Cooldown
 - **Shorter Meet Peers cooldown**: 2 years instead of the vanilla 3. The **Meet Peers Cooldown** game rule (Tweaks) can set it to 1, 2 or 3 years.
 - **Reset Meet Peers Cooldown** decision (off by default): lets a child ruler plan the next Meet Peers right away instead of waiting for the cooldown. Planning it starts a new cooldown.
+
+### AI children host and invite you
+In vanilla, AI child rulers rarely host Meet Peers, and when they do, they almost never invite a player child who isn't a relative, friend or part of their realm. Now:
+- **AI children host more often:** about once per childhood for counts, twice for dukes, three times for kings and four times for emperors, spread out over time.
+- **They invite you:** an AI child hosting nearby puts your child at the top of the guest list. "Nearby" means the same or a neighboring realm, or close by. AI children of your faith also invite you from further away.
+- **They host more when you're near:** AI children near a player child host more readily, and even child counts who would otherwise rarely host.
+- **Game rule "AI Meet Peers and Player Children"** (Tweaks): Off / Nearby / Nearby and Same Faith (default). **Off** turns the whole feature off: AI children host and invite as in the base game.
+- **Game rule "Meet Peers Guests at War"** (Tweaks, allowed by default): in vanilla, a child at war can't attend a Meet Peers. Child rulers often inherit wars, so by default player children at war can still attend as guests. Set it to "Not Allowed" for the vanilla behavior.
 
 ## Installation
 

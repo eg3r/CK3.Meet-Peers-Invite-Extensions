@@ -1,8 +1,9 @@
 ﻿l_japanese:
  # Meet Peers guest invite rules
- mpie_invite_rule_neighbors_children:0 "隣国の統治者の子供"
+ mpie_invite_rule_neighbors_children:0 "近隣の子供"
  mpie_invite_rule_same_faith_children:0 "同じ信仰の子供"
  mpie_invite_rule_opposite_sex_children:0 "異性の子供"
+ mpie_invite_rule_nearby_player_children:0 "近くのプレイヤーの子供"
  
  # Meet Peers cooldown reset decision
  mpie_reset_meet_peers_cooldown_decision:0 "クールダウンをリセット：[GetActivityType('activity_playdate').GetNameNoTooltip]"
@@ -26,6 +27,22 @@
  setting_mpie_meet_peers_cooldown_2_years_desc:0 "遊戯会を主催した後、次の遊戯会を主催するまで2年待つ必要があります。"
  setting_mpie_meet_peers_cooldown_3_years:0 "3年（基本ゲーム）"
  setting_mpie_meet_peers_cooldown_3_years_desc:0 "遊戯会を主催した後、次の遊戯会を主催するまで3年待つ必要があります（基本ゲームと同じ）。"
+
+ # Game rule: AI Meet Peers and player children
+ rule_mpie_ai_invites_players:0 "AIの遊戯会とプレイヤーの子供"
+ setting_mpie_ai_invites_players_off:0 "無効"
+ setting_mpie_ai_invites_players_off_desc:0 "AIの子供は基本ゲームと同様に遊戯会を主催し、近くのプレイヤーの子供を探しません。"
+ setting_mpie_ai_invites_players_near:0 "近隣"
+ setting_mpie_ai_invites_players_near_desc:0 "AIの子供はより頻繁に遊戯会を主催し（伯爵なら幼少期に約1回、皇帝なら最大4回）、同じ国や隣国、または近くに住むプレイヤーの子供を招待し、近くにいる場合はさらに積極的に主催します。"
+ setting_mpie_ai_invites_players_near_and_faith:0 "近隣と同じ信仰"
+ setting_mpie_ai_invites_players_near_and_faith_desc:0 "「近隣」に加えて、AIの子供はもっと遠くに住む同じ信仰のプレイヤーの子供も招待します。"
+
+ # Game rule: Meet Peers guests at war
+ rule_mpie_meet_peers_guests_at_war:0 "戦争中の遊戯会の客"
+ setting_mpie_meet_peers_guests_at_war_disabled:0 "許可しない"
+ setting_mpie_meet_peers_guests_at_war_disabled_desc:0 "基本ゲームと同様に、戦争中の子供は遊戯会に参加できません。"
+ setting_mpie_meet_peers_guests_at_war_enabled:0 "プレイヤーに許可"
+ setting_mpie_meet_peers_guests_at_war_enabled_desc:0 "戦争中のプレイヤーの子供も、客として遊戯会に参加できます。AIの子供は変わりません。"
  
  # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
  MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]まで次の[GetActivityType('activity_playdate').GetName]を主催できません"

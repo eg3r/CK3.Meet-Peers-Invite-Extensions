@@ -1,8 +1,9 @@
 ﻿l_english:
  # Meet Peers guest invite rules
- mpie_invite_rule_neighbors_children:0 "Neighboring Rulers' Children"
+ mpie_invite_rule_neighbors_children:0 "Neighboring Children"
  mpie_invite_rule_same_faith_children:0 "Children of the Same Faith"
  mpie_invite_rule_opposite_sex_children:0 "Children of the Opposite Sex"
+ mpie_invite_rule_nearby_player_children:0 "Nearby Player Children"
  
  # Meet Peers cooldown reset decision
  mpie_reset_meet_peers_cooldown_decision:0 "Reset [GetActivityType('activity_playdate').GetNameNoTooltip] Cooldown"
@@ -26,6 +27,22 @@
  setting_mpie_meet_peers_cooldown_2_years_desc:0 "After hosting a Meet Peers, a character must wait 2 years before hosting the next one."
  setting_mpie_meet_peers_cooldown_3_years:0 "3 Years (Vanilla)"
  setting_mpie_meet_peers_cooldown_3_years_desc:0 "After hosting a Meet Peers, a character must wait 3 years before hosting the next one, as in the base game."
+
+ # Game rule: AI Meet Peers and player children
+ rule_mpie_ai_invites_players:0 "AI Meet Peers and Player Children"
+ setting_mpie_ai_invites_players_off:0 "Off"
+ setting_mpie_ai_invites_players_off_desc:0 "AI children host Meet Peers as in the base game and do not look for nearby player children."
+ setting_mpie_ai_invites_players_near:0 "Nearby"
+ setting_mpie_ai_invites_players_near_desc:0 "AI children host Meet Peers more often (about once per childhood as counts, up to four times as emperors), invite player children from the same or a neighboring realm or living close by, and host more readily when one is near."
+ setting_mpie_ai_invites_players_near_and_faith:0 "Nearby and Same Faith"
+ setting_mpie_ai_invites_players_near_and_faith_desc:0 "As Nearby, and AI children also invite player children of their faith from further away."
+
+ # Game rule: Meet Peers guests at war
+ rule_mpie_meet_peers_guests_at_war:0 "Meet Peers Guests at War"
+ setting_mpie_meet_peers_guests_at_war_disabled:0 "Not Allowed"
+ setting_mpie_meet_peers_guests_at_war_disabled_desc:0 "As in the base game, children who are at war cannot attend a Meet Peers."
+ setting_mpie_meet_peers_guests_at_war_enabled:0 "Allowed for Players"
+ setting_mpie_meet_peers_guests_at_war_enabled_desc:0 "Player children who are at war can still attend Meet Peers as guests. AI children are unchanged."
  
  # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
  MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "You cannot host another [GetActivityType('activity_playdate').GetName] until [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"

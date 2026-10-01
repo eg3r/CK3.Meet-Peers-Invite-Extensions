@@ -1,8 +1,9 @@
 ﻿l_korean:
  # Meet Peers guest invite rules
- mpie_invite_rule_neighbors_children:0 "이웃 영주의 자녀"
+ mpie_invite_rule_neighbors_children:0 "이웃 아이들"
  mpie_invite_rule_same_faith_children:0 "같은 신앙의 아이들"
  mpie_invite_rule_opposite_sex_children:0 "이성의 아이들"
+ mpie_invite_rule_nearby_player_children:0 "근처의 플레이어 아이들"
  
  # Meet Peers cooldown reset decision
  mpie_reset_meet_peers_cooldown_decision:0 "재사용 대기시간 초기화: [GetActivityType('activity_playdate').GetNameNoTooltip]"
@@ -26,6 +27,22 @@
  setting_mpie_meet_peers_cooldown_2_years_desc:0 "또래 회합을 주최한 후 다음 회합을 주최하려면 2년을 기다려야 합니다."
  setting_mpie_meet_peers_cooldown_3_years:0 "3년 (기본 게임)"
  setting_mpie_meet_peers_cooldown_3_years_desc:0 "또래 회합을 주최한 후 다음 회합을 주최하려면 기본 게임과 같이 3년을 기다려야 합니다."
+
+ # Game rule: AI Meet Peers and player children
+ rule_mpie_ai_invites_players:0 "AI 또래 회합과 플레이어 아이들"
+ setting_mpie_ai_invites_players_off:0 "끄기"
+ setting_mpie_ai_invites_players_off_desc:0 "AI 아이들은 기본 게임처럼 또래 회합을 주최하며 근처의 플레이어 아이들을 찾지 않습니다."
+ setting_mpie_ai_invites_players_near:0 "근처"
+ setting_mpie_ai_invites_players_near_desc:0 "AI 아이들은 또래 회합을 더 자주 주최하고(백작은 어린 시절 약 1번, 황제는 최대 4번), 같은 나라나 이웃 나라, 또는 가까이 사는 플레이어 아이들을 초대하며, 근처에 있으면 더 적극적으로 주최합니다."
+ setting_mpie_ai_invites_players_near_and_faith:0 "근처 및 같은 신앙"
+ setting_mpie_ai_invites_players_near_and_faith_desc:0 "'근처'와 같으며, AI 아이들은 더 멀리 사는 같은 신앙의 플레이어 아이들도 초대합니다."
+
+ # Game rule: Meet Peers guests at war
+ rule_mpie_meet_peers_guests_at_war:0 "전쟁 중인 또래 회합 손님"
+ setting_mpie_meet_peers_guests_at_war_disabled:0 "허용 안 함"
+ setting_mpie_meet_peers_guests_at_war_disabled_desc:0 "기본 게임처럼 전쟁 중인 아이들은 또래 회합에 참석할 수 없습니다."
+ setting_mpie_meet_peers_guests_at_war_enabled:0 "플레이어에게 허용"
+ setting_mpie_meet_peers_guests_at_war_enabled_desc:0 "전쟁 중인 플레이어 아이들도 손님으로 또래 회합에 참석할 수 있습니다. AI 아이들은 그대로입니다."
  
  # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
  MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "[GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]까지 다음 [GetActivityType('activity_playdate').GetName]을(를) 주최할 수 없습니다"
