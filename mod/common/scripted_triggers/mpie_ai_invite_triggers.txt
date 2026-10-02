@@ -93,6 +93,28 @@ mpie_player_child_in_invite_range_trigger = {
 # root = this = character considering to host
 ########################
 
+# Can this AI character afford to host Meet Peers? (playdate ai_will_do: -75 if not)
+# Vanilla asks can_make_expensive_purchase_trigger with activity_minor_gold_value: the AI's short-term
+# budget pot (not its whole gold) must hold 3 months of income, at least 15 gold, while a count's Meet
+# Peers costs 10 (duke 20). In the 867-873 test that cut 20 of 46 able child hosts to about 25%.
+# With the rule on, children only need the real cost (standard_playdate_activity_cost, as the playdate's
+# cost block; nothing with a free Meet Peers credit) in their gold. Adults and the rule "Off": vanilla.
+mpie_ai_meet_peers_can_afford_trigger = {
+	trigger_if = {
+		limit = {
+			is_adult = no
+			mpie_ai_invites_players_enabled_trigger = yes
+		}
+		OR = {
+			has_variable = free_meet_peers_credit
+			gold >= standard_playdate_activity_cost # the Meet Peers cost is paid in gold, also in administrative realms
+		}
+	}
+	trigger_else = {
+		can_make_expensive_purchase_trigger = { PRICE = activity_minor_gold_value }
+	}
+}
+
 # A player child is "near" (and the rule is on)
 mpie_ai_host_near_player_child_trigger = {
 	mpie_ai_invites_players_enabled_trigger = yes

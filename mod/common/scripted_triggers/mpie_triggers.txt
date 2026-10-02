@@ -7,8 +7,70 @@ mpie_same_faith_as_host_trigger = {
 	faith = root.faith
 }
 
+# A ruler planning for a child at court is the host while the guest list is built: compare with the
+# child who asked (the promised young host); without one, the young host isn't known yet, so nobody.
 mpie_opposite_sex_of_host_trigger = {
-	sex_opposite_of = root
+	trigger_if = {
+		limit = { root = { is_adult = no } }
+		sex_opposite_of = root
+	}
+	trigger_else_if = {
+		limit = { exists = root.var:mpie_court_meet_peers_child }
+		sex_opposite_of = root.var:mpie_court_meet_peers_child
+	}
+	trigger_else = {
+		always = no
+	}
+}
+
+# Is this ruler's capital (or location, without one) within mpie_invite_rule_range_value of
+# scope:mpie_invite_center (the host's capital, saved by mpie_add_children_in_range_effect)?
+# this = a ruler
+mpie_in_invite_range_trigger = {
+	exists = scope:mpie_invite_center
+	trigger_if = {
+		limit = { exists = capital_province }
+		capital_province = {
+			squared_distance = {
+				target = scope:mpie_invite_center
+				value <= mpie_invite_rule_range_value
+			}
+		}
+	}
+	trigger_else = {
+		location ?= {
+			squared_distance = {
+				target = scope:mpie_invite_center
+				value <= mpie_invite_rule_range_value
+			}
+		}
+	}
+}
+
+# Family first (playdate guest_join_chance and the family invite rules)
+
+# Does family first apply to this host? Always for player hosts; for AI hosts only with the
+# mpie_ai_invites_players rule on, so "Off" leaves AI-hosted Meet Peers as in the base game.
+# this = the host
+mpie_family_first_enabled_trigger = {
+	OR = {
+		is_ai = no
+		mpie_ai_invites_players_enabled_trigger = yes
+	}
+}
+
+# Is this guest a sibling of the (young) host? While a ruler plans a Meet Peers for a child at court,
+# scope:host is the ruler, whose children are the young host's siblings; the guests answer after the
+# child took over, so both the planner and the real answer show the bonus.
+# this = the invited guest, scope:host = the activity host
+mpie_meet_peers_host_sibling_trigger = {
+	OR = {
+		is_sibling_of = scope:host
+		AND = {
+			scope:host = { is_adult = yes }
+			is_child_of = scope:host
+		}
+	}
 }
 
 # Cooldown
@@ -36,4 +98,42 @@ mpie_meet_peers_cooldown_reset_enabled_trigger = {
 		has_game_rule = mpie_meet_peers_cooldown_reset_enabled
 		has_global_variable = mpie_meet_peers_cooldown_reset_enabled
 	}
+}
+
+# Debug (yes/no flags in debug logs, used as "<trigger> = yes" by mpie_debug_flag_effect)
+# this = a character
+
+mpie_debug_uncrowned_trigger = {
+	has_realm_law = uncrowned
+}
+
+# Passes the playdate's count throttle (is_shown: AI child counts need ai_sociability >= 100, unless
+# the mpie_ai_invites_players rule is on)
+mpie_debug_count_throttle_trigger = {
+	trigger_if = {
+		limit = { highest_held_title_tier = tier_county }
+		OR = {
+			mpie_ai_invites_players_enabled_trigger = yes
+			ai_sociability >= 100
+		}
+	}
+}
+
+mpie_debug_meet_peers_on_cooldown_trigger = {
+	OR = {
+		has_variable = mpie_meet_peers_cooldown
+		is_activity_type_on_cooldown = activity_playdate
+	}
+}
+
+# Reached the per-childhood hosting maximum (ai_will_do -1000)
+mpie_debug_max_hosted_trigger = {
+	has_variable = mpie_meet_peers_hosted_as_child
+	var:mpie_meet_peers_hosted_as_child >= mpie_ai_meet_peers_max_hosted_value
+}
+
+
+# The playdate's is_shown and can_start pass
+mpie_debug_can_host_meet_peers_trigger = {
+	can_host_activity = activity_playdate
 }

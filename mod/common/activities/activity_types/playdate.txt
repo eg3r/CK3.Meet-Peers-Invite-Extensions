@@ -2,12 +2,17 @@
 # common/activities/activity_types/playdate.txt (activity_playdate).
 # Only changes are marked "MPIE": extra guest_invite_rules entries, the script cooldown that replaces
 # the native one (var:mpie_meet_peers_cooldown, so the reset decision can clear it), the peer goals
-# (mpie_*_intent, run from the playdate_phase), AI hosting (count throttle, ai_will_do, check intervals)
-# and the guest check (at-war game rule). Re-sync with vanilla on every game patch.
+# (mpie_*_intent, run from the playdate_phase), AI hosting (count throttle, ai_will_do; the check interval is vanilla),
+# the guest check (at-war game rule) and court children hosting (a ruler plans it for a child at court
+# who holds no title, and the child takes over as host in on_start; see mpie_court_triggers.txt).
+# Re-sync with vanilla on every game patch.
 
 activity_playdate = {
 	is_shown = {
-		is_adult = no # MPIE: moved up from below, cheap early exit for adults
+		OR = { # MPIE: is_adult = no moved up from below (cheap early exit for adults), or a ruler planning it for a child at court
+			is_adult = no
+			mpie_court_meet_peers_ruler_can_plan_trigger = yes
+		}
 		highest_held_title_tier > tier_barony
 		trigger_if = {
 			trigger_if = { # Throttle Counts
@@ -15,9 +20,9 @@ activity_playdate = {
 					is_ai = yes
 					highest_held_title_tier = tier_county
 				}
-				OR = { # MPIE: was ai_sociability >= 100; lower threshold, skipped near a player child
-					ai_sociability >= mpie_ai_count_host_sociability_value
-					mpie_ai_host_near_player_child_trigger = yes
+				OR = { # MPIE: was ai_sociability >= 100 alone; no requirement with the mpie_ai_invites_players rule on (children rarely have the traits for it)
+					mpie_ai_invites_players_enabled_trigger = yes
+					ai_sociability >= 100
 				}
 			}
 		}
@@ -30,8 +35,14 @@ activity_playdate = {
 		NOT = { is_activity_type_on_cooldown = activity_playdate }
 		mpie_meet_peers_not_on_cooldown_trigger = yes # MPIE: script cooldown, replaces the native one below
 		is_available = yes
-		age >= 4
-		age < less_than_two_years_to_adulthood_value #Consistency!
+		trigger_if = { # MPIE: a ruler planning it for a child at court is an adult; their court waits between Meet Peers
+			limit = { is_adult = yes }
+			mpie_court_meet_peers_not_on_court_cooldown_trigger = yes
+		}
+		trigger_else = {
+			age >= 4
+			age < less_than_two_years_to_adulthood_value #Consistency!
+		}
 		trigger_if = {
 			limit = {
 				highest_held_title_tier = tier_county
@@ -45,7 +56,10 @@ activity_playdate = {
 	is_valid = {
 		scope:host = {
 			is_physically_able = yes
-			is_landed_or_landless_administrative_or_theocratic = yes
+			OR = { # MPIE: or the child at court who took over from the ruler (var:mpie_court_sponsor, set in on_start)
+				is_landed_or_landless_administrative_or_theocratic = yes
+				exists = scope:activity.var:mpie_court_sponsor
+			}
 		}
 		# If no one shows up
 		trigger_if = {
@@ -81,7 +95,10 @@ activity_playdate = {
 			}
 		}
 		else = {
-			invalidation_unlanded_non_nf_effect = yes
+			if = { # MPIE: a child host at court never had land, so don't say they lost it
+				limit = { NOT = { exists = var:mpie_court_sponsor } }
+				invalidation_unlanded_non_nf_effect = yes
+			}
 			invalidation_incapable_effect = yes
 			invalidation_host_isolated_effect = yes
 		}
@@ -149,6 +166,7 @@ activity_playdate = {
 					trigger_event = playdate.2501
 				}
 				mpie_peer_intent_phase_active_effect = yes # MPIE
+				mpie_court_meet_peers_family_bonus_effect = yes # MPIE: family children of the ruler who planned it, when it begins
 			}
 
 			on_monthly_pulse = {
@@ -181,6 +199,10 @@ activity_playdate = {
 
 			on_end = {
 				mpie_peer_intent_phase_end_effect = yes # MPIE
+				mpie_court_meet_peers_family_bonus_effect = yes # MPIE: family children of the ruler who planned it, if they arrived late
+				mpie_court_meet_peers_report_effect = yes # MPIE: end report for a player ruler who planned it (mpie_court.0100)
+				mpie_court_meet_peers_prestige_check_effect = yes # MPIE: make sure the young host gets the host prestige below (mpie_court.0110)
+				mpie_meet_peers_ended_debug_log_effect = yes # MPIE: debug mode only
 				# Send each character back home
 				#set_location_to_default = yes
 				# Send the parents an interface notification that their child has returned from the playdate
@@ -299,22 +321,21 @@ activity_playdate = {
 		#Can you actually afford this?
 		if = {
 			limit = {
-				NOT = { can_make_expensive_purchase_trigger = { PRICE = activity_minor_gold_value } }
+				NOT = { mpie_ai_meet_peers_can_afford_trigger = yes } # MPIE: was can_make_expensive_purchase_trigger = { PRICE = activity_minor_gold_value }; children with the mpie_ai_invites_players rule on only need the real cost
 			}
 			add = -75
 		}
 		add = activity_general_ai_will_do_value
 		add = mpie_ai_meet_peers_will_do_bonus_value # MPIE: with the mpie_ai_invites_players rule on: +50 base, +50/+25 near a player child, -1000 at the per-childhood maximum
-		multiply = mpie_ai_meet_peers_will_do_factor_value # MPIE: with the rule off, evens out the shorter check intervals below
 	}
 
-	ai_check_interval_by_tier = { # MPIE: was 60 for every tier; with the rule on about 1 (capped)/2/3/4/4 Meet Peers per childhood (ages 4-13)
+	ai_check_interval_by_tier = {
 		barony = 0
 		county = 60
 		duchy = 60
-		kingdom = 40 # MPIE
-		empire = 30 # MPIE
-		hegemony = 30 # MPIE
+		kingdom = 60
+		empire = 60
+		hegemony = 60
 	}
 
 	ai_will_select_province = {
@@ -338,18 +359,21 @@ activity_playdate = {
 
 	guest_invite_rules = {
 		defaults = {
+			1 = mpie_invite_rule_close_family # MPIE: family first (vanilla Meet Peers has neither family rule); player hosts, or AI hosts with the mpie_ai_invites_players rule on
+			1 = mpie_invite_rule_extended_family # MPIE
 			2 = activity_invite_rule_liege
 			2 = activity_invite_rule_siblings
 			2 = activity_invite_rule_vassals
-			1 = activity_invite_rule_confederates
-			1 = activity_invite_rule_friends
-			1 = activity_invite_rule_crushes
-			1 = activity_invite_rule_personal_scheme_targets
+			2 = activity_invite_rule_confederates # MPIE: was 1, family first
+			2 = activity_invite_rule_friends # MPIE: was 1, family first
+			2 = activity_invite_rule_crushes # MPIE: was 1, family first
+			2 = activity_invite_rule_personal_scheme_targets # MPIE: was 1, family first
 			2 = activity_invite_rule_powerful_vassals_children
 			2 = activity_invite_rule_fellow_vassals
 			3 = activity_invite_rule_fellow_vassals_children
 			4 = mpie_invite_rule_neighbors_children # MPIE
-			1 = mpie_invite_rule_nearby_player_children # MPIE
+			2 = mpie_invite_rule_nearby_player_children # MPIE
+			1 = mpie_invite_rule_court_children # MPIE
 			
 		}
 		rules = {
@@ -364,6 +388,71 @@ activity_playdate = {
 	can_be_activity_guest = {
 		mpie_meet_peers_guest_available_trigger = yes # MPIE: vanilla is_available_for_child_activity_trigger, plus the at-war game rule
 		in_diplomatic_range = scope:host
+	}
+
+	special_guests = { # MPIE: the child at court a ruler plans it for; takes over as host in on_start (mpie_court_meet_peers_handover_effect)
+		mpie_host_child_promised = { # The child who asked, once the ruler said yes: filled in and fixed, like a grand wedding's promised couple (select_character locks the slot)
+			is_shown = {
+				is_adult = yes
+				exists = var:mpie_court_meet_peers_child
+				var:mpie_court_meet_peers_child = { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } } # aged out, died, titled: the free slot instead
+			}
+			is_required = yes
+			select_character = {
+				var:mpie_court_meet_peers_child = { save_scope_as = character }
+			}
+			can_pick = {
+				OR = {
+					this = scope:host # already took over as host
+					mpie_court_meet_peers_child_trigger = { RULER = scope:host }
+				}
+			}
+			ai_will_do = {
+				value = 10
+			}
+			on_invite = {
+				# Only the planner tooltip, see mpie_host_child
+				if = {
+					limit = { this != scope:host }
+					add_opinion = {
+						target = scope:host
+						modifier = mpie_organized_my_meet_peers_opinion
+					}
+				}
+			}
+		}
+		mpie_host_child = { # Without a request: the player picks any eligible child
+			is_shown = {
+				is_adult = yes
+				NOT = {
+					exists = var:mpie_court_meet_peers_child
+					var:mpie_court_meet_peers_child = { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } }
+				}
+			}
+			is_required = yes
+			# No select_character: the planner locks a slot that has one (no change button), so the player
+			# picks the child from the guest list, as for the vanilla murder feast's honorary_guest
+			can_pick = {
+				OR = {
+					this = scope:host # already took over as host
+					mpie_court_meet_peers_child_trigger = { RULER = scope:host }
+				}
+			}
+			ai_will_do = {
+				value = 10
+			}
+			on_invite = {
+				# Only the planner tooltip: the invitation is sent after on_start, when the child is already
+				# the host, so mpie_court_meet_peers_handover_effect gives the opinion instead
+				if = {
+					limit = { this != scope:host }
+					add_opinion = {
+						target = scope:host
+						modifier = mpie_organized_my_meet_peers_opinion
+					}
+				}
+			}
+		}
 	}
 
 	host_intents = {
@@ -387,6 +476,22 @@ activity_playdate = {
 			add = 25
 			desc = ACTIVITY_GUEST_PLAYDATE_CREDIT_REASON
 			scope:host = { has_variable = free_meet_peers_credit }
+		}
+
+		# MPIE: family first, on top of vanilla's close family +10 / extended family +5 (a friend gets +50);
+		# player hosts, or AI hosts with the mpie_ai_invites_players rule on
+		modifier = { # The host's siblings: +40 in all
+			add = 30
+			desc = MPIE_ACTIVITY_GUEST_HOST_SIBLING_REASON
+			scope:host = { mpie_family_first_enabled_trigger = yes }
+			mpie_meet_peers_host_sibling_trigger = yes
+		}
+		modifier = { # Other close or extended family of the host: +25 or +20 in all
+			add = 15
+			desc = MPIE_ACTIVITY_GUEST_HOST_FAMILY_REASON
+			scope:host = { mpie_family_first_enabled_trigger = yes }
+			NOT = { mpie_meet_peers_host_sibling_trigger = yes }
+			is_close_or_extended_family_of = scope:host
 		}
 	}
 
@@ -950,5 +1055,6 @@ activity_playdate = {
 		scope:host = { mpie_meet_peers_start_cooldown_effect = yes } # MPIE: script cooldown (game rule length)
 		scope:host = { mpie_meet_peers_count_hosting_effect = yes } # MPIE: per-childhood count for the AI hosting maximum
 		mpie_meet_peers_started_debug_log_effect = yes # MPIE: debug mode only
+		mpie_court_meet_peers_handover_effect = yes # MPIE: planned by a ruler for a child at court: the child takes over as host
 	}
 }

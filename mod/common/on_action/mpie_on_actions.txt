@@ -1,0 +1,73 @@
+﻿# Meet Peers - Invite Extensions: on_actions
+
+# Appends to the vanilla pulse (vanilla also spreads one on_action over several blocks, e.g.
+# three_year_playable_pulse). Fires once a year, at a random date, for every playable character
+# that passes basic_is_valid_for_yearly_events_trigger.
+random_yearly_playable_pulse = {
+	on_actions = {
+		mpie_court_meet_peers_pulse
+		mpie_court_meet_peers_stale_promise_pulse
+		mpie_ai_meet_peers_extra_check_pulse
+		mpie_titled_meet_peers_census_pulse
+	}
+}
+
+# A child at court asks their ruler to pay for a Meet Peers (mpie_court_triggers.txt). A child who is
+# away right now still counts, so the court checks again a few months later instead of next year.
+# root = the ruler
+mpie_court_meet_peers_pulse = {
+	trigger = {
+		mpie_court_meet_peers_ruler_can_be_asked_trigger = yes
+		any_child = { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } }
+	}
+	effect = {
+		mpie_court_meet_peers_ask_effect = yes
+	}
+}
+
+# Debug mode only: once a year, every AI child ruler of Meet Peers age logs what they would need to
+# host one (MPIE_titled_census, mpie_titled_meet_peers_census_effect). Nothing outside debug mode.
+# root = the child ruler
+mpie_titled_meet_peers_census_pulse = {
+	trigger = {
+		debug_only = yes
+		is_ai = yes
+		mpie_player_child_eligible_trigger = yes
+		highest_held_title_tier > tier_barony
+	}
+	effect = {
+		mpie_titled_meet_peers_census_effect = yes
+	}
+}
+
+# A promise (var:mpie_court_meet_peers_child) whose child can no longer host is dropped, so the court's
+# children may ask again (mpie_court_meet_peers_drop_stale_promise_effect)
+# root = the ruler
+mpie_court_meet_peers_stale_promise_pulse = {
+	trigger = {
+		exists = var:mpie_court_meet_peers_child
+		NOT = { var:mpie_court_meet_peers_child = { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } } }
+	}
+	effect = {
+		mpie_court_meet_peers_drop_stale_promise_effect = yes
+	}
+}
+
+# With the mpie_ai_invites_players rule on, AI child rulers also consider hosting a Meet Peers once a year.
+# The playdate keeps vanilla's 60-month check interval (ai_check_interval_by_tier can't follow a game rule),
+# so with the rule Off nothing here runs and AI hosting is vanilla. ai_attempt_to_host_activity skips the
+# check interval, the same effect AI rulers use for a child at court. The per-childhood maximum
+# (mpie_ai_meet_peers_max_hosted_value, ai_will_do -1000) still caps how often each child hosts.
+# root = the child ruler
+mpie_ai_meet_peers_extra_check_pulse = {
+	trigger = {
+		mpie_ai_invites_players_enabled_trigger = yes
+		is_ai = yes
+		mpie_player_child_eligible_trigger = yes
+		can_host_activity = activity_playdate
+	}
+	effect = {
+		mpie_debug_log_effect = { MSG = MPIE_ai_extra_hosting_check }
+		ai_attempt_to_host_activity = activity_playdate
+	}
+}

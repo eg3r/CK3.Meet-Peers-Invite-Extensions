@@ -1,0 +1,37 @@
+﻿# Meet Peers - Invite Extensions: important actions (alerts at the top of the screen)
+
+# A child at court asked for a Meet Peers and the player ruler said yes (var:mpie_court_meet_peers_child,
+# 365 days): a reminder to plan it, modelled on vanilla's action_grand_wedding_can_marry. Clicking it opens
+# the Meet Peers planner, where the special guest mpie_host_child_promised already holds the child.
+# Hidden while the planner is open, while the ruler is planning or hosting a Meet Peers, and when the
+# child can't host right now (away, aged out, ...). Gone once the Meet Peers starts (the handover clears the
+# variable) or the promise runs out.
+mpie_action_plan_court_meet_peers = {
+	type = alert
+	icon = action_host_activity # vanilla icon (as action_awaiting_coronation); without it the game looks for one named after the key and shows the missing-texture checkerboard
+
+	check_create_action = {
+		if = {
+			limit = {
+				exists = var:mpie_court_meet_peers_child
+				var:mpie_court_meet_peers_child = { mpie_court_meet_peers_child_trigger = { RULER = root } }
+				NOR = {
+					involved_activity ?= { has_activity_type = activity_playdate }
+					is_game_view_open = activity_planner # Hide it while planning
+				}
+			}
+			try_create_important_action = {
+				important_action_type = mpie_action_plan_court_meet_peers
+				actor = root
+				secondary_actor = var:mpie_court_meet_peers_child
+			}
+		}
+	}
+
+	effect = {
+		open_view_data = {
+			view = activity_list_detail_host_window
+			data = activity_type:activity_playdate
+		}
+	}
+}

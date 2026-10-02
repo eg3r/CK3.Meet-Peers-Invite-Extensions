@@ -1,0 +1,165 @@
+﻿# Meet Peers - Invite Extensions: court children host Meet Peers
+#
+# The children of a ruler (kings and above by default) who live at court without a title of their
+# own can't host Meet Peers in vanilla, and the AI never plans an activity for a character without
+# a title (tested: ai_attempt_to_host_activity on such a child never creates one). So the ruler
+# plans it and the child takes over as host when it is created:
+#   - the ruler (adult) may plan Meet Peers while they have an eligible child at court; the planner's
+#     special guest slot holds the child: mpie_host_child_promised (the child who asked, filled in and
+#     fixed, AI and player rulers) or mpie_host_child (a player planning without a request picks)
+#   - on_start (mpie_court_meet_peers_handover_effect): the child joins, set_activity_host makes them
+#     the host (vanilla does the same when a host dies and the heir takes over), the ruler leaves
+# Two ways in:
+#   - a player ruler plans it in the Activities menu whenever they like
+#   - once a year (random_yearly_playable_pulse) a child asks: an AI ruler who can afford it plans it
+#     (ai_attempt_to_host_activity on the ruler); a player ruler gets mpie_court.0001 and may refuse
+# Pacing: no request while the area is full of Meet Peers (mpie_pacing_triggers.txt), and for AI
+# rulers while too few free children live around; the court checks again a few months later.
+# Bonus: the hosting child +20 opinion of the ruler (special guest on_invite, shown in the planner),
+# family children who attend +10 at the end.
+# Game rule mpie_court_children_meet_peers: Off / Kings and above (default) / Dukes and above.
+# Effects: mpie_court_effects.txt, events: events/activities/mpie_court_meet_peers_events.txt.
+#
+# Variables:
+#   ruler: var:mpie_court_meet_peers_child (= the child who asked and was told yes; lets the AI plan
+#          for them), var:mpie_court_meet_peers_attempts (AI planning attempts),
+#          var:mpie_court_meet_peers_cooldown (2 years after a court Meet Peers),
+#          var:mpie_court_meet_peers_declined (1 year after a player said no; only stops new requests),
+#          var:mpie_court_meet_peers_asking (a request event is waiting for the player's answer),
+#          var:mpie_court_meet_peers_recheck_pending (a recheck, mpie_court.0020, is on its way),
+#          var:mpie_court_meet_peers_rechecks (rechecks this year),
+#          var:mpie_court_meet_peers_pool_waits (years the pool check stopped the court, counted at most
+#          once a year through var:mpie_court_meet_peers_pool_wait_year; both reset on hosting)
+#   activity: var:mpie_court_sponsor (= the ruler), set on handover
+
+########################
+# Game rule switches
+########################
+
+# Anything but "off" counts, so a save from before the rule existed uses the default
+mpie_court_meet_peers_enabled_trigger = {
+	NOT = { has_game_rule = mpie_court_children_meet_peers_off }
+}
+
+# Is this ruler's rank high enough under the game rule? Kings and above, or dukes and above.
+# this = the ruler
+mpie_court_meet_peers_ruler_tier_trigger = {
+	trigger_if = {
+		limit = { has_game_rule = mpie_court_children_meet_peers_duchy }
+		highest_held_title_tier >= tier_duchy
+	}
+	trigger_else = {
+		highest_held_title_tier >= tier_kingdom
+	}
+}
+
+########################
+# Children
+########################
+
+# A child of $RULER$ who could host: lives at their court, holds no title (so can't host by
+# themselves), is of Meet Peers age and not on the Meet Peers cooldown. May be away right now.
+# this = the child
+mpie_court_meet_peers_child_could_host_trigger = {
+	is_child_of = $RULER$
+	is_courtier_of = $RULER$
+	is_ruler = no
+	is_ai = yes
+	mpie_player_child_eligible_trigger = yes
+	NOT = { has_variable = mpie_meet_peers_cooldown }
+	NOT = { is_activity_type_on_cooldown = activity_playdate }
+}
+
+# ... and can host now: not away at another activity, travelling, imprisoned, ...
+# this = the child
+mpie_court_meet_peers_child_trigger = {
+	mpie_court_meet_peers_child_could_host_trigger = { RULER = $RULER$ }
+	is_available = yes
+}
+
+# A child who could come to a court's Meet Peers as a guest right now: of age, healthy, not away at
+# an activity, and not invited to another Meet Peers (counted by mpie_court_meet_peers_pool_value)
+# this = the child
+mpie_court_meet_peers_free_guest_trigger = {
+	mpie_meet_peers_guest_available_trigger = yes
+	NOT = { any_invited_activity = { has_activity_type = activity_playdate } }
+}
+
+########################
+# The ruler
+########################
+
+# May this adult plan Meet Peers for a child at court? (playdate is_shown)
+# Players whenever they have an eligible child; the AI only once a child asked and the ruler said
+# yes (var:mpie_court_meet_peers_child), so AI rulers don't start planning Meet Peers on their own.
+# root = this = the ruler
+mpie_court_meet_peers_ruler_can_plan_trigger = {
+	is_adult = yes
+	mpie_court_meet_peers_enabled_trigger = yes
+	mpie_court_meet_peers_ruler_tier_trigger = yes
+	trigger_if = {
+		limit = { is_ai = yes }
+		exists = var:mpie_court_meet_peers_child
+	}
+	any_child = { mpie_court_meet_peers_child_trigger = { RULER = root } }
+}
+
+# Shown in the planner while the court waits (playdate can_start_showing_failures_only)
+# this = the ruler
+mpie_court_meet_peers_not_on_court_cooldown_trigger = {
+	custom_description = {
+		text = mpie_court_meet_peers_on_cooldown
+		NOT = { has_variable = mpie_court_meet_peers_cooldown }
+	}
+}
+
+# A ruler whose children may ask now (checked on the yearly pulse)
+# this = the ruler
+mpie_court_meet_peers_ruler_can_be_asked_trigger = {
+	is_adult = yes
+	mpie_court_meet_peers_enabled_trigger = yes
+	mpie_court_meet_peers_ruler_tier_trigger = yes
+	exists = capital_province
+	NOR = {
+		has_variable = mpie_court_meet_peers_cooldown
+		has_variable = mpie_court_meet_peers_child
+		has_variable = mpie_court_meet_peers_asking # a request is waiting for the player's answer
+		has_variable = mpie_court_meet_peers_declined # the player said no less than a year ago
+	}
+}
+
+# Can this AI ruler host right now? What vanilla asks of every AI host (playdate is_shown: not at war,
+# crowned where coronations apply) and can_start (is_available: not away, travelling, imprisoned, ...).
+# Checked before saying yes, so a ruler who can't host waits for a recheck instead of losing the year.
+# this = the ruler
+mpie_court_meet_peers_ai_ruler_free_trigger = {
+	is_available = yes
+	ai_activity_war_check = yes
+	ai_activity_coronation_check = yes
+}
+
+# The AI ruler was asked and plans Meet Peers for the child (gets the ai_will_do bonus)
+# this = the ruler
+mpie_court_meet_peers_ai_sponsor_trigger = {
+	is_adult = yes
+	exists = var:mpie_court_meet_peers_child
+}
+
+########################
+# End report
+########################
+
+# A relation the young host didn't have at the handover (not in the activity variable list $LIST$,
+# saved by mpie_court_meet_peers_report_snapshot_effect)
+# this = a friend or rival of the host, scope:activity
+mpie_court_report_new_relation_trigger = {
+	save_temporary_scope_as = mpie_report_candidate
+	NOT = {
+		scope:activity = {
+			is_target_in_variable_list = {
+				name = $LIST$
+				target = scope:mpie_report_candidate
+			}
+		}
+	}
+}

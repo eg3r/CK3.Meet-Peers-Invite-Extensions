@@ -1,0 +1,609 @@
+﻿# Meet Peers - Invite Extensions: court children host Meet Peers
+# Overview and variables: scripted_triggers/mpie_court_triggers.txt
+
+########################
+# A child asks (yearly)
+########################
+
+# Yearly (mpie_court_meet_peers_pulse on random_yearly_playable_pulse) and on a recheck (mpie_court.0020):
+# one free child asks the ruler for a Meet Peers. Children who never hosted ask first.
+#   - The ruler can't afford it: nothing happens, the court tries again next year.
+#   - Put off, the court checks again later (mpie_court_meet_peers_schedule_recheck_effect):
+#       every child who could host is away (another activity, travelling, ...): in 60-90 days
+#       AI rulers: the ruler can't host now (mpie_court_meet_peers_ai_ruler_free_trigger: at war,
+#       uncrowned, away): in 90-180 days
+#       the area is full of Meet Peers (mpie_meet_peers_area_full_trigger): in 90-180 days
+#       AI rulers: too few free children around (mpie_court_meet_peers_pool_value): in 90-180 days
+#       (none at all: next year only).
+#       Each year of this (var:mpie_court_meet_peers_pool_waits, counted at most once a year) the
+#       court needs one child fewer, down to 3 (mpie_court_meet_peers_pool_required_value)
+#   - Otherwise an AI ruler says yes and plans it; a player ruler gets mpie_court.0001.
+# root = the ruler
+mpie_court_meet_peers_ask_effect = {
+	clear_saved_scope = mpie_court_child # a recheck (mpie_court.0020) still carries the child of the run that scheduled it
+	random_child = {
+		limit = { mpie_court_meet_peers_child_trigger = { RULER = root } }
+		weight = {
+			base = 1
+			modifier = { # Children who never hosted ask first
+				factor = 3
+				NOT = { has_variable = mpie_meet_peers_hosted_as_child }
+			}
+			modifier = {
+				factor = 1.5
+				has_trait = gregarious
+			}
+			modifier = {
+				factor = 0.5
+				has_trait = shy
+			}
+		}
+		save_scope_as = mpie_court_child
+	}
+	if = {
+		limit = { NOT = { exists = scope:mpie_court_child } }
+		mpie_debug_log_effect = { MSG = MPIE_court_child_busy }
+		mpie_court_meet_peers_schedule_recheck_effect = { MIN = 60 MAX = 90 }
+	}
+	else = {
+		save_scope_value_as = {
+			name = mpie_court_meet_peers_cost
+			value = mpie_court_meet_peers_cost_value
+		}
+		mpie_court_meet_peers_debug_area_effect = yes
+		if = {
+			limit = { gold < scope:mpie_court_meet_peers_cost } # the Meet Peers cost is paid in gold, also in administrative realms
+			if = {
+				limit = { is_ai = yes }
+				mpie_debug_log_effect = { MSG = MPIE_court_ai_ruler_cannot_afford }
+			}
+			else = {
+				mpie_debug_log_effect = { MSG = MPIE_court_player_cannot_afford }
+			}
+		}
+		else_if = {
+			limit = {
+				is_ai = yes
+				NOT = { mpie_court_meet_peers_ai_ruler_free_trigger = yes }
+			}
+			mpie_court_meet_peers_debug_ruler_flags_effect = yes
+			mpie_debug_log_effect = { MSG = MPIE_court_ai_ruler_busy }
+			mpie_court_meet_peers_schedule_recheck_effect = { MIN = 90 MAX = 180 }
+		}
+		else_if = {
+			limit = { mpie_meet_peers_area_full_trigger = yes }
+			mpie_debug_log_effect = { MSG = MPIE_court_blocked_nearby }
+			mpie_court_meet_peers_schedule_recheck_effect = { MIN = 90 MAX = 180 }
+		}
+		else_if = {
+			limit = { is_ai = yes }
+			save_scope_value_as = {
+				name = mpie_court_meet_peers_pool
+				value = mpie_court_meet_peers_pool_value
+			}
+			save_scope_value_as = {
+				name = mpie_court_meet_peers_pool_required
+				value = mpie_court_meet_peers_pool_required_value
+			}
+			if = {
+				limit = { debug_only = yes }
+				save_scope_value_as = {
+					name = mpie_debug_pool_checked
+					value = mpie_debug_court_pool_checked_value
+				}
+				save_scope_value_as = {
+					name = mpie_debug_pool_neighbors
+					value = mpie_court_meet_peers_neighbor_pool_value
+				}
+			}
+			if = {
+				limit = { scope:mpie_court_meet_peers_pool < scope:mpie_court_meet_peers_pool_required }
+				if = { # Counts one year of waiting at most once a year
+					limit = { NOT = { has_variable = mpie_court_meet_peers_pool_wait_year } }
+					set_variable = {
+						name = mpie_court_meet_peers_pool_waits
+						value = mpie_court_meet_peers_pool_waits_next_value
+						days = mpie_court_meet_peers_pool_waits_days_value
+					}
+					set_variable = {
+						name = mpie_court_meet_peers_pool_wait_year
+						value = yes
+						days = 365
+					}
+				}
+				mpie_debug_log_effect = { MSG = MPIE_court_blocked_thin_pool }
+				if = { # Nobody around at all: no point checking again soon, wait for the next yearly request
+					limit = { scope:mpie_court_meet_peers_pool > 0 }
+					mpie_court_meet_peers_schedule_recheck_effect = { MIN = 90 MAX = 180 }
+				}
+			}
+			else = {
+				mpie_court_meet_peers_accept_effect = yes
+				mpie_court_meet_peers_ai_plan_effect = yes
+			}
+		}
+		else = {
+			mpie_debug_log_effect = { MSG = MPIE_court_request_sent_to_player }
+			set_variable = { # One request at a time: no other ask until this one is answered (mpie_court.0001 removes it)
+				name = mpie_court_meet_peers_asking
+				value = yes
+				days = 365
+			}
+			trigger_event = mpie_court.0001
+		}
+	}
+}
+
+# The court checks again in $MIN$ to $MAX$ days (mpie_court.0020 runs mpie_court_meet_peers_ask_effect),
+# at most mpie_court_meet_peers_max_rechecks_value times a year; after that it waits for the next yearly
+# request. Only one recheck is on its way at a time.
+# root = the ruler
+mpie_court_meet_peers_schedule_recheck_effect = {
+	if = {
+		limit = {
+			NOT = { has_variable = mpie_court_meet_peers_recheck_pending }
+			has_variable = mpie_court_meet_peers_rechecks
+			var:mpie_court_meet_peers_rechecks >= mpie_court_meet_peers_max_rechecks_value
+		}
+		mpie_debug_log_effect = { MSG = MPIE_court_recheck_limit_reached }
+	}
+	else_if = {
+		limit = { NOT = { has_variable = mpie_court_meet_peers_recheck_pending } }
+		if = {
+			limit = { has_variable = mpie_court_meet_peers_rechecks }
+			change_variable = {
+				name = mpie_court_meet_peers_rechecks
+				add = 1
+			}
+		}
+		else = {
+			set_variable = {
+				name = mpie_court_meet_peers_rechecks
+				value = 1
+				days = 365
+			}
+		}
+		set_variable = {
+			name = mpie_court_meet_peers_recheck_pending
+			value = yes
+			days = $MAX$
+		}
+		trigger_event = {
+			id = mpie_court.0020
+			days = { $MIN$ $MAX$ }
+		}
+		if = {
+			limit = { debug_only = yes }
+			save_scope_value_as = {
+				name = mpie_debug_recheck_min_days
+				value = $MIN$
+			}
+			save_scope_value_as = {
+				name = mpie_debug_recheck_max_days
+				value = $MAX$
+			}
+			mpie_debug_log_effect = { MSG = MPIE_court_recheck_scheduled }
+		}
+	}
+}
+
+# Debug mode: why this AI ruler can't host right now (mpie_debug_at_war, mpie_debug_available,
+# mpie_debug_uncrowned, yes/no)
+# root = the ruler
+mpie_court_meet_peers_debug_ruler_flags_effect = {
+	if = {
+		limit = { debug_only = yes }
+		mpie_debug_flag_effect = { NAME = mpie_debug_at_war TRIGGER = is_at_war }
+		mpie_debug_flag_effect = { NAME = mpie_debug_available TRIGGER = is_available }
+		mpie_debug_flag_effect = { NAME = mpie_debug_uncrowned TRIGGER = mpie_debug_uncrowned_trigger }
+	}
+}
+
+# Debug mode: saves the area around the ruler's capital for the next debug logs: mpie_debug_near_count
+# (Meet Peers within ~one Ireland), mpie_debug_wide_count (~one France), mpie_debug_activities (all
+# activities in the world, what each area scan iterates) and mpie_debug_meet_peers (Meet Peers in the world)
+# root = the ruler
+mpie_court_meet_peers_debug_area_effect = {
+	if = {
+		limit = {
+			debug_only = yes
+			exists = capital_province
+		}
+		capital_province = { save_scope_as = mpie_debug_center }
+		mpie_debug_area_values_effect = yes
+	}
+}
+
+# The ruler said yes: an AI ruler may plan Meet Peers, with the child as the young host (special guest
+# mpie_host_child); a player ruler picks the young host in the planner. Paid when it is planned (the activity cost).
+# root = the ruler, scope:mpie_court_child
+mpie_court_meet_peers_accept_effect = {
+	custom_tooltip = mpie_court_meet_peers_accept_tt
+	hidden_effect = {
+		set_variable = {
+			name = mpie_court_meet_peers_child
+			value = scope:mpie_court_child
+			days = mpie_court_meet_peers_plan_days_value
+		}
+	}
+}
+
+# A player ruler says no: the child is disappointed, and no child asks again for a year
+# (var:mpie_court_meet_peers_declined). Planning one by hand stays possible.
+# root = the ruler, scope:mpie_court_child
+mpie_court_meet_peers_decline_effect = {
+	scope:mpie_court_child = {
+		add_opinion = {
+			target = root
+			modifier = mpie_meet_peers_refused_opinion
+		}
+	}
+	custom_tooltip = mpie_court_meet_peers_declined_tt
+	hidden_effect = {
+		set_variable = {
+			name = mpie_court_meet_peers_declined
+			value = scope:mpie_court_child
+			days = mpie_court_meet_peers_declined_days_value
+		}
+	}
+	mpie_debug_log_effect = { MSG = MPIE_court_player_refused }
+}
+
+########################
+# An AI ruler plans it
+########################
+
+# Tells the AI ruler to plan Meet Peers now (ai_attempt_to_host_activity skips the AI check
+# interval; var:mpie_court_meet_peers_child makes is_shown pass and adds +1000 to ai_will_do), and
+# checks again in mpie_court_meet_peers_retry_days_value days (mpie_court.0010). A ruler who can't
+# host right now (can_host_activity: at war, uncrowned, busy, ...) drops the plan.
+# root = this = the ruler, var:mpie_court_meet_peers_child set
+mpie_court_meet_peers_ai_plan_effect = {
+	var:mpie_court_meet_peers_child = { save_scope_as = mpie_court_child }
+	if = {
+		limit = { can_host_activity = activity_playdate }
+		if = {
+			limit = { has_variable = mpie_court_meet_peers_attempts }
+			change_variable = {
+				name = mpie_court_meet_peers_attempts
+				add = 1
+			}
+		}
+		else = {
+			set_variable = {
+				name = mpie_court_meet_peers_attempts
+				value = 1
+				days = mpie_court_meet_peers_plan_days_value
+			}
+		}
+		if = {
+			limit = { debug_only = yes }
+			save_scope_value_as = {
+				name = mpie_debug_attempt
+				value = var:mpie_court_meet_peers_attempts
+			}
+			mpie_debug_log_effect = { MSG = MPIE_court_ai_ruler_plans }
+		}
+		ai_attempt_to_host_activity = activity_playdate
+		trigger_event = {
+			id = mpie_court.0010
+			days = mpie_court_meet_peers_retry_days_value
+		}
+	}
+	else = {
+		mpie_debug_log_effect = { MSG = MPIE_court_ai_ruler_cannot_host }
+		mpie_court_meet_peers_clear_plan_effect = yes
+	}
+}
+
+# root = this = the ruler
+mpie_court_meet_peers_clear_plan_effect = {
+	remove_variable = mpie_court_meet_peers_child
+	remove_variable = mpie_court_meet_peers_attempts
+}
+
+########################
+# The child takes over
+########################
+
+# Called at the end of on_start. If an adult (a ruler planning it for a child at court) created this
+# Meet Peers, the child joins, becomes the host, and the ruler leaves (vanilla hands an activity to
+# the heir the same way when the host dies, activity_try_use_new_host_effect). The child gets the
+# Meet Peers cooldown and mpie_organized_my_meet_peers_opinion of the ruler, the court waits
+# mpie_court_meet_peers_cooldown_days_value days.
+# If the child can't take over, the Meet Peers is cancelled rather than left with an adult host.
+# root = the activity, scope:host = the ruler who planned it
+mpie_court_meet_peers_handover_effect = {
+	if = {
+		limit = { scope:host = { is_adult = yes } }
+		scope:host = { save_scope_as = mpie_court_sponsor }
+		# The young host: special guest mpie_host_child_promised (the child who asked, AI and player rulers)
+		# or mpie_host_child (picked by a player without a request), else the child who asked, else the best
+		# candidate
+		if = {
+			limit = { exists = special_guest:mpie_host_child_promised }
+			special_guest:mpie_host_child_promised = { save_scope_as = mpie_court_child }
+		}
+		else_if = {
+			limit = { exists = special_guest:mpie_host_child }
+			special_guest:mpie_host_child = { save_scope_as = mpie_court_child }
+		}
+		else_if = {
+			limit = { exists = scope:mpie_court_sponsor.var:mpie_court_meet_peers_child }
+			scope:mpie_court_sponsor.var:mpie_court_meet_peers_child = { save_scope_as = mpie_court_child }
+		}
+		else = {
+			scope:mpie_court_sponsor = {
+				ordered_child = {
+					limit = { mpie_court_meet_peers_child_trigger = { RULER = scope:mpie_court_sponsor } }
+					order_by = mpie_court_meet_peers_child_score_value
+					save_scope_as = mpie_court_child
+				}
+			}
+		}
+		if = {
+			limit = { exists = scope:mpie_court_child }
+			set_variable = {
+				name = mpie_court_sponsor
+				value = scope:mpie_court_sponsor
+			}
+			scope:mpie_court_child = { add_to_activity = scope:activity }
+			set_activity_host = scope:mpie_court_child
+			# set_activity_host already takes the ruler out (they are not attending yet at on_start, and
+			# remove_from_activity only works on attendees); just in case they still attend
+			if = {
+				limit = { any_attending_character = { this = scope:mpie_court_sponsor } }
+				scope:mpie_court_sponsor = { remove_from_activity = scope:activity }
+			}
+		}
+		if = {
+			limit = {
+				exists = scope:mpie_court_child
+				activity_host = scope:mpie_court_child
+			}
+			if = { # End report for a player ruler (mpie_court.0100): remember the young host's friends and rivals now
+				limit = { scope:mpie_court_sponsor = { is_ai = no } }
+				mpie_court_meet_peers_report_snapshot_effect = yes
+			}
+			scope:mpie_court_child = {
+				mpie_meet_peers_start_cooldown_effect = yes
+				mpie_meet_peers_count_hosting_effect = yes
+				# Here, not in the special guest's on_invite: the invitation is sent after on_start, when
+				# scope:host is already the child
+				add_opinion = {
+					target = scope:mpie_court_sponsor
+					modifier = mpie_organized_my_meet_peers_opinion
+				}
+			}
+			scope:mpie_court_sponsor = {
+				mpie_court_meet_peers_clear_plan_effect = yes
+				remove_variable = mpie_court_meet_peers_pool_waits # the pool check starts over
+				remove_variable = mpie_court_meet_peers_pool_wait_year
+				set_variable = {
+					name = mpie_court_meet_peers_cooldown
+					value = scope:mpie_court_child
+					days = mpie_court_meet_peers_cooldown_days_value
+				}
+				if = {
+					limit = { is_ai = no }
+					send_interface_message = {
+						type = event_childhood_good_text
+						title = mpie_court_meet_peers_started_title
+						desc = mpie_court_meet_peers_started_desc
+						left_icon = scope:mpie_court_child
+					}
+				}
+			}
+			mpie_debug_log_effect = { MSG = MPIE_court_handover_done }
+		}
+		else = {
+			mpie_debug_log_effect = { MSG = MPIE_court_handover_failed }
+			scope:mpie_court_sponsor = {
+				mpie_court_meet_peers_clear_plan_effect = yes
+				add_gold = mpie_court_meet_peers_refund_value # the Meet Peers is cancelled, so the ruler gets the cost back
+			}
+			invalidate_activity = scope:activity
+		}
+	}
+}
+
+########################
+# Bonus
+########################
+
+# When a court child's Meet Peers begins, every child of the ruler's family who attends (besides the
+# host, who already got mpie_organized_my_meet_peers_opinion in the handover) thinks better of them.
+# Once per child and Meet Peers (activity list mpie_court_family_bonus_given), so the call at the end
+# only catches children who arrived after the start.
+# this = an attendee, scope:activity, scope:host. Called from the playdate_phase on_phase_active and on_end.
+mpie_court_meet_peers_family_bonus_effect = {
+	if = {
+		limit = {
+			exists = scope:activity.var:mpie_court_sponsor
+			this != scope:host
+			is_adult = no
+			scope:activity.var:mpie_court_sponsor = { is_alive = yes }
+			is_close_or_extended_family_of = scope:activity.var:mpie_court_sponsor
+			save_temporary_scope_as = mpie_bonus_child
+			NOT = {
+				scope:activity = {
+					is_target_in_variable_list = {
+						name = mpie_court_family_bonus_given
+						target = scope:mpie_bonus_child
+					}
+				}
+			}
+		}
+		add_opinion = {
+			target = scope:activity.var:mpie_court_sponsor
+			modifier = mpie_meet_peers_family_opinion
+		}
+		save_scope_as = mpie_bonus_child
+		scope:activity = {
+			add_to_variable_list = {
+				name = mpie_court_family_bonus_given
+				target = scope:mpie_bonus_child
+			}
+		}
+	}
+}
+
+########################
+# End report (players only)
+########################
+
+# At the handover: the young host's friends and rivals, so the report can tell the new ones apart
+# (activity variable lists mpie_report_friends_before / mpie_report_rivals_before).
+# root = the activity, scope:mpie_court_child = the young host
+mpie_court_meet_peers_report_snapshot_effect = {
+	scope:mpie_court_child = {
+		every_relation = {
+			type = friend
+			root = {
+				add_to_variable_list = {
+					name = mpie_report_friends_before
+					target = prev
+				}
+			}
+		}
+		every_relation = {
+			type = rival
+			root = {
+				add_to_variable_list = {
+					name = mpie_report_rivals_before
+					target = prev
+				}
+			}
+		}
+	}
+}
+
+# When a Meet Peers a player ruler planned for a child at court ends, mpie_court.0100 tells the ruler how
+# it went: how many children came, which of the family came, whom the young host befriended or fell out
+# with. The ruler isn't part of the activity, so without it they never see the end. AI rulers get nothing.
+# Saves for the event: scope:mpie_report_host, mpie_report_sibling (a sibling who came) or
+# mpie_report_relative (other family who came), mpie_report_friend, mpie_report_rival (each only if any),
+# scope values mpie_report_guests, mpie_report_family, mpie_report_family_others, mpie_report_new_friends,
+# mpie_report_friends_others.
+# this = an attendee, scope:activity, scope:host. Called from the playdate_phase on_end.
+mpie_court_meet_peers_report_effect = {
+	if = {
+		limit = {
+			this = scope:host
+			exists = scope:activity.var:mpie_court_sponsor
+			scope:activity.var:mpie_court_sponsor = {
+				is_alive = yes
+				is_ai = no
+			}
+		}
+		save_scope_as = mpie_report_host
+		scope:activity.var:mpie_court_sponsor = { save_scope_as = mpie_report_sponsor }
+		save_scope_value_as = {
+			name = mpie_report_guests
+			value = mpie_report_guests_value
+		}
+		save_scope_value_as = {
+			name = mpie_report_family
+			value = mpie_report_family_value
+		}
+		save_scope_value_as = {
+			name = mpie_report_family_others
+			value = {
+				value = scope:mpie_report_family
+				subtract = 1
+			}
+		}
+		save_scope_value_as = {
+			name = mpie_report_new_friends
+			value = mpie_report_new_friends_value
+		}
+		save_scope_value_as = {
+			name = mpie_report_friends_others
+			value = {
+				value = scope:mpie_report_new_friends
+				subtract = 1
+			}
+		}
+		scope:activity = {
+			random_attending_character = {
+				limit = { is_sibling_of = scope:mpie_report_host }
+				save_scope_as = mpie_report_sibling
+			}
+			if = {
+				limit = { NOT = { exists = scope:mpie_report_sibling } }
+				random_attending_character = {
+					limit = {
+						this != scope:mpie_report_host
+						is_close_or_extended_family_of = scope:mpie_report_host
+					}
+					save_scope_as = mpie_report_relative
+				}
+			}
+		}
+		random_relation = {
+			type = friend
+			limit = { mpie_court_report_new_relation_trigger = { LIST = mpie_report_friends_before } }
+			save_scope_as = mpie_report_friend
+		}
+		random_relation = {
+			type = rival
+			limit = { mpie_court_report_new_relation_trigger = { LIST = mpie_report_rivals_before } }
+			save_scope_as = mpie_report_rival
+		}
+		mpie_debug_log_effect = { MSG = MPIE_court_report_sent }
+		scope:mpie_report_sponsor = {
+			trigger_event = {
+				id = mpie_court.0100
+				days = 1
+			}
+		}
+	}
+}
+
+########################
+# Host prestige safety net
+########################
+
+# Vanilla gives the host medium_prestige_gain (150) in the playdate_phase on_end, right after this call.
+# In the 1066-1069 test a young host whose Meet Peers a player had planned got none (49 other court
+# hosts did; the same reward step demonstrably ran, her guests got hosted_successful_playdate_opinion),
+# cause unknown. So: remember the host's prestige now, and one day later (mpie_court.0110) add the 150
+# if it didn't arrive. Logs MPIE_court_host_prestige_ok / _restored either way.
+# this = an attendee, scope:activity, scope:host. Called from the playdate_phase on_end.
+mpie_court_meet_peers_prestige_check_effect = {
+	if = {
+		limit = {
+			this = scope:host
+			exists = scope:activity.var:mpie_court_sponsor
+		}
+		save_scope_value_as = {
+			name = mpie_host_prestige_before
+			value = prestige
+		}
+		save_scope_value_as = {
+			name = mpie_host_prestige_expected
+			value = {
+				value = prestige
+				add = medium_prestige_gain
+				subtract = 1
+			}
+		}
+		trigger_event = {
+			id = mpie_court.0110
+			days = 1
+		}
+	}
+}
+
+########################
+# A promise that can't be kept
+########################
+
+# The child a player said yes to (var:mpie_court_meet_peers_child) can no longer host: turned 14, died,
+# inherited a title, left court. The planner already shows the free Young Host slot then
+# (mpie_host_child), and this clears the promise so the court's children may ask again.
+# root = the ruler. Called yearly (mpie_court_meet_peers_stale_promise_pulse).
+mpie_court_meet_peers_drop_stale_promise_effect = {
+	mpie_debug_log_effect = { MSG = MPIE_court_promise_dropped }
+	mpie_court_meet_peers_clear_plan_effect = yes
+}

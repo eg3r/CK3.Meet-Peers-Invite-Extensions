@@ -1,7 +1,8 @@
 ﻿# Meet Peers - Invite Extensions: scripted effects
 
 # Adds every child (not adult) matching $FILTER$ to the invite rule list "characters".
-# Looks at rulers of COUNT tier or above within the host's diplomatic range:
+# Looks at rulers whose capital (or location, without one) is within about half of France of the
+# host's capital (mpie_invite_rule_range_value) and who are in the host's diplomatic range:
 # the ruler themself if they are a child, plus the children among their courtiers.
 # root = host of the activity
 # $FILTER$ = name of a scripted trigger, checked on each candidate child
@@ -10,8 +11,19 @@
 mpie_add_children_in_range_effect = {
 	if = {
 		limit = { is_ai = no }
+		# Center of the range: the host's capital, or where the host is without one
+		if = {
+			limit = { exists = capital_province }
+			capital_province = { save_scope_as = mpie_invite_center }
+		}
+		else = {
+			location ?= { save_scope_as = mpie_invite_center }
+		}
 		every_ruler = {
-			limit = { in_diplomatic_range = root }
+			limit = {
+				mpie_in_invite_range_trigger = yes
+				in_diplomatic_range = root
+			}
 			if = {
 				limit = {
 					is_adult = no
@@ -48,7 +60,9 @@ mpie_debug_log_effect = {
 	}
 }
 
-# Logs the cooldown this Meet Peers sets.
+# Logs the cooldown this Meet Peers sets, whether a ruler planned it for a child at court
+# (mpie_debug_court_plan; the handover follows), and the area around it (mpie_debug_area_values_effect;
+# the counts include this Meet Peers).
 # root = the activity, scope:host = host. Called from on_start.
 mpie_meet_peers_started_debug_log_effect = {
 	if = {
@@ -57,7 +71,142 @@ mpie_meet_peers_started_debug_log_effect = {
 			name = mpie_debug_cooldown_days
 			value = mpie_meet_peers_cooldown_days_value
 		}
+		if = {
+			limit = { scope:host = { is_adult = yes } }
+			save_scope_value_as = {
+				name = mpie_debug_court_plan
+				value = yes
+			}
+		}
+		else = {
+			save_scope_value_as = {
+				name = mpie_debug_court_plan
+				value = no
+			}
+		}
+		activity_location ?= { save_scope_as = mpie_debug_center }
+		mpie_debug_area_values_effect = yes
 		mpie_debug_log_effect = { MSG = MPIE_meet_peers_started }
+	}
+}
+
+# Logs the end of a Meet Peers for its host: MPIE_court_meet_peers_ended for a child at court who took
+# over from the ruler, MPIE_meet_peers_ended otherwise. mpie_debug_attendees = characters attending,
+# plus the area around it (mpie_debug_area_values_effect; the counts include this Meet Peers).
+# this = an attendee, scope:activity, scope:host. Called from the playdate_phase on_end, before the
+# vanilla host conclusion.
+mpie_meet_peers_ended_debug_log_effect = {
+	if = {
+		limit = {
+			debug_only = yes
+			this = scope:host
+		}
+		save_scope_value_as = {
+			name = mpie_debug_attendees
+			value = mpie_debug_attendees_value
+		}
+		save_scope_value_as = {
+			name = mpie_debug_sibling_attendees
+			value = mpie_debug_sibling_attendees_value
+		}
+		save_scope_value_as = {
+			name = mpie_debug_family_attendees
+			value = mpie_debug_family_attendees_value
+		}
+		scope:activity.activity_location ?= { save_scope_as = mpie_debug_center }
+		mpie_debug_area_values_effect = yes
+		if = {
+			limit = { exists = scope:activity.var:mpie_court_sponsor }
+			mpie_debug_log_effect = { MSG = MPIE_court_meet_peers_ended }
+		}
+		else = {
+			mpie_debug_log_effect = { MSG = MPIE_meet_peers_ended }
+		}
+	}
+}
+
+# Saves scope value $NAME$ = yes/no: does this pass $TRIGGER$ (a trigger used as "$TRIGGER$ = yes")?
+# For debug logs only; callers check debug_only.
+mpie_debug_flag_effect = {
+	if = {
+		limit = { $TRIGGER$ = yes }
+		save_scope_value_as = {
+			name = $NAME$
+			value = yes
+		}
+	}
+	else = {
+		save_scope_value_as = {
+			name = $NAME$
+			value = no
+		}
+	}
+}
+
+# Yearly census (debug mode, mpie_titled_meet_peers_census_pulse): what an AI child ruler of Meet Peers
+# age would need to host one. Titled AI children hosted only 2 Meet Peers in the 1066-1069 test, and the
+# hosting check itself can't log. Logs MPIE_titled_census with:
+#   mpie_debug_can_host (the playdate's is_shown and can_start pass), mpie_debug_at_war (vanilla blocks
+#   AI hosts at war), mpie_debug_uncrowned (blocks uncrowned AI rulers), mpie_debug_available,
+#   mpie_debug_count_throttle (counts: enough sociability or a player child near), mpie_debug_on_cooldown,
+#   mpie_debug_max_hosted (per-childhood maximum reached), mpie_debug_can_afford (else vanilla -75),
+#   mpie_debug_tier, mpie_debug_age, mpie_debug_hosted (Meet Peers hosted so far),
+#   mpie_debug_will_do_bonus (this mod's part of ai_will_do; vanilla adds 50, more or less by traits)
+# root = the AI child ruler
+mpie_titled_meet_peers_census_effect = {
+	mpie_debug_flag_effect = { NAME = mpie_debug_can_host TRIGGER = mpie_debug_can_host_meet_peers_trigger }
+	mpie_debug_flag_effect = { NAME = mpie_debug_at_war TRIGGER = is_at_war }
+	mpie_debug_flag_effect = { NAME = mpie_debug_uncrowned TRIGGER = mpie_debug_uncrowned_trigger }
+	mpie_debug_flag_effect = { NAME = mpie_debug_available TRIGGER = is_available }
+	mpie_debug_flag_effect = { NAME = mpie_debug_count_throttle TRIGGER = mpie_debug_count_throttle_trigger }
+	mpie_debug_flag_effect = { NAME = mpie_debug_on_cooldown TRIGGER = mpie_debug_meet_peers_on_cooldown_trigger }
+	mpie_debug_flag_effect = { NAME = mpie_debug_max_hosted TRIGGER = mpie_debug_max_hosted_trigger }
+	mpie_debug_flag_effect = { NAME = mpie_debug_can_afford TRIGGER = mpie_ai_meet_peers_can_afford_trigger }
+	save_scope_value_as = {
+		name = mpie_debug_tier
+		value = highest_held_title_tier
+	}
+	save_scope_value_as = {
+		name = mpie_debug_age
+		value = age
+	}
+	save_scope_value_as = {
+		name = mpie_debug_hosted
+		value = mpie_debug_hosted_value
+	}
+	save_scope_value_as = {
+		name = mpie_debug_will_do_bonus
+		value = mpie_ai_meet_peers_will_do_bonus_value
+	}
+	mpie_debug_log_effect = { MSG = MPIE_titled_census }
+}
+
+# Saves the area around scope:mpie_debug_center (a province) for the next debug logs:
+# mpie_debug_near_count (Meet Peers within ~one Ireland), mpie_debug_wide_count (~one France),
+# mpie_debug_activities (all activities in the world, what each area scan iterates) and
+# mpie_debug_meet_peers (Meet Peers in the world). Debug mode only.
+mpie_debug_area_values_effect = {
+	if = {
+		limit = {
+			debug_only = yes
+			exists = scope:mpie_debug_center
+		}
+		save_scope_value_as = {
+			name = mpie_debug_near_count
+			value = mpie_debug_near_count_value
+		}
+		save_scope_value_as = {
+			name = mpie_debug_wide_count
+			value = mpie_debug_wide_count_value
+		}
+		save_scope_value_as = {
+			name = mpie_debug_activities
+			value = mpie_debug_activities_value
+		}
+		save_scope_value_as = {
+			name = mpie_debug_meet_peers
+			value = mpie_debug_meet_peers_value
+		}
 	}
 }
 
@@ -65,16 +214,22 @@ mpie_meet_peers_started_debug_log_effect = {
 
 # Counts the Meet Peers a child has hosted, for the per-childhood maximum of AI hosts
 # (mpie_ai_meet_peers_max_hosted_value). Counted for every host; only the AI uses it.
+# Children only: a ruler planning it for a child at court is an adult, and the child counts instead
+# (mpie_court_meet_peers_handover_effect).
 # root = host, called from on_start
 mpie_meet_peers_count_hosting_effect = {
 	if = {
-		limit = { has_variable = mpie_meet_peers_hosted_as_child }
+		limit = {
+			is_adult = no
+			has_variable = mpie_meet_peers_hosted_as_child
+		}
 		change_variable = {
 			name = mpie_meet_peers_hosted_as_child
 			add = 1
 		}
 	}
-	else = {
+	else_if = {
+		limit = { is_adult = no }
 		set_variable = {
 			name = mpie_meet_peers_hosted_as_child
 			value = 1
@@ -87,11 +242,16 @@ mpie_meet_peers_count_hosting_effect = {
 # Starts the Meet Peers cooldown: a timed variable that blocks hosting
 # (mpie_meet_peers_not_on_cooldown_trigger) until it runs out or the reset decision removes it.
 # Length from the mpie_meet_peers_cooldown game rule.
+# Children only: a ruler planning it for a child at court is an adult; the child gets the cooldown
+# and the court its own (mpie_court_meet_peers_handover_effect).
 # root = host, called from on_start
 mpie_meet_peers_start_cooldown_effect = {
-	set_variable = {
-		name = mpie_meet_peers_cooldown
-		value = yes
-		days = mpie_meet_peers_cooldown_days_value
+	if = {
+		limit = { is_adult = no }
+		set_variable = {
+			name = mpie_meet_peers_cooldown
+			value = yes
+			days = mpie_meet_peers_cooldown_days_value
+		}
 	}
 }

@@ -7,3 +7,11 @@ mpie_meet_peers_on_cooldown = {
 	third = MPIE_MEET_PEERS_ON_COOLDOWN_THIRD
 	third_not = MPIE_MEET_PEERS_ON_COOLDOWN_THIRD
 }
+
+# mpie_court_meet_peers_not_on_court_cooldown_trigger: shown while var:mpie_court_meet_peers_cooldown exists
+mpie_court_meet_peers_on_cooldown = {
+	first = MPIE_COURT_MEET_PEERS_ON_COOLDOWN_FIRST
+	first_not = MPIE_COURT_MEET_PEERS_ON_COOLDOWN_FIRST
+	third = MPIE_COURT_MEET_PEERS_ON_COOLDOWN_THIRD
+	third_not = MPIE_COURT_MEET_PEERS_ON_COOLDOWN_THIRD
+}
