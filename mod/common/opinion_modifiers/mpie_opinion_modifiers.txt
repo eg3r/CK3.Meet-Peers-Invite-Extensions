@@ -1,0 +1,25 @@
+﻿# Meet Peers - Invite Extensions: opinion modifiers
+
+# A player ruler refused to pay for their child's Meet Peers (mpie_court.0001). Fades over 5 years,
+# like vanilla rejected_gift_opinion.
+mpie_meet_peers_refused_opinion = {
+	opinion = -15
+	decaying = yes
+	years = 5
+}
+
+# The ruler planned a Meet Peers for this child at court, who hosts it (special guest on_invite,
+# shown in the planner). Like vanilla hosted_successful_playdate_opinion.
+mpie_organized_my_meet_peers_opinion = {
+	opinion = 20
+	decaying = yes
+	years = 10
+}
+
+# A child of the ruler's family attended a Meet Peers the ruler planned for a child at court
+# (mpie_court_meet_peers_family_bonus_effect, at the end).
+mpie_meet_peers_family_opinion = {
+	opinion = 10
+	decaying = yes
+	years = 5
+}

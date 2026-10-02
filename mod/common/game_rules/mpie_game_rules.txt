@@ -6,6 +6,7 @@
 mpie_meet_peers_cooldown_reset = {
 	categories = {
 		tweaks
+		mpie_meet_peers # Own entry in the game rule filter (game_rule_category_mpie_meet_peers)
 	}
 
 	default = mpie_meet_peers_cooldown_reset_disabled
@@ -24,6 +25,7 @@ mpie_meet_peers_cooldown_reset = {
 mpie_meet_peers_cooldown = {
 	categories = {
 		tweaks
+		mpie_meet_peers # Own entry in the game rule filter (game_rule_category_mpie_meet_peers)
 	}
 
 	default = mpie_meet_peers_cooldown_2_years
@@ -45,6 +47,7 @@ mpie_meet_peers_cooldown = {
 mpie_ai_invites_players = {
 	categories = {
 		tweaks
+		mpie_meet_peers # Own entry in the game rule filter (game_rule_category_mpie_meet_peers)
 	}
 
 	default = mpie_ai_invites_players_near_and_faith
@@ -64,6 +67,7 @@ mpie_ai_invites_players = {
 mpie_meet_peers_guests_at_war = {
 	categories = {
 		tweaks
+		mpie_meet_peers # Own entry in the game rule filter (game_rule_category_mpie_meet_peers)
 	}
 
 	default = mpie_meet_peers_guests_at_war_enabled
@@ -72,5 +76,26 @@ mpie_meet_peers_guests_at_war = {
 	}
 
 	mpie_meet_peers_guests_at_war_enabled = {
+	}
+}
+
+# May rulers of this rank or higher plan Meet Peers for a child living at their court without a title
+# of their own, who then hosts it (one per court every 2 years)? Kings and above by default.
+# Read by mpie_court_meet_peers_enabled_trigger / mpie_court_meet_peers_ruler_tier_trigger.
+mpie_court_children_meet_peers = {
+	categories = {
+		tweaks
+		mpie_meet_peers # Own entry in the game rule filter (game_rule_category_mpie_meet_peers)
+	}
+
+	default = mpie_court_children_meet_peers_kingdom
+
+	mpie_court_children_meet_peers_off = {
+	}
+
+	mpie_court_children_meet_peers_kingdom = {
+	}
+
+	mpie_court_children_meet_peers_duchy = {
 	}
 }

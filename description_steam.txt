@@ -1,51 +1,67 @@
 [h1]Meet Peers - Invite Extensions[/h1]
 
-[b]Let your child ruler meet children beyond your own realm, and make friends, learn and grow with them.[/b]
+[b]Let your children meet children beyond your own realm, and make friends, learn and grow with them.[/b]
 
-[h2]Overview[/h2]
-In vanilla, the Meet Peers activity only offers children from your own realm and your personal relations, and Recreation is its only goal. This mod adds new guest invite options so you can bring in the children next door or children of your faith. It also adds goals aimed at one of the other children: befriend them, learn from them, or take after them.
+In the base game, Meet Peers only brings together children from your own realm and your closest relations, Recreation is its only goal, and only children who hold a title can host one. This mod opens Meet Peers up: more children to meet, a goal for your child, AI children who host and invite you, and Meet Peers hosted by the children at your court.
 
-[h2]Guest Invite Options[/h2]
+[h2]More Children to Meet[/h2]
+New guest options in the Meet Peers planner:
 [list]
-[*] [b]Neighboring Children[/b] - Neighboring rulers who are children themselves, and the children of rulers of bordering realms, including across water and the count next door in another duchy. On by default.
-[*] [b]Children of the Same Faith[/b] - Children of your faith at any court in diplomatic range. Opt-in.
-[*] [b]Realm First[/b] - New options fill after your own realm's children, so they keep priority
+[*] [b]Neighboring Children[/b] - The children of the realms next door, including across the water. On by default.
+[*] [b]Children of Court and Vassals[/b] - When you plan a Meet Peers for a child at your court: the other children at your court and your vassals' children. On by default.
+[*] [b]Children of the Same Faith[/b] - Children of your faith from courts further away. Tick it when you want it.
+[*] [b]Nearby Player Children[/b] - In multiplayer, the other players' children who live nearby. On by default.
+[/list]
+[b]Family First[/b] - The host's brothers, sisters and cousins are invited before anyone else, and they are more likely to come.
+
+[h2]A Goal for Your Child[/h2]
+When you plan a Meet Peers or join one, pick a goal and the child it is aimed at:
+[list]
+[*] [b]Befriend a Peer[/b] - Try to win a new friend. A gift, your standing, or your child's own charm can help.
+[*] [b]Learn from a Peer[/b] - Learn from a child who is better than yours at something.
+[*] [b]Role Model[/b] - Look up to another child and take after one of their personality traits.
+[/list]
+Once both children have arrived, a moment together comes up during the Meet Peers, with choices that suit your child's nature. If it isn't the right moment, your child can do something else instead: play with the others, slip off to the chapel, find a quiet corner or show off. Everything that happens is noted in the activity log.
+
+[h2]Your Children Host at Court[/h2]
+A king's children usually live at court without a title of their own, so in the base game they never host a Meet Peers. Now you plan it for them, and your child is the host.
+[list]
+[*] [b]Plan It Yourself[/b] - Pick the Young Host in the planner. You pay for it, your child hosts it at your capital, and you stay home.
+[*] [b]A Child Asks[/b] - Now and then a child at court asks for a Meet Peers. Say yes, and the planner opens with that child already chosen; a reminder at the top of the screen takes you back to it later. Say no, and your child is disappointed in you.
+[*] [b]How It Went[/b] - When it's over, you hear how it went: how many children came, who of your family was there, and whom your child made friends with.
+[*] [b]Grateful Children[/b] - The young host thinks better of you, and so does every child of your family who comes.
+[*] [b]AI Courts Too[/b] - AI kings and emperors plan Meet Peers for their children as well.
 [/list]
 
-[h2]Meet Peers Goals[/h2]
-Pick a goal and the child it is aimed at when planning Meet Peers, or later during the activity. Guests can pick one too.
+[h2]A Livelier World[/h2]
 [list]
-[*] [b]Befriend a Peer[/b] - A chance to become friends (10-90%). It is better if you are already potential friends, if they like you, and if your diplomacy is high. Bring a gift, use your standing (prestige, or influence in administrative realms), or use your Charming, Rowdy or Curious nature, for a better chance.
-[*] [b]Learn from a Peer[/b] - A chance to gain +1 in the skill where they are furthest ahead of you, or in their second-best skill at a lower chance, prowess included (15-70%). It is better with a bigger gap and higher learning. Spend piety or standing for a better chance.
-[*] [b]Role Model[/b] - A chance to take on one of their personality traits, or another of their traits at a lower chance (20-40%). It is better if you are friends or close in age. Spend piety for a better chance. You see the trait first.
-[*] [b]A Moment Together[/b] - Once you have both arrived, a moment usually comes up (about 80%) at a random point during the Meet Peers, with a second, smaller chance (about 30%) in the last month if it doesn't. If you try and fail, you may get one more try a few weeks later. Every event also offers an alternative pastime with a small sure reward (less stress, piety or prestige). Results are recorded in the activity log, and AI children keep Recreation.
+[*] [b]AI Children Host More[/b] - AI child rulers host Meet Peers far more often, spread out over their childhood.
+[*] [b]You Get Invited[/b] - AI children who live near your child put your child on their guest list, and children of your faith invite yours from further away.
+[*] [b]Not All in One Place[/b] - Meet Peers spread out across the map instead of crowding one area, so the children around aren't split between too many at the same time.
+[*] [b]At War? Still Welcome[/b] - Your child can still go to a Meet Peers while your realm is at war.
 [/list]
 
 [h2]Cooldown[/h2]
 [list]
-[*] [b]Shorter Cooldown[/b] - Meet Peers can be hosted every 2 years instead of every 3. The "Meet Peers Cooldown" game rule sets it to 1, 2 or 3 years.
-[*] [b]Reset Meet Peers Cooldown[/b] - A decision that lets you plan the next Meet Peers right away instead of waiting for the cooldown. Off by default: enable it with the "Meet Peers Cooldown Reset" game rule. This is considered cheating and should not be active for normal gameplay.
+[*] [b]Host More Often[/b] - Your child can host a Meet Peers every 2 years instead of every 3.
+[*] [b]Reset the Cooldown[/b] - An optional decision to plan the next Meet Peers right away. It's off unless you switch it on, and is meant as a cheat.
 [/list]
 
-[h2]AI Children Host and Invite You[/h2]
+[h2]Game Rules[/h2]
+Everything can be tuned when you start a game: pick [b]Meet Peers[/b] in the game rule filter to see only these rules (they're also listed under Tweaks).
 [list]
-[*] [b]More AI Meet Peers[/b] - AI child rulers host about once per childhood as counts, up to four times as emperors, spread out over time.
-[*] [b]You Get Invited[/b] - AI children nearby (same or neighboring realm, or close by) put your child at the top of their guest list. Children of your faith also invite you from further away.
-[*] [b]More Hosting Near You[/b] - AI children near a player child host more readily, even child counts.
-[*] [b]Game Rules[/b] - "AI Meet Peers and Player Children" (Off / Nearby / Nearby and Same Faith; Off restores base-game AI hosting), and "Meet Peers Guests at War", which lets player children at war attend (allowed by default).
+[*] [b]Meet Peers Cooldown[/b] - 1, 2 (default) or 3 years.
+[*] [b]Meet Peers Cooldown Reset[/b] - Off (default) or On.
+[*] [b]AI Meet Peers and Player Children[/b] - Off (base game), Nearby, or Nearby and Same Faith (default).
+[*] [b]Meet Peers Guests at War[/b] - Allowed for players (default) or Not Allowed.
+[*] [b]Court Children Host Meet Peers[/b] - Off, Kings and Above (default), or Dukes and Above.
 [/list]
 
 [h2]Languages[/h2]
-English, French, German, Spanish, Polish, Russian, Chinese, Korean, and Japanese
-
-[h2]Requirements[/h2]
-[list]
-[*] Vanilla Meet Peers rules still apply: guests must be children aged 4-13, healthy, free, not hostages, and within diplomatic range
-[*] Invite options add guests together: a child is invited if any ticked option includes them
-[/list]
+English, French, German, Spanish, Polish, Russian, Chinese, Korean and Japanese.
 
 [h2]Compatibility[/h2]
-This mod replaces the vanilla Meet Peers activity file (playdate.txt). It is not compatible with other mods that change the Meet Peers activity.
+This mod changes the Meet Peers activity itself, so it doesn't work together with other mods that change Meet Peers.
 
 [h2]Support[/h2]
 Found a bug or have a suggestion? Please report it in the discussions section!

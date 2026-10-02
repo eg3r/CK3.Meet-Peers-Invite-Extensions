@@ -1,0 +1,36 @@
+﻿# Meet Peers - Invite Extensions: pacing (how many Meet Peers run in one area at a time)
+#
+# Every Meet Peers (planned, gathering or running, whoever hosts it) takes up the area around its
+# location, so Meet Peers spread over the map instead of crowding one area and sharing out its children.
+#   - Court children (mpie_court_triggers.txt): no request, and no AI planning, while the area around
+#     the ruler's capital is full (mpie_meet_peers_area_full_trigger); the court checks again later.
+#   - Titled AI child hosts are not blocked, only less likely to host (mpie_ai_meet_peers_nearby_penalty_value).
+#   - Players planning a Meet Peers themselves are never blocked.
+# Cost: one scan of all activities in the world (a few dozen); vanilla tournaments scan the same way in
+# their ai_will_do (any_activity / every_activity, -50 per grand activity nearby).
+# Counts and limits: script_values/mpie_values.txt (Pacing).
+
+# Is this activity a Meet Peers within $DISTANCE$ (squared map pixels, e.g. squared_distance_medium)
+# of province $CENTER$?
+# this = an activity
+mpie_meet_peers_activity_near_trigger = {
+	has_activity_type = activity_playdate
+	activity_location ?= {
+		squared_distance = {
+			target = $CENTER$
+			value <= $DISTANCE$
+		}
+	}
+}
+
+# Is the area around root's capital full? mpie_meet_peers_area_near_limit_value or more Meet Peers
+# within ~one Ireland (squared_distance_medium), or mpie_meet_peers_area_wide_limit_value or more
+# within ~one France (squared_distance_large).
+# root = the ruler
+mpie_meet_peers_area_full_trigger = {
+	exists = root.capital_province
+	OR = {
+		mpie_meet_peers_near_count_value >= mpie_meet_peers_area_near_limit_value
+		mpie_meet_peers_wide_count_value >= mpie_meet_peers_area_wide_limit_value
+	}
+}

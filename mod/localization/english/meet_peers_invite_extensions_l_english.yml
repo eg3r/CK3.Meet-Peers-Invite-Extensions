@@ -43,6 +43,16 @@
  setting_mpie_meet_peers_guests_at_war_disabled_desc:0 "As in the base game, children who are at war cannot attend a Meet Peers."
  setting_mpie_meet_peers_guests_at_war_enabled:0 "Allowed for Players"
  setting_mpie_meet_peers_guests_at_war_enabled_desc:0 "Player children who are at war can still attend Meet Peers as guests. AI children are unchanged."
+
+ # Game rule: court children host Meet Peers
+ game_rule_category_mpie_meet_peers:0 "Meet Peers"
+ rule_mpie_court_children_meet_peers:0 "Court Children Host Meet Peers"
+ setting_mpie_court_children_meet_peers_off:0 "Off"
+ setting_mpie_court_children_meet_peers_off_desc:0 "As in the base game, only children who hold a title can host a Meet Peers."
+ setting_mpie_court_children_meet_peers_kingdom:0 "Kings and Above"
+ setting_mpie_court_children_meet_peers_kingdom_desc:0 "Kings and emperors can plan a Meet Peers for a child at their court who holds no title, and the child hosts it. Once a year a child may also ask: AI rulers say yes if they can afford it, players can refuse. Each court hosts at most one every 2 years."
+ setting_mpie_court_children_meet_peers_duchy:0 "Dukes and Above"
+ setting_mpie_court_children_meet_peers_duchy_desc:0 "As Kings and Above, and the children of dukes too."
  
  # Cooldown tooltip (common/trigger_localization/mpie_trigger_localization.txt)
  MPIE_MEET_PEERS_ON_COOLDOWN_FIRST:0 "You cannot host another [GetActivityType('activity_playdate').GetName] until [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_meet_peers_cooldown') )]"
@@ -100,7 +110,7 @@
  # Role Model encounter
  mpie_peer.3001.t:0 "Someone to Look Up To"
  mpie_peer.3001.desc:0 "I can't stop watching [mpie_peer.GetTitledFirstName]. Everyone notices how [mpie_modeled_trait.GetName( mpie_peer )|l] [mpie_peer.GetSheHe] is, and they all seem to admire [mpie_peer.GetHerHim] for it.\n\nMaybe I could be more like that?"
- mpie_peer.3001.desc.second:0 " Then again, [mpie_peer.GetSheHe] can be so [mpie_modeled_trait_2.GetName( mpie_peer )|l], too..."
+ mpie_peer.3001.desc.second:0 "Then again, [mpie_peer.GetSheHe] can be so [mpie_modeled_trait_2.GetName( mpie_peer )|l], too..."
  mpie_peer.3001.a:0 "I want to be [mpie_modeled_trait.GetName( ROOT.Char )|l] too! ([mpie_role_model_chance|0]%)"
  mpie_peer.3001.b:0 "Maybe I should be [mpie_modeled_trait_2.GetName( ROOT.Char )|l] instead ([mpie_role_model_chance_2|0]%)"
  mpie_peer.3001.c:0 "Ask the chaplain to help me become [mpie_modeled_trait.GetName( ROOT.Char )|l] ([mpie_role_model_invest_chance|0]%)"
@@ -139,3 +149,53 @@
 
  # Relationship reason
  mpie_friend_meet_peers_reason:0 "[CHARACTER.GetShortUIName|U] and [TARGET_CHARACTER.GetShortUIName] became friends at a [GetActivityType('activity_playdate').GetNameNoTooltip]."
+
+ # Court children host Meet Peers (mpie_court_triggers.txt, events/activities/mpie_court_meet_peers_events.txt)
+ mpie_invite_rule_court_children:0 "Children of Court and Vassals"
+ mpie_invite_rule_close_family:0 "$activity_invite_rule_close_family$"
+ mpie_invite_rule_extended_family:0 "$activity_invite_rule_extended_family$"
+ mpie_host_child:0 "Young Host"
+ mpie_host_child_for_host:0 "Young Host"
+ mpie_host_child_promised:0 "$mpie_host_child$"
+ mpie_host_child_promised_for_host:0 "$mpie_host_child$"
+ MPIE_COURT_MEET_PEERS_ON_COOLDOWN_FIRST:0 "Your court cannot host another [GetActivityType('activity_playdate').GetName] for a child until [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_court_meet_peers_cooldown') )]"
+ MPIE_COURT_MEET_PEERS_ON_COOLDOWN_THIRD:0 "[CHARACTER.GetShortUIName|U]'s court cannot host another [GetActivityType('activity_playdate').GetName] for a child until [GetCurrentDateWithDiff( GetVarTimeRemaining( CHARACTER.MakeScope, 'mpie_court_meet_peers_cooldown') )]"
+ mpie_court.0001.t:0 "A Request at Court"
+ mpie_court.0001.desc:0 "All morning, [mpie_court_child.GetFirstName] has been following me through the hall. At last [mpie_court_child.GetSheHe] tugs at my sleeve.\n\n"Please, may I host a [GetActivityType('activity_playdate').GetName]? I want to invite the other children, from all over the realm and beyond!"\n\nA [GetActivityType('activity_playdate').GetNameNoTooltip] at my court would cost about [mpie_court_meet_peers_cost|0][gold_i]."
+ mpie_court.0001.a:0 "Of course, little one. I will arrange it!"
+ mpie_court.0001.b:0 "Not this year, [mpie_court_child.GetFirstName]."
+ mpie_court_meet_peers_accept_tt:0 "The [GetActivityType('activity_playdate').GetName] planner opens with [mpie_court_child.GetFirstName] as the Young Host. You can also plan it later, during the next year: a reminder at the top of the screen takes you there"
+ mpie_court_meet_peers_declined_tt:0 "[mpie_court_child.GetFirstName] will not ask again for a year"
+ mpie_court_meet_peers_started_title:0 "[mpie_court_child.GetFirstName] Hosts a [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_court_meet_peers_started_desc:0 "[mpie_court_child.GetFirstName] has taken over as host of the [GetActivityType('activity_playdate').GetName] you planned"
+ mpie_meet_peers_refused_opinion:0 "Refused My Meet Peers"
+ mpie_organized_my_meet_peers_opinion:0 "Organized My Meet Peers"
+ mpie_meet_peers_family_opinion:0 "Organized a Meet Peers for Us"
+
+ # Family first: guest acceptance (playdate guest_join_chance)
+ MPIE_ACTIVITY_GUEST_HOST_SIBLING_REASON:0 "[ROOT.Char.GetSheHe|U] is the host's sibling: $VALUE|=+0$"
+ MPIE_ACTIVITY_GUEST_HOST_FAMILY_REASON:0 "[ROOT.Char.GetSheHe|U] is the host's family: $VALUE|=+0$"
+
+ # End report for a player ruler (mpie_court.0100)
+ mpie_court.0100.t:0 "[mpie_report_host.GetFirstName]'s [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_court.0100.desc_guests_none:0 "The [GetActivityType('activity_playdate').GetName] I planned for [mpie_report_host.GetFirstName] is over, but no other children came."
+ mpie_court.0100.desc_guests_one:0 "The [GetActivityType('activity_playdate').GetName] I planned for [mpie_report_host.GetFirstName] is over. One other child came."
+ mpie_court.0100.desc_guests_many:0 "The [GetActivityType('activity_playdate').GetName] I planned for [mpie_report_host.GetFirstName] is over. [mpie_report_guests|0] other children came."
+ mpie_court.0100.desc_family_sibling_and_more:0 "Among them were [mpie_report_sibling.GetFirstName] and [mpie_report_family_others|0] more of the family."
+ mpie_court.0100.desc_family_sibling:0 "[mpie_report_sibling.GetFirstName] was among them."
+ mpie_court.0100.desc_family_relative_and_more:0 "Among them were [mpie_report_relative.GetFirstName] and [mpie_report_family_others|0] more of the family."
+ mpie_court.0100.desc_family_relative:0 "[mpie_report_relative.GetFirstName], one of the family, was among them."
+ mpie_court.0100.desc_family_none:0 "No one from the family came."
+ mpie_court.0100.desc_nothing:0 ""
+ mpie_court.0100.desc_friends_many:0 "\n\n[mpie_report_host.GetFirstName] made friends with [mpie_report_friend.GetFirstName] and [mpie_report_friends_others|0] more."
+ mpie_court.0100.desc_friends_one:0 "\n\n[mpie_report_host.GetFirstName] made friends with [mpie_report_friend.GetFirstName]."
+ mpie_court.0100.desc_friends_none:0 "\n\n[mpie_report_host.GetFirstName] made no new friends this time."
+ mpie_court.0100.desc_rival:0 "[mpie_report_host.GetFirstName] fell out with [mpie_report_rival.GetFirstName], though."
+ mpie_court.0100.desc_rewards:0 "\n\nAs host, [mpie_report_host.GetFirstName] earned prestige, and every guest now thinks better of [mpie_report_host.GetHerHim]."
+ mpie_court.0100.a:0 "I am glad to hear it."
+
+ # Reminder to plan a promised Meet Peers (common/important_actions/mpie_important_actions.txt)
+ mpie_action_plan_court_meet_peers:0 "Promised [GetActivityType('activity_playdate').GetNameNoTooltip]"
+ mpie_action_plan_court_meet_peers_label:0 "$mpie_action_plan_court_meet_peers$"
+ mpie_action_plan_court_meet_peers_desc:0 "You promised [secondary_actor.GetShortUIName] a [GetActivityType('activity_playdate').GetName], with [secondary_actor.GetHerHim] as the Young Host.\n\nYou have [GetGameTimeDifferenceForDiffDays( actor.MakeScope.VarRemaining( 'mpie_court_meet_peers_child' ) )] to plan it."
+ mpie_action_plan_court_meet_peers_click:0 "#I Click to plan the [GetActivityType('activity_playdate').GetNameNoTooltip]#!"

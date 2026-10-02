@@ -18,19 +18,16 @@ mpie_meet_peers_cooldown_days_value = {
 	}
 }
 
+# Range of the Same Faith and Opposite Sex invite rules (mpie_add_children_in_range_effect), squared
+# map pixels: 325 pixels, half of squared_distance_large's 650 (~one France), so about half of France.
+# (Vanilla's squared_distance_major halves the squared value instead: ~460 pixels, ~0.7 France.)
+mpie_invite_rule_range_value = 105625
+
 # AI hosting (see documentation/03_ai_meet_peers_invites_to_player.md)
 # Everything here follows the mpie_ai_invites_players game rule: with it "Off", AI hosting is vanilla
-# (only ai_check_interval_by_tier differs, which mpie_ai_meet_peers_will_do_factor_value evens out).
+# (the playdate keeps vanilla's 60-month check interval; with the rule on, mpie_ai_meet_peers_extra_check_pulse
+# adds a yearly check of its own).
 
-# AI child counts need at least this ai_sociability to host Meet Peers.
-# Vanilla 100 (i.e. Gregarious); 50 with the rule on (e.g. charming + trusting). Counts near a player child skip it.
-mpie_ai_count_host_sociability_value = {
-	value = 100
-	if = {
-		limit = { mpie_ai_invites_players_enabled_trigger = yes }
-		value = 50
-	}
-}
 
 # Most Meet Peers an AI child hosts per childhood with the rule on, by highest title tier
 # (county 1, duchy 2, kingdom 3, empire and hegemony 4). Counted in var:mpie_meet_peers_hosted_as_child.
@@ -54,11 +51,18 @@ mpie_ai_meet_peers_max_hosted_value = {
 # Added to the playdate ai_will_do (a percentage) with the rule on:
 # +50 base (100 instead of vanilla 50, so AI children host at about every check),
 # +50 when a player child is near, or +25 when one is only of the same faith within ~one France,
+# -50/-15 for each Meet Peers already nearby (mpie_ai_meet_peers_nearby_penalty_value),
 # and -1000 once the per-childhood maximum (mpie_ai_meet_peers_max_hosted_value) is reached.
+# An AI ruler planning it for a child at court (mpie_court_meet_peers_ai_sponsor_trigger) gets +1000 instead,
+# whatever the rule, so they always plan it once asked to (vanilla's investiture council does the same).
 # root = AI character considering to host
 mpie_ai_meet_peers_will_do_bonus_value = {
 	value = 0
 	if = {
+		limit = { mpie_court_meet_peers_ai_sponsor_trigger = yes }
+		add = 1000
+	}
+	else_if = {
 		limit = { mpie_ai_invites_players_enabled_trigger = yes }
 		add = 50
 		if = {
@@ -69,6 +73,7 @@ mpie_ai_meet_peers_will_do_bonus_value = {
 			limit = { mpie_ai_host_same_faith_player_child_trigger = yes }
 			add = 25
 		}
+		add = mpie_ai_meet_peers_nearby_penalty_value
 		if = {
 			limit = {
 				has_variable = mpie_meet_peers_hosted_as_child
@@ -79,24 +84,426 @@ mpie_ai_meet_peers_will_do_bonus_value = {
 	}
 }
 
-# Multiplies the playdate ai_will_do with the rule "Off", so tiers whose check interval is shorter
-# than vanilla's 60 months host as often as in vanilla on average (kingdom 40 -> x0.67, empire and
-# hegemony 30 -> x0.5). 1 with the rule on, and for county and duchy (vanilla interval).
+# Pacing (see scripted_triggers/mpie_pacing_triggers.txt)
+
+# The area around a court is full with this many Meet Peers within ~one Ireland of its capital
+# (at most 1 already there) ...
+mpie_meet_peers_area_near_limit_value = 2
+# ... or with this many within ~one France (at most 2 already there; 4 until the 1066-1076 observer
+# test, where Meet Peers worldwide grew to about 40 at once by 1075)
+mpie_meet_peers_area_wide_limit_value = 3
+
+# Meet Peers (planned, gathering or running, any host) within ~one Ireland / ~one France of root's capital
+# root = a ruler or AI host
+mpie_meet_peers_near_count_value = {
+	value = 0
+	if = {
+		limit = { exists = root.capital_province }
+		every_activity = {
+			limit = { mpie_meet_peers_activity_near_trigger = { CENTER = root.capital_province DISTANCE = squared_distance_medium } }
+			add = 1
+		}
+	}
+}
+mpie_meet_peers_wide_count_value = {
+	value = 0
+	if = {
+		limit = { exists = root.capital_province }
+		every_activity = {
+			limit = { mpie_meet_peers_activity_near_trigger = { CENTER = root.capital_province DISTANCE = squared_distance_large } }
+			add = 1
+		}
+	}
+}
+
+# Titled AI child hosts are not blocked by the pacing, only less likely to host where Meet Peers already
+# run (vanilla tournaments do the same, -50 per nearby grand activity): -50 for each within ~one Ireland,
+# -15 for each other one within ~one France. Part of mpie_ai_meet_peers_will_do_bonus_value (rule on).
 # root = AI character considering to host
-mpie_ai_meet_peers_will_do_factor_value = {
-	value = 1
+mpie_ai_meet_peers_nearby_penalty_value = {
+	value = 0
+	add = {
+		value = mpie_meet_peers_near_count_value
+		multiply = -35
+	}
+	add = {
+		value = mpie_meet_peers_wide_count_value
+		multiply = -15
+	}
+}
+
+# Court children hosting (see mpie_court_triggers.txt / mpie_court_effects.txt)
+
+# Roughly what Meet Peers costs a ruler at their rank (vanilla standard_playdate_activity_cost:
+# duke 20, king 55, emperor 65 gold; tribal half), rounded up to a multiple of 5 like vanilla's
+# ui_predicted_cost. A child only asks when the ruler can afford it; the real cost is the activity's.
+# root = the ruler
+mpie_court_meet_peers_cost_value = {
+	value = standard_playdate_activity_cost
+	divide = 5
+	ceiling = yes
+	multiply = 5
+}
+
+# Which child at court hosts when the Young Host slot is empty and nobody asked (handover fallback):
+# never hosted first, then the oldest
+# this = the child
+mpie_court_meet_peers_child_score_value = {
+	value = age
+	if = {
+		limit = { NOT = { has_variable = mpie_meet_peers_hosted_as_child } }
+		add = 20
+	}
+}
+
+# Days before the same court hosts the next Meet Peers for a child (var:mpie_court_meet_peers_cooldown on the ruler)
+mpie_court_meet_peers_cooldown_days_value = 730
+
+# Gold the ruler gets back when the child can't take over and the Meet Peers is cancelled: vanilla
+# standard_playdate_activity_cost, which reads root (= the activity at the handover), rewritten for this.
+# (A free Meet Peers credit is already used up by then, so that case gets the full cost back too.)
+# this = the ruler
+mpie_court_meet_peers_refund_value = {
+	value = 10
+	multiply = {
+		value = primary_title.tier
+		subtract = 1
+		min = 1
+	}
+	if = {
+		limit = { primary_title.tier > tier_duchy }
+		add = 25
+	}
+	if = {
+		limit = { government_has_flag = government_is_tribal }
+		multiply = 0.5
+	}
 	if = {
 		limit = {
-			NOT = { mpie_ai_invites_players_enabled_trigger = yes }
-			highest_held_title_tier = tier_kingdom
+			is_ai = yes
+			has_game_rule = hard_difficulty
 		}
-		value = 0.67
+		multiply = 0.5
 	}
 	else_if = {
 		limit = {
-			NOT = { mpie_ai_invites_players_enabled_trigger = yes }
-			highest_held_title_tier >= tier_empire
+			is_ai = yes
+			has_game_rule = very_hard_difficulty
 		}
-		value = 0.5
+		multiply = 0.25
+	}
+}
+
+# Days before a child of a player ruler who said no asks again (var:mpie_court_meet_peers_declined)
+mpie_court_meet_peers_declined_days_value = 365
+
+# Days a "yes" lasts (var:mpie_court_meet_peers_child on the ruler): a player ruler plans it in this
+# time, an AI ruler tries every mpie_court_meet_peers_retry_days_value days, up to
+# mpie_court_meet_peers_max_attempts_value times.
+mpie_court_meet_peers_plan_days_value = 365
+mpie_court_meet_peers_retry_days_value = 30
+mpie_court_meet_peers_max_attempts_value = 3
+
+# Most rechecks (mpie_court.0020) a court gets in a year after its request was put off (child away,
+# area full, too few children); after that it waits for the next yearly request
+mpie_court_meet_peers_max_rechecks_value = 3
+
+# Free children around a court who could come as guests (mpie_court_meet_peers_free_guest_trigger),
+# besides the young host: children at its court and of its direct vassals, counts and up
+# (mpie_invite_rule_court_children), of its fellow vassals (vanilla fellow vassals' children rule),
+# and of neighboring realms (mpie_court_meet_peers_neighbor_pool_value). A rough, cheap estimate of who comes.
+# root = the ruler, scope:mpie_court_child = the child who asked
+mpie_court_meet_peers_pool_value = {
+	value = mpie_court_meet_peers_neighbor_pool_value
+	every_courtier = {
+		limit = {
+			this != scope:mpie_court_child
+			mpie_court_meet_peers_free_guest_trigger = yes
+		}
+		add = 1
+	}
+	every_vassal = {
+		limit = { highest_held_title_tier >= tier_county }
+		every_child = {
+			limit = {
+				NOT = { is_courtier_of = root }
+				mpie_court_meet_peers_free_guest_trigger = yes
+			}
+			add = 1
+		}
+	}
+	if = {
+		limit = { is_independent_ruler = no }
+		liege = {
+			every_vassal = {
+				limit = { this != root }
+				every_child = {
+					limit = {
+						NOT = { is_courtier_of = root }
+						mpie_court_meet_peers_free_guest_trigger = yes
+					}
+					add = 1
+				}
+			}
+		}
+	}
+}
+
+# Free children of neighboring realms, as invited by Neighboring Children (mpie_invite_rule_neighbors_children,
+# the AI's biggest guest source): children of the rulers of the realms bordering the ruler's top realm,
+# and of same-rank rulers bordering the ruler. Same-rank rulers who are independent (already counted as
+# bordering realms) or share the ruler's liege (fellow vassals, counted in full) are skipped.
+# The pool counts them in full: in the 1066-1071 test, attendance was about 2.8 + 0.36 per own pool child
+# + 0.31 per free neighbor child (R2 0.66), so a free neighbor child is worth about as much as the court's
+# own. (They counted a quarter before, from a fit on all neighbor children under 16, unfiltered.)
+# root = the ruler
+mpie_court_meet_peers_neighbor_pool_value = {
+	value = 0
+	if = {
+		limit = { exists = top_liege }
+		top_liege = {
+			every_neighboring_and_across_water_top_liege_realm_owner = {
+				every_child = {
+					limit = { mpie_court_meet_peers_free_guest_trigger = yes }
+					add = 1
+				}
+			}
+		}
+	}
+	every_neighboring_and_across_water_realm_same_rank_owner = {
+		limit = {
+			is_independent_ruler = no
+			trigger_if = {
+				limit = { root = { is_independent_ruler = no } }
+				NOT = { liege = root.liege }
+			}
+		}
+		every_child = {
+			limit = { mpie_court_meet_peers_free_guest_trigger = yes }
+			add = 1
+		}
+	}
+}
+
+# An AI court needs at least this many free children around (mpie_court_meet_peers_pool_value) ...
+# (6 since the 1178-1184 test: with neighbors counted in full, courts at a pool of 3-5 got a median of
+# 2.5 attendees, 6-10 got 4.5, 11-20 got 8.)
+mpie_court_meet_peers_pool_minimum_value = 6
+
+# ... one fewer for each further year the pool check stopped it, down to mpie_court_meet_peers_pool_floor_value.
+# var:mpie_court_meet_peers_pool_waits counts the years (at most once a year,
+# var:mpie_court_meet_peers_pool_wait_year), so the first year keeps the full minimum: a court with few
+# children around hosts after one to three years, one with fewer than the floor never.
+# Reset when the court hosts. (The 1066-1069 test relaxed per recheck, down to 0: half the court Meet
+# Peers then came from that, with 3-4 attendees against 11 for courts that met the minimum.)
+# root = the ruler
+mpie_court_meet_peers_pool_floor_value = 3
+mpie_court_meet_peers_pool_required_value = {
+	value = mpie_court_meet_peers_pool_minimum_value
+	if = {
+		limit = { has_variable = mpie_court_meet_peers_pool_waits }
+		add = 1
+		subtract = var:mpie_court_meet_peers_pool_waits
+	}
+	min = mpie_court_meet_peers_pool_floor_value
+	max = mpie_court_meet_peers_pool_minimum_value
+}
+
+# The next value of var:mpie_court_meet_peers_pool_waits, which lasts this many days if the court never hosts
+mpie_court_meet_peers_pool_waits_next_value = {
+	value = 1
+	if = {
+		limit = { has_variable = mpie_court_meet_peers_pool_waits }
+		add = var:mpie_court_meet_peers_pool_waits
+	}
+}
+mpie_court_meet_peers_pool_waits_days_value = 1095
+
+# Debug logging only (debug mode). Separate from the values the checks use, so the Script Profiler
+# tells the real cost (mpie_meet_peers_near/wide_count_value, mpie_court_meet_peers_pool_value) apart
+# from the logging overhead.
+
+# Meet Peers within ~one Ireland / ~one France of scope:mpie_debug_center (a province)
+mpie_debug_near_count_value = {
+	value = 0
+	every_activity = {
+		limit = { mpie_meet_peers_activity_near_trigger = { CENTER = scope:mpie_debug_center DISTANCE = squared_distance_medium } }
+		add = 1
+	}
+}
+mpie_debug_wide_count_value = {
+	value = 0
+	every_activity = {
+		limit = { mpie_meet_peers_activity_near_trigger = { CENTER = scope:mpie_debug_center DISTANCE = squared_distance_large } }
+		add = 1
+	}
+}
+
+# All activities in the world (what one area scan iterates), and the Meet Peers among them
+mpie_debug_activities_value = {
+	value = 0
+	every_activity = { add = 1 }
+}
+mpie_debug_meet_peers_value = {
+	value = 0
+	every_activity = {
+		limit = { has_activity_type = activity_playdate }
+		add = 1
+	}
+}
+
+# Characters the pool estimate (mpie_court_meet_peers_pool_value) looks at: neighboring rulers and
+# their children, courtiers, vassals, vassals' children, fellow vassals and their children
+# root = the ruler
+mpie_debug_court_pool_checked_value = {
+	value = 0
+	if = {
+		limit = { exists = top_liege }
+		top_liege = {
+			every_neighboring_and_across_water_top_liege_realm_owner = {
+				add = 1
+				every_child = { add = 1 }
+			}
+		}
+	}
+	every_neighboring_and_across_water_realm_same_rank_owner = {
+		add = 1
+		every_child = { add = 1 }
+	}
+	every_courtier = { add = 1 }
+	every_vassal = {
+		add = 1
+		if = {
+			limit = { highest_held_title_tier >= tier_county }
+			every_child = { add = 1 }
+		}
+	}
+	if = {
+		limit = { is_independent_ruler = no }
+		liege = {
+			every_vassal = {
+				add = 1
+				every_child = { add = 1 }
+			}
+		}
+	}
+}
+
+# Characters attending scope:activity
+mpie_debug_attendees_value = {
+	value = 0
+	scope:activity = {
+		every_attending_character = { add = 1 }
+	}
+}
+
+# Invite rule probes (AI hosts, debug mode). Candidates a rule offers before the guest filters (age
+# 4-13, health, diplomatic range, ...).
+# root = the host
+# Children of neighboring top rulers and same-rank neighbors (mpie_invite_rule_neighbors_children)
+mpie_debug_rule_neighbor_children_value = {
+	value = 0
+	if = {
+		limit = { exists = top_liege }
+		top_liege = {
+			every_neighboring_and_across_water_top_liege_realm_owner = {
+				every_child = {
+					limit = { is_adult = no }
+					add = 1
+				}
+			}
+		}
+	}
+	every_neighboring_and_across_water_realm_same_rank_owner = {
+		every_child = {
+			limit = { is_adult = no }
+			add = 1
+		}
+	}
+}
+# Children at the court, and of direct vassals (counts and up) (mpie_invite_rule_court_children)
+mpie_debug_rule_court_children_value = {
+	value = 0
+	every_courtier = {
+		limit = { is_adult = no }
+		add = 1
+	}
+}
+mpie_debug_rule_vassal_children_value = {
+	value = 0
+	every_vassal = {
+		limit = { highest_held_title_tier >= tier_county }
+		every_child = {
+			limit = { is_adult = no }
+			add = 1
+		}
+	}
+}
+
+# Meet Peers this child hosted so far (var:mpie_meet_peers_hosted_as_child, 0 without it), for the census
+mpie_debug_hosted_value = {
+	value = 0
+	if = {
+		limit = { has_variable = mpie_meet_peers_hosted_as_child }
+		add = var:mpie_meet_peers_hosted_as_child
+	}
+}
+
+# Family of the host among the attendees of scope:activity (end log): siblings, and all close or extended family
+# root = the host
+mpie_debug_sibling_attendees_value = {
+	value = 0
+	scope:activity = {
+		every_attending_character = {
+			limit = { is_sibling_of = root }
+			add = 1
+		}
+	}
+}
+mpie_debug_family_attendees_value = {
+	value = 0
+	scope:activity = {
+		every_attending_character = {
+			limit = {
+				this != root
+				is_close_or_extended_family_of = root
+			}
+			add = 1
+		}
+	}
+}
+
+# End report (mpie_court_meet_peers_report_effect)
+# root = this = the young host, scope:activity
+# Children who came, besides the host
+mpie_report_guests_value = {
+	value = 0
+	scope:activity = {
+		every_attending_character = {
+			limit = { this != root }
+			add = 1
+		}
+	}
+}
+# The host's close or extended family among them
+mpie_report_family_value = {
+	value = 0
+	scope:activity = {
+		every_attending_character = {
+			limit = {
+				this != root
+				is_close_or_extended_family_of = root
+			}
+			add = 1
+		}
+	}
+}
+# Friends the host made since the handover
+mpie_report_new_friends_value = {
+	value = 0
+	every_relation = {
+		type = friend
+		limit = { mpie_court_report_new_relation_trigger = { LIST = mpie_report_friends_before } }
+		add = 1
 	}
 }

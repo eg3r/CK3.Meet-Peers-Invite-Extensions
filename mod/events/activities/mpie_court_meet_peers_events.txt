@@ -1,0 +1,296 @@
+﻿namespace = mpie_court
+
+# Meet Peers - Invite Extensions: court children host Meet Peers
+# Overview and variables: common/scripted_triggers/mpie_court_triggers.txt
+#
+# mpie_court.0001 A child at court asks their player ruler for a Meet Peers
+# mpie_court.0010 Hidden: an AI ruler was told to plan one; did it happen? If not, try again or give up
+# mpie_court.0020 Hidden: a court whose request was put off (child away, area full, ...) checks again
+# mpie_court.0100 End report for a player ruler who planned a Meet Peers for a child at court
+# mpie_court.0110 Hidden: the young host got vanilla's host prestige, else it is added
+
+##################################################
+# A child asks a player ruler
+# root = the ruler, scope:mpie_court_child, scope:mpie_court_meet_peers_cost
+# Sent by mpie_court_meet_peers_ask_effect only when the ruler can afford it. After a yes, the ruler
+# plans and pays for it in the Activities menu and picks the young host there.
+##################################################
+
+mpie_court.0001 = {
+	type = character_event
+	title = mpie_court.0001.t
+	desc = mpie_court.0001.desc
+	theme = family
+	left_portrait = {
+		character = scope:mpie_court_child
+		animation = beg
+	}
+	right_portrait = {
+		character = root
+		animation = thinking
+	}
+
+	trigger = {
+		exists = scope:mpie_court_child
+		scope:mpie_court_child = { mpie_court_meet_peers_child_trigger = { RULER = root } }
+	}
+
+	on_trigger_fail = {
+		remove_variable = mpie_court_meet_peers_asking
+	}
+
+	immediate = {
+		remove_variable = mpie_court_meet_peers_asking # answered either way below
+		mpie_debug_log_effect = { MSG = MPIE_court_player_event_opened }
+	}
+
+	option = { # Yes: plan it (opens the Meet Peers planner; script can't host an activity for a player)
+		name = mpie_court.0001.a
+		mpie_court_meet_peers_accept_effect = yes
+		open_view_data = {
+			view = activity_list_detail_host_window
+			data = activity_type:activity_playdate
+			player = root
+		}
+		mpie_debug_log_effect = { MSG = MPIE_court_player_says_yes }
+		stress_and_fulfillment_impact = {
+			greedy = minor_stress_impact_gain
+			generous = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 100
+		}
+	}
+
+	option = { # Refuse
+		name = mpie_court.0001.b
+		mpie_court_meet_peers_decline_effect = yes
+		stress_and_fulfillment_impact = {
+			compassionate = minor_stress_impact_gain
+			greedy = minor_stress_impact_loss
+		}
+		ai_chance = {
+			base = 0
+		}
+	}
+}
+
+##################################################
+# Hidden check after an AI ruler was told to plan it (mpie_court_meet_peers_ai_plan_effect)
+# root = the ruler. The handover in on_start removes var:mpie_court_meet_peers_child, so the event
+# only fires when no Meet Peers was created.
+#   - the child can no longer host, or no attempts left: give up
+#   - the child is away (e.g. a guest at another Meet Peers): wait, without using up an attempt
+#     (until var:mpie_court_meet_peers_child runs out)
+#   - the ruler can't host now (at war, uncrowned, away): drop the plan, the court checks again later
+#   - the area filled up meanwhile: drop the plan, the court checks again later
+#   - otherwise: try again
+##################################################
+
+mpie_court.0010 = {
+	type = character_event
+	hidden = yes
+
+	trigger = {
+		exists = var:mpie_court_meet_peers_child
+	}
+
+	immediate = {
+		var:mpie_court_meet_peers_child = { save_scope_as = mpie_court_child }
+		mpie_court_meet_peers_debug_area_effect = yes
+		if = {
+			limit = {
+				OR = {
+					NOT = { exists = var:mpie_court_meet_peers_attempts }
+					var:mpie_court_meet_peers_attempts >= mpie_court_meet_peers_max_attempts_value
+					NOT = { scope:mpie_court_child = { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } } }
+				}
+			}
+			mpie_debug_log_effect = { MSG = MPIE_court_ai_ruler_gave_up }
+			mpie_court_meet_peers_clear_plan_effect = yes
+		}
+		else_if = {
+			limit = { scope:mpie_court_child = { is_available = no } }
+			mpie_debug_log_effect = { MSG = MPIE_court_child_busy_wait }
+			trigger_event = {
+				id = mpie_court.0010
+				days = mpie_court_meet_peers_retry_days_value
+			}
+		}
+		else_if = {
+			limit = { NOT = { mpie_court_meet_peers_ai_ruler_free_trigger = yes } }
+			mpie_court_meet_peers_debug_ruler_flags_effect = yes
+			mpie_debug_log_effect = { MSG = MPIE_court_plan_dropped_ruler_busy }
+			mpie_court_meet_peers_clear_plan_effect = yes
+			mpie_court_meet_peers_schedule_recheck_effect = { MIN = 90 MAX = 180 }
+		}
+		else_if = {
+			limit = { mpie_meet_peers_area_full_trigger = yes }
+			mpie_debug_log_effect = { MSG = MPIE_court_plan_dropped_nearby }
+			mpie_court_meet_peers_clear_plan_effect = yes
+			mpie_court_meet_peers_schedule_recheck_effect = { MIN = 90 MAX = 180 }
+		}
+		else = {
+			mpie_court_meet_peers_ai_plan_effect = yes
+		}
+	}
+}
+
+##################################################
+# Hidden recheck after a court's request was put off (mpie_court_meet_peers_schedule_recheck_effect)
+# root = the ruler. Asks again the same way as the yearly request.
+##################################################
+
+mpie_court.0020 = {
+	type = character_event
+	hidden = yes
+
+	trigger = {
+		mpie_court_meet_peers_ruler_can_be_asked_trigger = yes
+		any_child = { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } }
+	}
+
+	on_trigger_fail = {
+		remove_variable = mpie_court_meet_peers_recheck_pending
+	}
+
+	immediate = {
+		remove_variable = mpie_court_meet_peers_recheck_pending
+		mpie_debug_log_effect = { MSG = MPIE_court_recheck }
+		mpie_court_meet_peers_ask_effect = yes
+	}
+}
+
+##################################################
+# End report for a player ruler who planned a Meet Peers for a child at court
+# root = the ruler. Sent one day after the end by mpie_court_meet_peers_report_effect, with
+# scope:mpie_report_host, scope:mpie_report_sibling or scope:mpie_report_relative, scope:mpie_report_friend,
+# scope:mpie_report_rival (each only if any) and the scope values mpie_report_guests, mpie_report_family,
+# mpie_report_family_others, mpie_report_new_friends, mpie_report_friends_others.
+##################################################
+
+mpie_court.0100 = {
+	type = character_event
+	title = mpie_court.0100.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:mpie_report_guests = 0 }
+				desc = mpie_court.0100.desc_guests_none
+			}
+			triggered_desc = {
+				trigger = { scope:mpie_report_guests = 1 }
+				desc = mpie_court.0100.desc_guests_one
+			}
+			desc = mpie_court.0100.desc_guests_many
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:mpie_report_sibling
+					scope:mpie_report_family > 1
+				}
+				desc = mpie_court.0100.desc_family_sibling_and_more
+			}
+			triggered_desc = {
+				trigger = { exists = scope:mpie_report_sibling }
+				desc = mpie_court.0100.desc_family_sibling
+			}
+			triggered_desc = {
+				trigger = {
+					exists = scope:mpie_report_relative
+					scope:mpie_report_family > 1
+				}
+				desc = mpie_court.0100.desc_family_relative_and_more
+			}
+			triggered_desc = {
+				trigger = { exists = scope:mpie_report_relative }
+				desc = mpie_court.0100.desc_family_relative
+			}
+			triggered_desc = {
+				trigger = { scope:mpie_report_guests > 0 }
+				desc = mpie_court.0100.desc_family_none
+			}
+			desc = mpie_court.0100.desc_nothing
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					exists = scope:mpie_report_friend
+					scope:mpie_report_new_friends > 1
+				}
+				desc = mpie_court.0100.desc_friends_many
+			}
+			triggered_desc = {
+				trigger = { exists = scope:mpie_report_friend }
+				desc = mpie_court.0100.desc_friends_one
+			}
+			desc = mpie_court.0100.desc_friends_none
+		}
+		triggered_desc = {
+			trigger = { exists = scope:mpie_report_rival }
+			desc = mpie_court.0100.desc_rival
+		}
+		desc = mpie_court.0100.desc_rewards
+	}
+	theme = family
+	left_portrait = {
+		character = scope:mpie_report_host
+		animation = happiness
+	}
+	right_portrait = {
+		trigger = { exists = scope:mpie_report_friend }
+		character = scope:mpie_report_friend
+		animation = happiness
+	}
+	lower_left_portrait = {
+		trigger = { exists = scope:mpie_report_sibling }
+		character = scope:mpie_report_sibling
+	}
+
+	trigger = {
+		exists = scope:mpie_report_host
+		scope:mpie_report_host = { is_alive = yes }
+	}
+
+	immediate = {
+		mpie_debug_log_effect = { MSG = MPIE_court_report_opened }
+	}
+
+	option = {
+		name = mpie_court.0100.a
+	}
+}
+
+##################################################
+# Hidden: did the young host get vanilla's host prestige? (mpie_court_meet_peers_prestige_check_effect)
+# root = the young host, scope:mpie_host_prestige_before / scope:mpie_host_prestige_expected
+##################################################
+
+mpie_court.0110 = {
+	type = character_event
+	hidden = yes
+
+	trigger = {
+		exists = scope:mpie_host_prestige_expected
+	}
+
+	immediate = {
+		save_scope_value_as = {
+			name = mpie_debug_prestige_now
+			value = prestige
+		}
+		if = {
+			limit = { prestige < scope:mpie_host_prestige_expected }
+			add_prestige = medium_prestige_gain
+			save_scope_value_as = {
+				name = mpie_debug_prestige_after_fix
+				value = prestige
+			}
+			mpie_debug_log_effect = { MSG = MPIE_court_host_prestige_restored }
+		}
+		else = {
+			mpie_debug_log_effect = { MSG = MPIE_court_host_prestige_ok }
+		}
+	}
+}

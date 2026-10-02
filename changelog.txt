@@ -1,0 +1,41 @@
+Meet Peers - Invite Extensions - Changelog
+
+
+Version 1.20.2
+
+New: your children host at court
+- Kings and emperors (or dukes, with the game rule) can plan a Meet Peers for a child who lives at their court. The child hosts it at the capital while the ruler stays home.
+- Now and then a child at court asks for a Meet Peers. Saying yes opens the planner with that child already chosen as the Young Host, and a reminder at the top of the screen takes you back to it. Saying no disappoints the child.
+- When it's over, you get a short report: how many children came, who of your family was there, and whom your child made friends with.
+- The young host thinks better of you, and so does every child of your family who comes.
+- AI kings and emperors plan Meet Peers for their children too.
+- New guest option: Children of Court and Vassals, which also brings the friends of the children at court.
+- New game rule: Court Children Host Meet Peers (Off / Kings and Above / Dukes and Above).
+
+New: family first
+- The host's brothers, sisters and cousins are invited before anyone else and are more likely to come.
+
+Changes
+- AI child rulers now host Meet Peers far more often than in 1.20.1, when most child counts still missed out.
+- Meet Peers now spread out across the map instead of crowding one area, so the children around aren't split between too many at once.
+- Children of the Same Faith now only invites children from courts within a reasonable distance.
+- All texts, including the goals and the court events, are now available in all 9 languages.
+- All of the mod's settings can be shown at once: pick Meet Peers in the filter of the Game Rules screen.
+- With AI Meet Peers and Player Children set to Off, AI children now host exactly as in the base game.
+
+
+Version 1.20.1
+
+- AI children host Meet Peers more often, and AI children near your child invite your child. Children of your faith invite yours from further away.
+- New game rule: AI Meet Peers and Player Children (Off / Nearby / Nearby and Same Faith).
+- New game rule: Meet Peers Guests at War. Your children can go to a Meet Peers while your realm is at war (allowed by default).
+- Neighboring Children now also invites neighboring rulers who are children themselves.
+
+
+Version 1.20.0
+
+- First release.
+- New guest options for Meet Peers: Neighboring Children (on by default) and Children of the Same Faith.
+- Goals for your child at a Meet Peers: Befriend a Peer, Learn from a Peer and Role Model.
+- Shorter Meet Peers cooldown: 2 years instead of 3, adjustable with the Meet Peers Cooldown game rule.
+- Optional decision to reset the cooldown, switched on with a game rule.
