@@ -317,6 +317,7 @@ mpie_court_meet_peers_handover_effect = {
 	if = {
 		limit = { scope:host = { is_adult = yes } }
 		scope:host = { save_scope_as = mpie_court_sponsor }
+		clear_saved_scope = mpie_court_child
 		# The young host: special guest mpie_host_child_promised (the child who asked, AI and player rulers)
 		# or mpie_host_child (picked by a player without a request), else the child who asked, else the best
 		# candidate
@@ -342,24 +343,40 @@ mpie_court_meet_peers_handover_effect = {
 			}
 		}
 		if = {
-			limit = { exists = scope:mpie_court_child }
-			set_variable = {
-				name = mpie_court_sponsor
-				value = scope:mpie_court_sponsor
+			limit = {
+				exists = scope:mpie_court_child
+				scope:mpie_court_child = {
+					mpie_court_meet_peers_child_handover_trigger = { RULER = scope:mpie_court_sponsor }
+				}
 			}
-			scope:mpie_court_child = { add_to_activity = scope:activity }
-			set_activity_host = scope:mpie_court_child
-			# set_activity_host already takes the ruler out (they are not attending yet at on_start, and
-			# remove_from_activity only works on attendees); just in case they still attend
 			if = {
-				limit = { any_attending_character = { this = scope:mpie_court_sponsor } }
-				scope:mpie_court_sponsor = { remove_from_activity = scope:activity }
+				limit = { NOT = { any_attending_character = { this = scope:mpie_court_child } } }
+				scope:mpie_court_child = { add_to_activity = scope:activity }
+			}
+			# A failed add_to_activity must not be followed by set_activity_host.
+			if = {
+				limit = {
+					scope:mpie_court_child = { is_alive = yes }
+					any_attending_character = { this = scope:mpie_court_child }
+				}
+				set_variable = {
+					name = mpie_court_sponsor
+					value = scope:mpie_court_sponsor
+				}
+				set_activity_host = scope:mpie_court_child
 			}
 		}
 		if = {
 			limit = {
 				exists = scope:mpie_court_child
+				scope:mpie_court_child = { is_alive = yes }
 				activity_host = scope:mpie_court_child
+				any_attending_character = { this = scope:mpie_court_child }
+			}
+			# set_activity_host normally removes the sponsor itself.
+			if = {
+				limit = { any_attending_character = { this = scope:mpie_court_sponsor } }
+				scope:mpie_court_sponsor = { remove_from_activity = scope:activity }
 			}
 			if = { # End report for a player ruler (mpie_court.0100): remember the young host's friends and rivals now
 				limit = { scope:mpie_court_sponsor = { is_ai = no } }
@@ -400,7 +417,13 @@ mpie_court_meet_peers_handover_effect = {
 			mpie_debug_log_effect = { MSG = MPIE_court_handover_failed }
 			scope:mpie_court_sponsor = {
 				mpie_court_meet_peers_clear_plan_effect = yes
-				add_gold = mpie_court_meet_peers_refund_value # the Meet Peers is cancelled, so the ruler gets the cost back
+				if = {
+					limit = { scope:mpie_used_free_meet_peers_credit = yes }
+					set_variable = free_meet_peers_credit # Restore the unused credit, not gold that was never paid.
+				}
+				else = {
+					add_gold = mpie_court_meet_peers_refund_value
+				}
 			}
 			invalidate_activity = scope:activity
 		}
@@ -561,36 +584,30 @@ mpie_court_meet_peers_report_effect = {
 }
 
 ########################
-# Host prestige safety net
+# Host prestige reward
 ########################
 
-# Vanilla gives the host medium_prestige_gain (150) in the playdate_phase on_end, right after this call.
-# In the 1066-1069 test a young host whose Meet Peers a player had planned got none (49 other court
-# hosts did; the same reward step demonstrably ran, her guests got hosted_successful_playdate_opinion),
-# cause unknown. So: remember the host's prestige now, and one day later (mpie_court.0110) add the 150
-# if it didn't arrive. Logs MPIE_court_host_prestige_ok / _restored either way.
-# this = an attendee, scope:activity, scope:host. Called from the playdate_phase on_end.
-mpie_court_meet_peers_prestige_check_effect = {
+# Called once from the host's phase on_end, in character scope, before the conclusion log.
+# The activity marker prevents a duplicate reward; no delayed balance comparison is needed.
+# this = host, scope:activity = Meet Peers
+mpie_meet_peers_grant_host_prestige_effect = {
 	if = {
 		limit = {
+			is_alive = yes
 			this = scope:host
-			exists = scope:activity.var:mpie_court_sponsor
+			exists = scope:activity
+			scope:activity = { NOT = { has_variable = mpie_host_prestige_awarded } }
 		}
-		save_scope_value_as = {
-			name = mpie_host_prestige_before
-			value = prestige
+		scope:activity = { set_variable = mpie_host_prestige_awarded }
+		if = {
+			limit = { debug_only = yes }
+			save_scope_value_as = { name = mpie_host_prestige_before value = prestige }
 		}
-		save_scope_value_as = {
-			name = mpie_host_prestige_expected
-			value = {
-				value = prestige
-				add = medium_prestige_gain
-				subtract = 1
-			}
-		}
-		trigger_event = {
-			id = mpie_court.0110
-			days = 1
+		add_prestige = medium_prestige_gain
+		if = {
+			limit = { debug_only = yes }
+			save_scope_value_as = { name = mpie_host_prestige_after value = prestige }
+			mpie_debug_log_effect = { MSG = MPIE_host_prestige_awarded }
 		}
 	}
 }

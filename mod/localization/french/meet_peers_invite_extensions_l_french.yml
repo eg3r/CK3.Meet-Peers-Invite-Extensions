@@ -201,3 +201,7 @@
  mpie_action_plan_court_meet_peers_label:0 "$mpie_action_plan_court_meet_peers$"
  mpie_action_plan_court_meet_peers_desc:0 "Vous avez promis une [GetActivityType('activity_playdate').GetName] [secondary_actor.Custom('FR_au_Char_U_Pi')][secondary_actor.GetShortUIName], qu'[secondary_actor.Custom('FR_IlElle')] organisera en tant que Jeune hôte.\n\nIl vous reste [GetGameTimeDifferenceForDiffDays( actor.MakeScope.VarRemaining( 'mpie_court_meet_peers_child' ) )] pour la planifier."
  mpie_action_plan_court_meet_peers_click:0 "#I Cliquez pour planifier la [GetActivityType('activity_playdate').GetNameNoTooltip]#!"
+
+ # A trait refused by the game is distinct from losing the random roll.
+ mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
+ mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"

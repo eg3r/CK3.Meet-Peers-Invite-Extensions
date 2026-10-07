@@ -13,8 +13,8 @@ activity_playdate = {
 			is_adult = no
 			mpie_court_meet_peers_ruler_can_plan_trigger = yes
 		}
-		highest_held_title_tier > tier_barony
 		trigger_if = {
+			limit = { is_ai = yes } # MPIE: explicit AI-only guard, as in Unofficial Patch
 			trigger_if = { # Throttle Counts
 				limit = {
 					is_ai = yes
@@ -43,13 +43,9 @@ activity_playdate = {
 			age >= 4
 			age < less_than_two_years_to_adulthood_value #Consistency!
 		}
-		trigger_if = {
-			limit = {
-				highest_held_title_tier = tier_county
-				liege = root
-			}
-			highest_held_title_tier >= tier_county
-		}
+		# MPIE: move the rank requirement from is_shown to show the failure, as in Unofficial Patch.
+		# Replaces vanilla's redundant count check; independent child counts remain eligible.
+		highest_held_title_tier > tier_barony
 		is_landed_or_landless_administrative_or_theocratic = yes
 	}
 
@@ -201,7 +197,6 @@ activity_playdate = {
 				mpie_peer_intent_phase_end_effect = yes # MPIE
 				mpie_court_meet_peers_family_bonus_effect = yes # MPIE: family children of the ruler who planned it, if they arrived late
 				mpie_court_meet_peers_report_effect = yes # MPIE: end report for a player ruler who planned it (mpie_court.0100)
-				mpie_court_meet_peers_prestige_check_effect = yes # MPIE: make sure the young host gets the host prestige below (mpie_court.0110)
 				mpie_meet_peers_ended_debug_log_effect = yes # MPIE: debug mode only
 				# Send each character back home
 				#set_location_to_default = yes
@@ -241,13 +236,14 @@ activity_playdate = {
 				# Fire conclusion events
 				if = {
 					limit = { this = scope:host }
+					mpie_meet_peers_grant_host_prestige_effect = yes # MPIE: one reward in the character scope, before the log
 					scope:activity = {
 						add_activity_log_entry = {
 							key = playdate_conc_reward
 							score = 100 
 							show_in_conclusion = yes
 							character = root 
-							root = { add_prestige = medium_prestige_gain }
+							show_as_tooltip = { root = { add_prestige = medium_prestige_gain } } # MPIE: the real reward was given above
 							every_attending_character = {
 								limit = { this != root }
 								custom = every_guest_scope_tt
@@ -1050,6 +1046,12 @@ activity_playdate = {
 	###################
 
 	on_start = {
+		# MPIE: remember the free credit before consuming it, so failed handover restores it.
+		save_scope_value_as = { name = mpie_used_free_meet_peers_credit value = no }
+		if = {
+			limit = { scope:host = { has_variable = free_meet_peers_credit } }
+			save_scope_value_as = { name = mpie_used_free_meet_peers_credit value = yes }
+		}
 		# Remove free credit.
 		scope:host = { remove_variable = free_meet_peers_credit }
 		scope:host = { mpie_meet_peers_start_cooldown_effect = yes } # MPIE: script cooldown (game rule length)

@@ -18,14 +18,14 @@ It's vanilla's file from CK3 1.20.0.3 (927 lines) with every change marked `# MP
 
 | Part of the activity | Vanilla | This mod |
 |---|---|---|
-| `is_shown` | only children (`is_adult = no`); child counts need sociability 100 | also adults, when they may plan a Meet Peers for a child at their court; the sociability requirement for child counts drops while the "AI Meet Peers and Player Children" rule is on |
-| `can_start_showing_failures_only` | children aged 4-13 | adults planning for a child at court are checked against the court's own cooldown instead of their age; the mod's own cooldown check is added |
+| `is_shown` | only children (`is_adult = no`); child counts need sociability 100 | also adults, when they may plan a Meet Peers for a child at their court; count throttling is explicitly AI-only and bypassed while the "AI Meet Peers and Player Children" rule is on; the rank requirement moves to the displayed start requirements |
+| `can_start_showing_failures_only` | children aged 4-13 | adults planning for a child at court are checked against the court's own cooldown instead of their age; the mod's own cooldown and the count-or-higher rank requirement are checked here; the redundant vanilla count check is removed, and independent counts remain eligible |
 | `is_valid` | the host must hold land | also valid when the host is a child at court who took over from the ruler |
 | `on_invalidated` | "the host lost their land" message | skipped for a child at court, who never had land |
 | `cooldown` | native 3-year cooldown | **removed**; the mod runs its own cooldown (game rule, 1-3 years) so the reset decision can work |
 | phase `on_phase_active` | vanilla events | plus goal encounters and the family bonus |
 | phase `on_weekly_pulse` | none | new: goal encounters |
-| phase `on_end` | vanilla conclusion | plus goal wrap-up, family bonus, the end report for players, a prestige check for a child host, debug logging; the vanilla conclusion still runs |
+| phase `on_end` | vanilla conclusion | plus goal wrap-up, family bonus, the end report for players, a single guarded host prestige reward, debug logging; the vanilla conclusion remains, with its prestige effect changed to a tooltip |
 | `ai_will_do` | vanilla | the affordability check is replaced for children (rule on), plus the mod's bonus (0 with the rule off) |
 | `guest_invite_rules` | vanilla rules | adds the mod's own options, including close and extended family (family first: for player hosts, and for AI hosts only while the "AI Meet Peers and Player Children" rule is on); friends, crushes, scheme targets and confederates move from priority 1 to 2 |
 | `can_be_activity_guest` | `is_available_for_child_activity_trigger` | the same check, except player children at war may attend (game rule) |
@@ -33,6 +33,8 @@ It's vanilla's file from CK3 1.20.0.3 (927 lines) with every change marked `# MP
 | `host_intents` / `guest_intents` | Recreation only | adds the three goals |
 | `guest_join_chance` | vanilla | adds a bonus for the host's siblings and family (same condition as family first) |
 | `on_start` | vanilla | plus the mod's cooldown, hosting count, debug log, and the handover of a ruler-planned Meet Peers to the child |
+
+**Unofficial Patch 9.0.21:** load it before this mod. MPIE incorporates its explicit AI-only guard and the move of the rank requirement into the displayed start requirements. MPIE keeps independent child counts eligible and leaves `can_always_plan` at its default. Both mods still replace the whole activity file; these selected changes are incorporated into MPIE, not merged automatically at load time.
 
 **What this breaks in other mods:** any mod that ships its own `playdate.txt`, or otherwise redefines `activity_playdate`, e.g. mods that add Meet Peers guests, goals, options or events wired into the activity, change its cooldown or its AI. One of the two loses all its Meet Peers changes:
 
@@ -62,8 +64,8 @@ All new definitions use the prefix `mpie_` in files of their own, so they can't 
 | `common/opinion_modifiers/` | the court opinions |
 | `common/script_values/`, `scripted_effects/`, `scripted_triggers/` | the mod's logic |
 | `common/trigger_localization/` | cooldown tooltips |
-| `events/activities/` | the goal encounters (namespace `mpie_peer`) and the court events (namespace `mpie_court`) |
-| `localization/<language>/` | 158 new keys in 9 languages; no vanilla key is overridden |
+| `events/activities/` | the goal encounters (namespace `mpie_peer`) and the court events (namespace `mpie_court`); the retired prestige-check event remains a no-op for older saves |
+| `localization/<language>/` | 163 new keys in 9 languages; no vanilla key is overridden |
 
 Event namespaces `mpie_peer` and `mpie_court` would only clash with another mod using the same namespace names.
 
@@ -108,6 +110,7 @@ The mod doesn't change these, but uses them. A mod that changes them changes how
 ## Saves
 
 - **Adding the mod to a running game:** works. Game rules then use their defaults (they can't be changed after the start); the reset can be switched on from the console (see README).
+- **Updating from 1.20.2:** already queued `mpie_court.0110` prestige checks are accepted but do nothing. New conclusions grant prestige once directly; they do not infer a missing reward from the next day's balance.
 - **Removing the mod from a running game:** cooldowns set by the mod stay behind as unused variables and simply expire. A Meet Peers hosted by a child at court that is still running when the mod is removed is cancelled by vanilla, because its host holds no land.
 
 ## Making a compatibility patch

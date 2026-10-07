@@ -368,6 +368,16 @@ mpie_role_model_candidate_trait_trigger = {
 	save_temporary_scope_as = mpie_candidate_trait
 	$ACTOR$ = {
 		NOT = { has_trait = scope:mpie_candidate_trait }
+		# Restrictions imposed by another mod may be opaque to script. Do not offer
+		# a trait again after add_trait has refused it for this actor in this activity.
+		NAND = {
+			exists = involved_activity
+			var:mpie_role_model_rejected_at ?= involved_activity
+			is_target_in_variable_list = {
+				name = mpie_role_model_rejected_traits
+				target = scope:mpie_candidate_trait
+			}
+		}
 	}
 	NOT = {
 		any_opposite_trait = {

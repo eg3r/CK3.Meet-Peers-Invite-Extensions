@@ -50,7 +50,7 @@ mpie_peer.1001 = {
 	on_trigger_fail = {
 		# Became friends in the meantime: that completes the goal
 		mpie_befriend_complete_if_friends_effect = yes
-		mpie_peer_encounter_did_not_open_effect = { GOAL = befriend INTENT = mpie_befriend_peer_intent }
+		mpie_peer_encounter_did_not_open_effect = { GOAL = befriend }
 	}
 
 	immediate = {
@@ -198,7 +198,7 @@ mpie_peer.2001 = {
 	}
 
 	on_trigger_fail = {
-		mpie_peer_encounter_did_not_open_effect = { GOAL = learn INTENT = mpie_learn_from_peer_intent }
+		mpie_peer_encounter_did_not_open_effect = { GOAL = learn }
 	}
 
 	immediate = {
@@ -347,7 +347,7 @@ mpie_peer.3001 = {
 	}
 
 	on_trigger_fail = {
-		mpie_peer_encounter_did_not_open_effect = { GOAL = role_model INTENT = mpie_role_model_intent }
+		mpie_peer_encounter_did_not_open_effect = { GOAL = role_model }
 	}
 
 	immediate = {

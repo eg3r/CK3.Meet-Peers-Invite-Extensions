@@ -80,8 +80,11 @@ mpie_invite_rule_nearby_player_children = {
 					mpie_player_child_in_invite_range_trigger = { HOST = root }
 				}
 				add_to_list = characters
-				save_scope_as = mpie_debug_invited_player
-				root = { mpie_debug_log_effect = { MSG = MPIE_rule_nearby_player_added } }
+				if = {
+					limit = { debug_only = yes }
+					save_scope_as = mpie_debug_invited_player
+					root = { mpie_debug_log_effect = { MSG = MPIE_rule_nearby_player_added } }
+				}
 			}
 		}
 	}

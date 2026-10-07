@@ -134,15 +134,16 @@ mpie_ai_meet_peers_nearby_penalty_value = {
 
 # Court children hosting (see mpie_court_triggers.txt / mpie_court_effects.txt)
 
-# Roughly what Meet Peers costs a ruler at their rank (vanilla standard_playdate_activity_cost:
-# duke 20, king 55, emperor 65 gold; tribal half), rounded up to a multiple of 5 like vanilla's
-# ui_predicted_cost. A child only asks when the ruler can afford it; the real cost is the activity's.
+# What Meet Peers costs a ruler at their rank (vanilla standard_playdate_activity_cost:
+# duke 20, king 55, emperor 65 gold; tribal half), including a free credit.
+# Use the actual price for affordability; the request text may round its display.
 # root = the ruler
 mpie_court_meet_peers_cost_value = {
 	value = standard_playdate_activity_cost
-	divide = 5
-	ceiling = yes
-	multiply = 5
+	if = {
+		limit = { has_variable = free_meet_peers_credit }
+		value = 0
+	}
 }
 
 # Which child at court hosts when the Young Host slot is empty and nobody asked (handover fallback):
@@ -161,7 +162,7 @@ mpie_court_meet_peers_cooldown_days_value = 730
 
 # Gold the ruler gets back when the child can't take over and the Meet Peers is cancelled: vanilla
 # standard_playdate_activity_cost, which reads root (= the activity at the handover), rewritten for this.
-# (A free Meet Peers credit is already used up by then, so that case gets the full cost back too.)
+# A free credit is restored separately at handover failure and never produces a gold refund.
 # this = the ruler
 mpie_court_meet_peers_refund_value = {
 	value = 10

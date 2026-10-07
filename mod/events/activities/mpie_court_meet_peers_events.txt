@@ -7,7 +7,7 @@
 # mpie_court.0010 Hidden: an AI ruler was told to plan one; did it happen? If not, try again or give up
 # mpie_court.0020 Hidden: a court whose request was put off (child away, area full, ...) checks again
 # mpie_court.0100 End report for a player ruler who planned a Meet Peers for a child at court
-# mpie_court.0110 Hidden: the young host got vanilla's host prestige, else it is added
+# mpie_court.0110 Retired prestige check: retained as a no-op for events queued in older saves
 
 ##################################################
 # A child asks a player ruler
@@ -263,34 +263,17 @@ mpie_court.0100 = {
 }
 
 ##################################################
-# Hidden: did the young host get vanilla's host prestige? (mpie_court_meet_peers_prestige_check_effect)
-# root = the young host, scope:mpie_host_prestige_before / scope:mpie_host_prestige_expected
+# Retired: older saves may still have this delayed event queued.
+# A next-day balance cannot distinguish a missing reward from subsequent spending.
+# New completions grant the host prestige exactly once in phase on_end instead.
 ##################################################
 
 mpie_court.0110 = {
 	type = character_event
 	hidden = yes
-
-	trigger = {
-		exists = scope:mpie_host_prestige_expected
-	}
+	orphan = yes # Intentionally unscheduled; older saves may still have it queued.
 
 	immediate = {
-		save_scope_value_as = {
-			name = mpie_debug_prestige_now
-			value = prestige
-		}
-		if = {
-			limit = { prestige < scope:mpie_host_prestige_expected }
-			add_prestige = medium_prestige_gain
-			save_scope_value_as = {
-				name = mpie_debug_prestige_after_fix
-				value = prestige
-			}
-			mpie_debug_log_effect = { MSG = MPIE_court_host_prestige_restored }
-		}
-		else = {
-			mpie_debug_log_effect = { MSG = MPIE_court_host_prestige_ok }
-		}
+		mpie_debug_log_effect = { MSG = MPIE_legacy_prestige_check_skipped }
 	}
 }

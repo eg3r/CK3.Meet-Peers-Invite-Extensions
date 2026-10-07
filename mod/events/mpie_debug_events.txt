@@ -1,0 +1,18 @@
+﻿namespace = mpie_debug
+
+# Console-only shortcut for the existing running-campaign cooldown-reset switch:
+#   event mpie_debug.0001
+# A declared setter also avoids the startup "used but never set" warning for the console flag.
+# Nothing schedules this event; the older direct set_global_variable command remains supported.
+mpie_debug.0001 = {
+	type = character_event
+	hidden = yes
+	orphan = yes
+
+	trigger = { debug_only = yes }
+
+	immediate = {
+		set_global_variable = mpie_meet_peers_cooldown_reset_enabled
+		mpie_debug_log_effect = { MSG = MPIE_cooldown_reset_console_enabled }
+	}
+}

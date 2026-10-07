@@ -201,3 +201,7 @@
  mpie_action_plan_court_meet_peers_label:0 "$mpie_action_plan_court_meet_peers$"
  mpie_action_plan_court_meet_peers_desc:0 "Вы пообещали, что [secondary_actor.GetShortUIName] станет [Select_CString(secondary_actor.IsFemale, 'юной хозяйкой', 'юным хозяином' )] события [GetActivityType('activity_playdate').GetName].\n\nНа планирование осталось [GetGameTimeDifferenceForDiffDays( actor.MakeScope.VarRemaining( 'mpie_court_meet_peers_child' ) )]."
  mpie_action_plan_court_meet_peers_click:0 "#I Щёлкните, чтобы запланировать событие [GetActivityType('activity_playdate').GetNameNoTooltip]#!"
+
+ # A trait refused by the game is distinct from losing the random roll.
+ mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
+ mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
