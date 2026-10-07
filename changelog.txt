@@ -1,6 +1,21 @@
 Meet Peers - Invite Extensions - Changelog
 
 
+Unreleased
+
+- Cleaned up diagnostic startup warnings and restricted extra prestige/invite log data to debug mode. Added the console-only reset shortcut `event mpie_debug.0001`; the original console command remains supported.
+- Role Model now generates two saved 1-100 rolls, discards the first and uses only the second against the displayed chance. Debug logs include both rolls, the selected trait, option, payment type and success/failure percentages.
+- Court hosting now rechecks the selected child's life, health, availability and successful joining before handing over the activity or applying cooldowns.
+- A failed free Meet Peers restores its credit instead of creating a gold refund. Court requests also recognize free credits and the exact activity price.
+- Host prestige is awarded once at the conclusion; the delayed balance-based repair no longer grants duplicate rewards after spending.
+- Expired peer-goal choices now give feedback and record a missed encounter once.
+- Befriend a Peer also checks for friendships formed after the last weekly pulse or while its encounter was open.
+- If the game refuses a Role Model trait, the piety investment is refunded without devotion experience, the refusal is logged, and any remaining retry excludes that trait for this activity.
+- Adopted the Unofficial Patch AI-only count check guard while preserving the AI hosting game rule.
+- Hosting below count rank now shows a failed requirement instead of hiding Meet Peers.
+- Removed a redundant count check; independent child counts remain eligible.
+
+
 Version 1.20.2
 
 New: your children host at court

@@ -61,6 +61,7 @@ mpie_court_meet_peers_ruler_tier_trigger = {
 # themselves), is of Meet Peers age and not on the Meet Peers cooldown. May be away right now.
 # this = the child
 mpie_court_meet_peers_child_could_host_trigger = {
+	is_alive = yes
 	is_child_of = $RULER$
 	is_courtier_of = $RULER$
 	is_ruler = no
@@ -74,7 +75,33 @@ mpie_court_meet_peers_child_could_host_trigger = {
 # this = the child
 mpie_court_meet_peers_child_trigger = {
 	mpie_court_meet_peers_child_could_host_trigger = { RULER = $RULER$ }
+	mpie_court_meet_peers_child_safe_to_host_trigger = yes
 	is_available = yes
+}
+
+# Shared health and hostage checks, including during the final handover.
+mpie_court_meet_peers_child_safe_to_host_trigger = {
+	is_alive = yes
+	is_imprisoned = no
+	is_incapable = no
+	is_healthy = yes
+	is_hostage = no
+	NOR = {
+		exists = var:hostage_travelling_to_warden
+		exists = var:ward_travelling_to_guardian
+	}
+}
+
+# A required guest may already have joined THIS activity when on_start runs.
+# is_available alone would reject that child; another activity must still block them.
+# this = selected child, scope:activity = newly created Meet Peers
+mpie_court_meet_peers_child_handover_trigger = {
+	mpie_court_meet_peers_child_could_host_trigger = { RULER = $RULER$ }
+	mpie_court_meet_peers_child_safe_to_host_trigger = yes
+	OR = {
+		is_available = yes
+		involved_activity ?= scope:activity
+	}
 }
 
 # A child who could come to a court's Meet Peers as a guest right now: of age, healthy, not away at

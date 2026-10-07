@@ -33,6 +33,9 @@
 # Debug log (debug mode only, see mpie_debug_log_effect): every step writes an MPIE_goal_* or
 # MPIE_event_* tag plus a scope dump. scope:mpie_actor / scope:mpie_peer are saved first, so the dump
 # shows who is involved; the events add their chances, lesson skills, gaps and traits.
+# Role Model saves two 1-100 rolls, discards the first and uses only the second for the result.
+# Its roll log includes both numbers, the selected trait, chance source, cost and percentages.
+# The same saved values appear in its subsequent outcome dump.
 
 ########################
 # Lifecycle
@@ -85,6 +88,8 @@ mpie_peer_intent_weekly_pulse_effect = {
 }
 
 mpie_peer_intent_phase_end_effect = {
+	# A vanilla event may have made them friends after the last weekly pulse.
+	mpie_befriend_complete_if_friends_effect = yes
 	# The chosen peer never met the actor during the active phase
 	if = {
 		limit = {
@@ -171,6 +176,8 @@ mpie_peer_intent_phase_end_effect = {
 	}
 	remove_variable = mpie_befriend_peer
 	remove_variable = mpie_peer_retry_wait
+	clear_variable_list = mpie_role_model_rejected_traits
+	remove_variable = mpie_role_model_rejected_at
 }
 
 # Saves the actor and their current target for the debug scope dump
@@ -430,18 +437,23 @@ mpie_peer_queue_event_effect = {
 # e.g. by mpie_peer_intent_phase_end_effect, so a missed chance is never logged twice.
 # root = actor
 mpie_peer_encounter_did_not_open_effect = {
-	if = {
-		limit = {
-			NOT = { mpie_peer_goal_resolved_trigger = { ACTOR = root GOAL = $GOAL$ } }
-		}
-		mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
+	mpie_peer_close_missed_encounter_effect = { GOAL = $GOAL$ }
+	mpie_debug_log_effect = { MSG = MPIE_event_$GOAL$_did_not_open }
+}
+
+# Close and log against the event's saved activity, even if the actor has since left it.
+# Using that activity's resolved list also prevents duplicate logs after phase-end cleanup.
+mpie_peer_close_missed_encounter_effect = {
+	scope:activity ?= {
 		if = {
 			limit = {
-				NOT = { has_completed_activity_intent = $INTENT$ }
-				exists = scope:mpie_peer
-				involved_activity ?= scope:activity
+				NOT = {
+					is_target_in_variable_list = { name = mpie_$GOAL$_resolved target = root }
+				}
 			}
-			scope:activity = {
+			add_to_variable_list = { name = mpie_$GOAL$_resolved target = root }
+			if = {
+				limit = { exists = scope:mpie_peer }
 				add_activity_log_entry = {
 					key = mpie_peer_goal_missed_log
 					tags = { bad }
@@ -453,7 +465,6 @@ mpie_peer_encounter_did_not_open_effect = {
 			}
 		}
 	}
-	mpie_debug_log_effect = { MSG = MPIE_event_$GOAL$_did_not_open }
 }
 
 # Adds $ACTOR$ to the activity list mpie_$GOAL$_$LIST$ (LIST = offered, second or resolved)
@@ -606,6 +617,13 @@ mpie_peer_take_pastime_effect = {
 # root = actor, scope:mpie_peer = peer
 mpie_peer_pay_none_effect = {}
 
+# Only used when the engine refuses a Role Model trait after the winning roll.
+# Piety is restored without granting devotion experience.
+mpie_peer_refund_none_effect = {}
+mpie_peer_refund_piety_effect = {
+	add_piety_no_experience = mpie_invest_piety_value
+}
+
 mpie_peer_pay_gold_effect = {
 	remove_short_term_gold = mpie_befriend_gift_gold_value
 	stress_and_fulfillment_impact = {
@@ -652,9 +670,15 @@ mpie_peer_pay_standing_effect = {
 
 # The peer left, the goal changed, or the encounter was already resolved
 mpie_peer_encounter_lost_effect = {
-	mpie_peer_mark_goal_effect = { ACTOR = root GOAL = $GOAL$ LIST = resolved }
 	custom_tooltip = mpie_peer_encounter_lost_tt
-	mpie_debug_log_effect = { MSG = MPIE_event_$GOAL$_lost }
+	hidden_effect = {
+		mpie_peer_close_missed_encounter_effect = { GOAL = $GOAL$ }
+		send_interface_toast = {
+			type = event_toast_effect_neutral
+			title = mpie_peer_encounter_lost_tt
+		}
+		mpie_debug_log_effect = { MSG = MPIE_event_$GOAL$_lost }
+	}
 }
 
 ########################
@@ -685,6 +709,10 @@ mpie_befriend_track_target_effect = {
 mpie_befriend_complete_if_friends_effect = {
 	if = {
 		limit = {
+			is_alive = yes
+			is_ai = no
+			exists = scope:activity
+			involved_activity ?= scope:activity
 			has_activity_intent = mpie_befriend_peer_intent
 			NOT = { has_completed_activity_intent = mpie_befriend_peer_intent }
 			exists = intent_target
@@ -739,6 +767,20 @@ mpie_befriend_approach_curious_effect = {
 # $APPROACH$ = plain, charming, rowdy or curious (mpie_befriend_approach_<approach>_effect stress reactions)
 mpie_befriend_attempt_effect = {
 	if = {
+		limit = {
+			is_alive = yes
+			is_ai = no
+			exists = scope:activity
+			involved_activity ?= scope:activity
+			has_activity_intent = mpie_befriend_peer_intent
+			intent_target ?= scope:mpie_peer
+			scope:mpie_peer.involved_activity ?= scope:activity
+			mpie_befriend_friend_made_here_trigger = { ACTOR = root PEER = scope:mpie_peer }
+		}
+		# The goal was achieved while this event was open. Do not pay or roll again.
+		mpie_befriend_complete_if_friends_effect = yes
+	}
+	else_if = {
 		limit = {
 			mpie_peer_encounter_still_valid_trigger = { GOAL = befriend INTENT = mpie_befriend_peer_intent }
 			can_set_relation_friend_trigger = { CHARACTER = scope:mpie_peer }
@@ -1048,6 +1090,8 @@ mpie_learn_attempt_effect = {
 # Saves scope:mpie_modeled_trait and, if there is another one, scope:mpie_modeled_trait_2.
 # Needs scope:mpie_actor and scope:mpie_peer, and mpie_role_model_has_candidate_trigger to pass.
 mpie_role_model_pick_trait_effect = {
+	clear_saved_scope = mpie_modeled_trait
+	clear_saved_scope = mpie_modeled_trait_2
 	scope:mpie_peer = {
 		random_character_trait = {
 			limit = {
@@ -1071,6 +1115,7 @@ mpie_role_model_pick_trait_effect = {
 # Adds the trait saved as scope:$TRAIT$.
 # add_trait can silently refuse a trait, so success is only reported once the actor has it.
 # Saves scope:mpie_adopted_trait for the toast text.
+# $COST$ = none or piety, refunded if the engine refuses the trait.
 # root = actor
 mpie_role_model_adopt_trait_effect = {
 	scope:$TRAIT$ = { save_scope_as = mpie_adopted_trait }
@@ -1097,12 +1142,31 @@ mpie_role_model_adopt_trait_effect = {
 		mpie_debug_log_effect = { MSG = MPIE_event_role_model_success }
 	}
 	else = {
+		# Remember this refusal for THIS activity, so a retry can select another trait.
+		if = {
+			limit = { NOT = { var:mpie_role_model_rejected_at ?= scope:activity } }
+			clear_variable_list = mpie_role_model_rejected_traits
+			set_variable = { name = mpie_role_model_rejected_at value = scope:activity days = 365 }
+		}
+		add_to_variable_list = { name = mpie_role_model_rejected_traits target = scope:mpie_adopted_trait days = 365 }
 		send_interface_toast = {
 			type = event_toast_effect_neutral
 			title = mpie_role_model_rejected_tt
 			left_icon = scope:mpie_peer
 			custom_tooltip = mpie_role_model_rejected_effect_tt
+			mpie_peer_refund_$COST$_effect = yes
 		}
+		scope:activity = {
+			add_activity_log_entry = {
+				key = mpie_peer_role_model_rejected_log
+				tags = { bad }
+				score = 5
+				show_in_conclusion = yes
+				character = root
+				target = scope:mpie_peer
+			}
+		}
+		mpie_peer_offer_retry_effect = { GOAL = role_model }
 		mpie_debug_log_effect = { MSG = MPIE_event_role_model_trait_refused_by_engine }
 	}
 }
@@ -1130,26 +1194,59 @@ mpie_role_model_attempt_effect = {
 			fickle = minor_stress_impact_loss
 			stubborn = minor_stress_impact_gain
 		}
-		random_list = {
-			0 = {
-				modifier = { add = scope:$CHANCE$ }
-				desc = mpie_role_model_success_tt
-				show_as_tooltip = {
+		# Keep the option's probability/outcome preview; this block never executes the outcome.
+		show_as_tooltip = {
+			random_list = {
+				0 = {
+					modifier = { add = scope:$CHANCE$ }
+					desc = mpie_role_model_success_tt
 					add_trait = scope:$TRAIT$
 					complete_activity_intent = yes
 				}
-				hidden_effect = {
-					mpie_role_model_adopt_trait_effect = { TRAIT = $TRAIT$ }
+				0 = {
+					modifier = {
+						add = {
+							value = 100
+							subtract = scope:$CHANCE$
+						}
+					}
+					desc = mpie_role_model_failure_tt
+					custom_tooltip = mpie_role_model_failure_effect_tt
 				}
 			}
-			0 = {
-				modifier = {
-					add = {
+		}
+		hidden_effect = {
+			# Generate both rolls exactly once after selection, in normal games and debug games alike.
+			# The first roll is discarded unconditionally; it is never an additional chance to succeed.
+			save_scope_value_as = {
+				name = mpie_role_model_discarded_roll
+				value = { integer_range = { min = 1 max = 100 } }
+			}
+			save_scope_value_as = {
+				name = mpie_role_model_result_roll
+				value = { integer_range = { min = 1 max = 100 } }
+			}
+			if = {
+				limit = { debug_only = yes }
+				scope:$TRAIT$ = { save_scope_as = mpie_debug_role_model_selected_trait }
+				# Text labels avoid registering flags used only by the scope dump (startup warnings).
+				debug_log = "MPIE_role_model_selected_option chance_source=$CHANCE$ cost=$COST$"
+				save_scope_value_as = { name = mpie_debug_role_model_success_percent value = scope:$CHANCE$ }
+				save_scope_value_as = {
+					name = mpie_debug_role_model_failure_percent
+					value = {
 						value = 100
 						subtract = scope:$CHANCE$
 					}
 				}
-				desc = mpie_role_model_failure_tt
+				mpie_debug_log_effect = { MSG = MPIE_event_role_model_roll }
+			}
+			# All Role Model chances are whole percentages. Inclusive 1-100 and <= give exactly that chance.
+			if = {
+				limit = { scope:mpie_role_model_result_roll <= scope:$CHANCE$ }
+				mpie_role_model_adopt_trait_effect = { TRAIT = $TRAIT$ COST = $COST$ }
+			}
+			else = {
 				send_interface_toast = {
 					type = event_toast_effect_bad
 					title = mpie_role_model_failure_tt

@@ -81,7 +81,7 @@ In vanilla, only children who hold a title can host Meet Peers, so the children 
 5. To change how long you wait between Meet Peers, set the **Meet Peers Cooldown** game rule (Tweaks) when starting a new game. Saves from before this rule existed use the 2-year default. A cooldown that is already running keeps its end date; the new length applies from the next Meet Peers.
 6. To host again before the cooldown ends, take the **Reset Meet Peers Cooldown** decision from the Decisions menu. It's off by default:
    - **New game:** set the **Meet Peers Cooldown Reset** game rule (Tweaks) to *Enabled*
-   - **Running game:** game rules can't be changed after the start, so enable it from the console (debug mode): `effect set_global_variable = mpie_meet_peers_cooldown_reset_enabled`
+   - **Running game:** game rules can't be changed after the start, so enable it from the console (debug mode): `event mpie_debug.0001`. The original command, `effect set_global_variable = mpie_meet_peers_cooldown_reset_enabled`, also works.
    - A cooldown from a Meet Peers hosted with an older version of this mod is stored by the game itself. It can't be reset and simply runs out.
 7. To see only this mod's game rules, pick **Meet Peers** in the filter dropdown of the Game Rules screen
 
