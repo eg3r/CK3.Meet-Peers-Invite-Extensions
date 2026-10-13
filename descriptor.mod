@@ -1,5 +1,5 @@
 name="Meet Peers - Invite Extensions"
-version="1.20.2"
+version="1.20.4"
 tags={
 	"Gameplay"
 }
