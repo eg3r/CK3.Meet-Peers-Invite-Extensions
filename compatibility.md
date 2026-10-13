@@ -14,12 +14,12 @@
 
 CK3 can't add to an activity type from another file: the invite options, goals (intents), special guests and AI settings all live inside the single `activity_playdate` definition. So the mod ships the whole file, at the vanilla path, and it replaces vanilla's file entirely.
 
-It's vanilla's file from CK3 1.20.0.3 (927 lines) with every change marked `# MPIE`. Everything not marked is vanilla, unchanged. With the "AI Meet Peers and Player Children" rule set to Off, every AI-related change below falls back to vanilla behaviour.
+It's vanilla's file from CK3 1.20.1 (924 lines) with every change marked `# MPIE`. Everything not marked is vanilla, unchanged. With the "AI Meet Peers and Player Children" rule set to Off, every AI-related change below falls back to vanilla behaviour.
 
 | Part of the activity | Vanilla | This mod |
 |---|---|---|
-| `is_shown` | only children (`is_adult = no`); child counts need sociability 100 | also adults, when they may plan a Meet Peers for a child at their court; count throttling is explicitly AI-only and bypassed while the "AI Meet Peers and Player Children" rule is on; the rank requirement moves to the displayed start requirements |
-| `can_start_showing_failures_only` | children aged 4-13 | adults planning for a child at court are checked against the court's own cooldown instead of their age; the mod's own cooldown and the count-or-higher rank requirement are checked here; the redundant vanilla count check is removed, and independent counts remain eligible |
+| `is_shown` | only children (`is_adult = no`); AI child counts need sociability 100 | also adults, when they may plan a Meet Peers for a child at their court; the AI count throttle is bypassed while the "AI Meet Peers and Player Children" rule is on; the rank requirement moves to the displayed start requirements |
+| `can_start_showing_failures_only` | children aged 4-13; a child count needs a liege (independent counts can't host) | adults planning for a child at court are checked against the court's own cooldown instead of their age; the mod's own cooldown and the count-or-higher rank requirement are checked here; vanilla's liege requirement for counts is removed, so independent child counts can host too: the mod's invite options give them guests |
 | `is_valid` | the host must hold land | also valid when the host is a child at court who took over from the ruler |
 | `on_invalidated` | "the host lost their land" message | skipped for a child at court, who never had land |
 | `cooldown` | native 3-year cooldown | **removed**; the mod runs its own cooldown (game rule, 1-3 years) so the reset decision can work |
@@ -34,7 +34,7 @@ It's vanilla's file from CK3 1.20.0.3 (927 lines) with every change marked `# MP
 | `guest_join_chance` | vanilla | adds a bonus for the host's siblings and family (same condition as family first) |
 | `on_start` | vanilla | plus the mod's cooldown, hosting count, debug log, and the handover of a ruler-planned Meet Peers to the child |
 
-**Unofficial Patch 9.0.21:** load it before this mod. MPIE incorporates its explicit AI-only guard and the move of the rank requirement into the displayed start requirements. MPIE keeps independent child counts eligible and leaves `can_always_plan` at its default. Both mods still replace the whole activity file; these selected changes are incorporated into MPIE, not merged automatically at load time.
+**Unofficial Patch 9.0.21:** load it before this mod. MPIE incorporates its move of the rank requirement into the displayed start requirements; the AI-only count throttle it also fixed is fixed in vanilla 1.20.1 itself. MPIE lets independent child counts host (vanilla 1.20.1 bars them) and leaves `can_always_plan` at its default. Both mods still replace the whole activity file; these selected changes are incorporated into MPIE, not merged automatically at load time.
 
 **What this breaks in other mods:** any mod that ships its own `playdate.txt`, or otherwise redefines `activity_playdate`, e.g. mods that add Meet Peers guests, goals, options or events wired into the activity, change its cooldown or its AI. One of the two loses all its Meet Peers changes:
 
@@ -47,7 +47,7 @@ It's vanilla's file from CK3 1.20.0.3 (927 lines) with every change marked `# MP
 
   The only fix is a compatibility patch that merges both files (see below).
 
-**What this breaks in vanilla updates:** the file is a copy of CK3 1.20.0.3. If a game update changes vanilla Meet Peers, the mod keeps the old version until it's re-synced (see AGENTS.md, "Updating for a new CK3 version").
+**What this breaks in vanilla updates:** the file is a copy of CK3 1.20.1. If a game update changes vanilla Meet Peers, the mod keeps the old version until it's re-synced (see AGENTS.md, "Updating for a new CK3 version").
 
 ## What the mod adds (no conflicts)
 
@@ -118,5 +118,5 @@ The mod doesn't change these, but uses them. A mod that changes them changes how
 For another mod that also changes `playdate.txt`:
 
 1. Take the other mod's `playdate.txt`.
-2. Re-apply every change marked `# MPIE` from this mod's file (`diff` this file against vanilla 1.20.0.3 to list them).
+2. Re-apply every change marked `# MPIE` from this mod's file (`diff` this file against vanilla 1.20.1 to list them).
 3. Ship it as a third mod that loads after both, at the same path.
