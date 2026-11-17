@@ -1,0 +1,61 @@
+﻿# Meet Peers - Invite Extensions: keep a child home from Meet Peers, one child at a time
+# Players only (no ai_targets, so the AI never considers them). See mpie_kept_home_triggers.txt.
+
+# The child only joins Meet Peers held at their own court
+mpie_keep_home_from_meet_peers_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	icon = child
+	desc = mpie_keep_home_from_meet_peers_interaction_desc
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	auto_accept = yes
+
+	is_shown = {
+		scope:actor = { is_ai = no }
+		scope:recipient = {
+			mpie_can_keep_home_trigger = { ACTOR = scope:actor }
+			NOT = { has_character_modifier = mpie_kept_home_from_meet_peers_modifier }
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			custom_tooltip = mpie_keep_home_from_meet_peers_effect_tt
+			mpie_keep_home_from_meet_peers_effect = yes
+		}
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}
+
+# The child may go to Meet Peers anywhere again
+mpie_allow_meet_peers_visits_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	icon = child
+	desc = mpie_allow_meet_peers_visits_interaction_desc
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	auto_accept = yes
+
+	is_shown = {
+		scope:actor = { is_ai = no }
+		scope:recipient = {
+			mpie_can_keep_home_trigger = { ACTOR = scope:actor }
+			has_character_modifier = mpie_kept_home_from_meet_peers_modifier
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			mpie_allow_meet_peers_visits_effect = yes
+		}
+	}
+
+	ai_will_do = {
+		base = 0
+	}
+}

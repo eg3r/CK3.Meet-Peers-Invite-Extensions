@@ -12,6 +12,24 @@ random_yearly_playable_pulse = {
 	}
 }
 
+# Appends to the vanilla on_action (vanilla itself defines it in two files)
+on_16th_birthday = {
+	on_actions = {
+		mpie_kept_home_grown_up_on_action
+	}
+}
+
+# A child kept home from Meet Peers (mpie_kept_home_triggers.txt) loses the mark at adulthood.
+# root = the character turning 16
+mpie_kept_home_grown_up_on_action = {
+	trigger = {
+		has_character_modifier = mpie_kept_home_from_meet_peers_modifier
+	}
+	effect = {
+		remove_character_modifier = mpie_kept_home_from_meet_peers_modifier
+	}
+}
+
 # A child at court asks their ruler to pay for a Meet Peers (mpie_court_triggers.txt). A child who is
 # away right now still counts, so the court checks again a few months later instead of next year.
 # root = the ruler

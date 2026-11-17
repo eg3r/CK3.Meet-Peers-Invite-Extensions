@@ -205,3 +205,13 @@
  # A trait refused by the game is distinct from losing the random roll.
  mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
  mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
+
+ # Keep a child home from Meet Peers (common/character_interactions/mpie_kept_home_interactions.txt)
+ mpie_keep_home_from_meet_peers_interaction:0 "Не отпускать на «Встречи с ровесниками»"
+ mpie_keep_home_from_meet_peers_interaction_desc:0 "[recipient.GetShortUIName|U] посещает «Встречи с ровесниками» только при своём дворе, без поездок."
+ mpie_keep_home_from_meet_peers_effect_tt:0 "Отныне [recipient.GetShortUIName] посещает «Встречи с ровесниками» только при своём дворе. Приглашения из других мест отклоняются, а если ребёнок уже в пути на одну из них, он возвращается домой."
+ mpie_allow_meet_peers_visits_interaction:0 "Отпускать на «Встречи с ровесниками»"
+ mpie_allow_meet_peers_visits_interaction_desc:0 "[recipient.GetShortUIName|U] снова может посещать «Встречи с ровесниками» при других дворах."
+ mpie_kept_home_from_meet_peers_modifier:0 "Не отпускают на «Встречи с ровесниками»"
+ mpie_kept_home_from_meet_peers_modifier_desc:0 "Этот ребёнок посещает «Встречи с ровесниками» только при своём дворе, без поездок."
+ mpie_kept_home_from_meet_peers_guest_tt:0 "Родитель разрешает только «Встречи с ровесниками» при своём дворе"

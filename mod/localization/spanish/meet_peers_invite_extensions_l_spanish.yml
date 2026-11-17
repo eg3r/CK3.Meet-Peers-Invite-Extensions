@@ -205,3 +205,13 @@
  # A trait refused by the game is distinct from losing the random roll.
  mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
  mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
+
+ # Keep a child home from Meet Peers (common/character_interactions/mpie_kept_home_interactions.txt)
+ mpie_keep_home_from_meet_peers_interaction:0 "Prohibir Encuentros con rapaces fuera"
+ mpie_keep_home_from_meet_peers_interaction_desc:0 "[recipient.GetShortUIName|U] solo asiste a Encuentros con rapaces celebrados en su propia corte, sin tener que viajar."
+ mpie_keep_home_from_meet_peers_effect_tt:0 "A partir de ahora, [recipient.GetShortUIName] solo asiste a Encuentros con rapaces celebrados en su propia corte. Las invitaciones de otros lugares se rechazan y, si ya va de camino a uno, vuelve a casa."
+ mpie_allow_meet_peers_visits_interaction:0 "Permitir Encuentros con rapaces fuera"
+ mpie_allow_meet_peers_visits_interaction_desc:0 "[recipient.GetShortUIName|U] puede volver a asistir a Encuentros con rapaces en otras cortes."
+ mpie_kept_home_from_meet_peers_modifier:0 "Sin Encuentros con rapaces fuera"
+ mpie_kept_home_from_meet_peers_modifier_desc:0 "Este niño solo asiste a Encuentros con rapaces celebrados en su propia corte, sin tener que viajar."
+ mpie_kept_home_from_meet_peers_guest_tt:0 "Un progenitor solo permite Encuentros con rapaces en su propia corte"

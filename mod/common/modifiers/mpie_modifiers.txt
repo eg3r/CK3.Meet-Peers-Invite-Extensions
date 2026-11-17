@@ -1,0 +1,7 @@
+﻿# Meet Peers - Invite Extensions: modifiers
+
+# A child kept home from Meet Peers away from their court (mpie_kept_home_triggers.txt). No effects:
+# it only marks the child, visibly in the character window.
+mpie_kept_home_from_meet_peers_modifier = {
+	icon = family_mixed
+}

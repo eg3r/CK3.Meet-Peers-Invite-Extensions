@@ -205,3 +205,13 @@
  # A trait refused by the game is distinct from losing the random roll.
  mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
  mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
+
+ # Keep a child home from Meet Peers (common/character_interactions/mpie_kept_home_interactions.txt)
+ mpie_keep_home_from_meet_peers_interaction:0 "다른 곳의 또래 회합에 보내지 않기"
+ mpie_keep_home_from_meet_peers_interaction_desc:0 "[recipient.GetShortUIName]은(는) 자신의 궁정에서 열리는 또래 회합에만 참석하며, 여행을 떠나지 않습니다."
+ mpie_keep_home_from_meet_peers_effect_tt:0 "이제부터 [recipient.GetShortUIName]은(는) 자신의 궁정에서 열리는 또래 회합에만 참석합니다. 다른 곳의 초대는 거절하며, 이미 가는 중이라면 돌아옵니다."
+ mpie_allow_meet_peers_visits_interaction:0 "다른 곳의 또래 회합 참석 허락"
+ mpie_allow_meet_peers_visits_interaction_desc:0 "[recipient.GetShortUIName]은(는) 다시 다른 궁정의 또래 회합에 참석할 수 있습니다."
+ mpie_kept_home_from_meet_peers_modifier:0 "다른 곳의 또래 회합 불참"
+ mpie_kept_home_from_meet_peers_modifier_desc:0 "이 아이는 자신의 궁정에서 열리는 또래 회합에만 참석하며, 여행을 떠나지 않습니다."
+ mpie_kept_home_from_meet_peers_guest_tt:0 "부모의 뜻에 따라 자신의 궁정의 또래 회합에만 참석"

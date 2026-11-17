@@ -4,7 +4,7 @@
 
 - The mod **replaces one vanilla file**: the Meet Peers activity (`common/activities/activity_types/playdate.txt`). Any other mod that changes the Meet Peers activity itself conflicts with it: whichever loads last wins, and the other mod's Meet Peers changes are lost.
 - Everything else is **added**, not replaced: new invite options, goals, events, game rules, decisions, opinions and texts, all under its own names (prefix `mpie_`). These can't clash with vanilla or with other mods.
-- It hooks into one vanilla yearly pulse the way vanilla's modding notes recommend, so other mods using the same pulse keep working.
+- It hooks into two vanilla on_actions (the yearly pulse and the 16th birthday) the way vanilla's modding notes recommend, so other mods using the same on_actions keep working.
 - It doesn't change any interface (`.gui`) files, defines or vanilla localization.
 - Achievements stay available: the mod changes the game's checksum (its files are in checksummed folders: `common`, `events`, `localization`), but CK3 1.20 still shows "Achievements: Available" with a modified checksum (confirmed on the Game Rules screen). Only two of the mod's settings switch them off, flagged like vanilla's cheat-like rules: the 1-year Meet Peers Cooldown and the Meet Peers Cooldown Reset.
 
@@ -28,7 +28,7 @@ It's vanilla's file from CK3 1.21.0 (914 lines) with every change marked `# MPIE
 | phase `on_end` | vanilla conclusion | plus goal wrap-up, family bonus, the end report for players, a single guarded host prestige reward, debug logging; the vanilla conclusion remains, with its prestige effect changed to a tooltip |
 | `ai_will_do` | vanilla | the affordability check is replaced for children (rule on), plus the mod's bonus (0 with the rule off) |
 | `guest_invite_rules` | vanilla rules | adds the mod's own options, including close and extended family (family first: for player hosts, and for AI hosts only while the "AI Meet Peers and Player Children" rule is on); friends, crushes, scheme targets and confederates move from priority 1 to 2 |
-| `can_be_activity_guest` | `is_available_for_child_activity_trigger` | the same check, except player children at war may attend (game rule) |
+| `can_be_activity_guest` | `is_available_for_child_activity_trigger` | the same check, except player children at war may attend (game rule); a child a player kept home only joins a Meet Peers at their own court |
 | `special_guests` | none | new: the "Young Host" slots for a child at court |
 | `host_intents` / `guest_intents` | Recreation only | adds the three goals |
 | `guest_join_chance` | vanilla | adds a bonus for the host's siblings and family (same condition as family first) |
@@ -57,19 +57,21 @@ All new definitions use the prefix `mpie_` in files of their own, so they can't 
 |---|---|
 | `common/activities/guest_invite_rules/` | the invite options (Neighboring Children, Nearby Player Children, Children of Court and Vassals, Children of the Same Faith, and one more opt-in option) |
 | `common/activities/intents/` | the three goals |
+| `common/character_interactions/` | Keep Home from Meet Peers / Allow Meet Peers Elsewhere (players only) |
 | `common/decisions/` | Reset Meet Peers Cooldown |
 | `common/game_rules/` | five game rules |
 | `common/important_actions/` | the "Promised Meet Peers" reminder |
+| `common/modifiers/` | the "Kept Home from Meet Peers" mark (no effects) |
 | `common/on_action/` | the mod's own on_actions (see below) |
 | `common/opinion_modifiers/` | the court opinions |
 | `common/script_values/`, `scripted_effects/`, `scripted_triggers/` | the mod's logic |
 | `common/trigger_localization/` | cooldown tooltips |
 | `events/activities/` | the goal encounters (namespace `mpie_peer`) and the court events (namespace `mpie_court`); the retired prestige-check event remains a no-op for older saves |
-| `localization/<language>/` | 163 new keys in 9 languages; no vanilla key is overridden |
+| `localization/<language>/` | 171 new keys in 9 languages; no vanilla key is overridden |
 
 Event namespaces `mpie_peer` and `mpie_court` would only clash with another mod using the same namespace names.
 
-## Shared hook: the yearly pulse
+## Shared hooks: the yearly pulse and the 16th birthday
 
 `common/on_action/mpie_on_actions.txt` adds its own on_actions to vanilla's `random_yearly_playable_pulse` (the yearly court request, a cleanup for promises that can't be kept, an extra yearly hosting check for AI child rulers while the AI rule is on, and a debug-only census):
 
@@ -78,6 +80,8 @@ random_yearly_playable_pulse = {
 	on_actions = { mpie_court_meet_peers_pulse mpie_court_meet_peers_stale_promise_pulse mpie_ai_meet_peers_extra_check_pulse mpie_titled_meet_peers_census_pulse }
 }
 ```
+
+It also adds `mpie_kept_home_grown_up_on_action` to vanilla's `on_16th_birthday` (removes the "kept home" mark at adulthood), the same way: `on_16th_birthday = { on_actions = { mpie_kept_home_grown_up_on_action } }`. Vanilla itself defines that on_action in two files.
 
 This is the pattern from vanilla's `_on_actions.info`: on_action lists from several files are merged, so vanilla's pulse and other mods' additions keep working. It would only break if another mod added a second `effect` or `trigger` block directly to `random_yearly_playable_pulse`, which vanilla's notes forbid anyway. The census on_action does nothing outside debug mode.
 
@@ -93,6 +97,7 @@ The mod doesn't change these, but uses them. A mod that changes them changes how
 - **Costs and amounts:** `standard_playdate_activity_cost`, `standard_playdate_cooldown_time`, `medium_prestige_gain`, `minor_prestige_gain`, `minor_piety_gain`, `minor_influence_value`, the stress impact values, `personality_trait_limit`.
 - **Relations:** `can_set_relation_friend_trigger`, `can_set_relation_potential_friend_trigger`; opinions `hosted_successful_playdate_opinion`, `haughty_opinion`.
 - **Distances:** `squared_distance_medium`, `squared_distance_large`.
+- **Children kept home:** the `host` link (which court a character lives at) and vanilla's `on_16th_birthday` on_action.
 - **The planner window:** the Young Host is a normal special guest slot, shown by vanilla's activity planner. A UI mod that rebuilds the planner should still show it, as long as it keeps special guests.
 
 ## Typical mod combinations
@@ -111,7 +116,7 @@ The mod doesn't change these, but uses them. A mod that changes them changes how
 
 - **Adding the mod to a running game:** works. Game rules then use their defaults (they can't be changed after the start); the reset can be switched on from the console (see README).
 - **Updating from 1.20.2:** already queued `mpie_court.0110` prestige checks are accepted but do nothing. New conclusions grant prestige once directly; they do not infer a missing reward from the next day's balance.
-- **Removing the mod from a running game:** cooldowns set by the mod stay behind as unused variables and simply expire. A Meet Peers hosted by a child at court that is still running when the mod is removed is cancelled by vanilla, because its host holds no land.
+- **Removing the mod from a running game:** cooldowns set by the mod stay behind as unused variables and simply expire. The "kept home" mark on children is dropped with the mod. A Meet Peers hosted by a child at court that is still running when the mod is removed is cancelled by vanilla, because its host holds no land.
 
 ## Making a compatibility patch
 

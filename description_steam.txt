@@ -33,6 +33,9 @@ A king's children usually live at court without a title of their own, so in the 
 [*] [b]AI Courts Too[/b] - AI kings and emperors plan Meet Peers for their children as well.
 [/list]
 
+[h2]Keep a Child Home[/h2]
+Right-click one of your children and choose [b]Keep Home from Meet Peers[/b]: from then on that child only goes to a Meet Peers held at their own court, where no travel is involved. Invitations from elsewhere are declined, and a child already on the way comes home. Set it for each child on their own, for example to keep your heir safe at home, and lift it with [b]Allow Meet Peers Elsewhere[/b].
+
 [h2]A Livelier World[/h2]
 [list]
 [*] [b]AI Children Host More[/b] - AI child rulers host Meet Peers far more often, spread out over their childhood.

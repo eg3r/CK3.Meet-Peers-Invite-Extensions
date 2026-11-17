@@ -52,6 +52,12 @@ In vanilla, only children who hold a title can host Meet Peers, so the children 
 - **One per court every 2 years.** The child hosts at the ruler's capital. Their siblings, the children of the ruler's vassals and of neighboring realms, and nearby player children are invited.
 - **Game rule "Court Children Host Meet Peers"** (Tweaks): Off / Kings and Above (default) / Dukes and Above.
 
+### Keep a child home
+Your children don't have to travel to every Meet Peers they're invited to:
+- **Keep Home from Meet Peers:** right-click one of your children or grandchildren under 16 (or another child of your family at your court). From then on the child only goes to a Meet Peers held at their own court, such as one you plan for a child at court, where no travel is involved. Invitations from elsewhere are declined, and a child already on the way comes home.
+- **Allow Meet Peers Elsewhere** lifts it again. It also ends when the child turns 16.
+- Kept-home children show the mark **Kept Home from Meet Peers** in their character window. Each child is set on their own, so you can keep your heir home and let the others go.
+
 ## Installation
 
 ### Steam Workshop (Recommended)

@@ -12,4 +12,5 @@ path="mod/MeetPeersInviteExtensions"
 # peer goals (Befriend a Peer, Learn from a Peer, Role Model),
 # a configurable cooldown (default 2 years), an optional cooldown reset decision,
 # AI children who host more often and invite nearby player children,
-# and children at court without a title who host Meet Peers planned by their ruler
+# children at court without a title who host Meet Peers planned by their ruler,
+# and a per-child option to keep your children home from Meet Peers at other courts

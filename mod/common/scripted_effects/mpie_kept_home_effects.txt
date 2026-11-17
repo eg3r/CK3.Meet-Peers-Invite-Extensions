@@ -1,0 +1,51 @@
+﻿# Meet Peers - Invite Extensions: children kept home from Meet Peers (see mpie_kept_home_triggers.txt)
+
+# Keep this child home: mark them, decline their invitations to Meet Peers away from their court, and
+# take them out of one they already joined there (travelling or attending). remove_from_activity is the
+# graceful exit the engine asks for when a participant's travel ends early.
+# this = the child
+mpie_keep_home_from_meet_peers_effect = {
+	save_scope_as = mpie_kept_home_child
+	add_character_modifier = mpie_kept_home_from_meet_peers_modifier
+	hidden_effect = {
+		every_invited_activity = {
+			limit = { has_activity_type = activity_playdate }
+			save_temporary_scope_as = mpie_invited_meet_peers
+			activity_host = { save_temporary_scope_as = mpie_invited_meet_peers_host }
+			scope:mpie_kept_home_child = {
+				if = {
+					limit = {
+						NOT = { mpie_meet_peers_at_own_court_trigger = { HOST = scope:mpie_invited_meet_peers_host } }
+					}
+					decline_activity_invite = scope:mpie_invited_meet_peers
+					mpie_debug_log_effect = { MSG = MPIE_kept_home_declined_invite }
+				}
+			}
+		}
+		if = {
+			limit = {
+				involved_activity ?= { has_activity_type = activity_playdate }
+				NOT = { involved_activity.activity_host = this }
+			}
+			involved_activity = {
+				save_temporary_scope_as = mpie_joined_meet_peers
+				activity_host = { save_temporary_scope_as = mpie_joined_meet_peers_host }
+			}
+			if = {
+				limit = {
+					NOT = { mpie_meet_peers_at_own_court_trigger = { HOST = scope:mpie_joined_meet_peers_host } }
+				}
+				remove_from_activity = scope:mpie_joined_meet_peers
+				mpie_debug_log_effect = { MSG = MPIE_kept_home_left_meet_peers }
+			}
+		}
+	}
+	mpie_debug_log_effect = { MSG = MPIE_kept_home_set }
+}
+
+# Let this child go to Meet Peers anywhere again
+# this = the child
+mpie_allow_meet_peers_visits_effect = {
+	remove_character_modifier = mpie_kept_home_from_meet_peers_modifier
+	mpie_debug_log_effect = { MSG = MPIE_kept_home_lifted }
+}

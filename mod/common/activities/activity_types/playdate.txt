@@ -3,7 +3,7 @@
 # Only changes are marked "MPIE": extra guest_invite_rules entries, the script cooldown that replaces
 # the native one (var:mpie_meet_peers_cooldown, so the reset decision can clear it), the peer goals
 # (mpie_*_intent, run from the playdate_phase), AI hosting (count throttle, ai_will_do; the check interval is vanilla),
-# the guest check (at-war game rule) and court children hosting (a ruler plans it for a child at court
+# the guest check (at-war game rule, children kept home by a parent) and court children hosting (a ruler plans it for a child at court
 # who holds no title, and the child takes over as host in on_start; see mpie_court_triggers.txt).
 # Re-sync with vanilla on every game patch.
 
@@ -386,6 +386,7 @@ activity_playdate = {
 
 	can_be_activity_guest = {
 		mpie_meet_peers_guest_available_trigger = yes # MPIE: vanilla is_available_for_child_activity_trigger, plus the at-war game rule
+		mpie_meet_peers_not_kept_home_trigger = { HOST = scope:host } # MPIE: a child kept home by a parent only joins Meet Peers at their own court
 		in_diplomatic_range = scope:host
 	}
 
@@ -411,11 +412,13 @@ activity_playdate = {
 			}
 			on_invite = {
 				# Only the planner tooltip, see mpie_host_child
-				if = {
-					limit = { this != scope:host }
-					add_opinion = {
-						target = scope:host
-						modifier = mpie_organized_my_meet_peers_opinion
+				root ?= { # no character yet while the planner builds the tooltip of an empty slot
+					if = {
+						limit = { this != scope:host }
+						add_opinion = {
+							target = scope:host
+							modifier = mpie_organized_my_meet_peers_opinion
+						}
 					}
 				}
 			}
@@ -423,9 +426,8 @@ activity_playdate = {
 		mpie_host_child = { # Without a request: the player picks any eligible child
 			is_shown = {
 				is_adult = yes
-				NOT = {
-					exists = var:mpie_court_meet_peers_child
-					var:mpie_court_meet_peers_child = { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } }
+				NOT = { # ?= : never read the variable while it's unset (error.log)
+					var:mpie_court_meet_peers_child ?= { mpie_court_meet_peers_child_could_host_trigger = { RULER = root } }
 				}
 			}
 			is_required = yes
@@ -443,11 +445,13 @@ activity_playdate = {
 			on_invite = {
 				# Only the planner tooltip: the invitation is sent after on_start, when the child is already
 				# the host, so mpie_court_meet_peers_handover_effect gives the opinion instead
-				if = {
-					limit = { this != scope:host }
-					add_opinion = {
-						target = scope:host
-						modifier = mpie_organized_my_meet_peers_opinion
+				root ?= { # no character yet while the planner builds the tooltip of an empty slot
+					if = {
+						limit = { this != scope:host }
+						add_opinion = {
+							target = scope:host
+							modifier = mpie_organized_my_meet_peers_opinion
+						}
 					}
 				}
 			}

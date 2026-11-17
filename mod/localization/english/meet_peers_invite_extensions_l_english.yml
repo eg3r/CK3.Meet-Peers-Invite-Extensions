@@ -203,3 +203,13 @@
  # A trait refused by the game is distinct from losing the random roll.
  mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
  mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
+
+ # Keep a child home from Meet Peers (common/character_interactions/mpie_kept_home_interactions.txt)
+ mpie_keep_home_from_meet_peers_interaction:0 "Keep Home from Meet Peers"
+ mpie_keep_home_from_meet_peers_interaction_desc:0 "[recipient.GetShortUIName|U] only goes to a [GetActivityType('activity_playdate').GetName] held at [recipient.GetHerHis] own court, where no travel is involved."
+ mpie_keep_home_from_meet_peers_effect_tt:0 "From now on, [recipient.GetShortUIName] only joins a [GetActivityType('activity_playdate').GetName] held at [recipient.GetHerHis] own court. Invitations from elsewhere are declined, and if [recipient.GetSheHe] is already on the way to one, [recipient.GetSheHe] comes home."
+ mpie_allow_meet_peers_visits_interaction:0 "Allow Meet Peers Elsewhere"
+ mpie_allow_meet_peers_visits_interaction_desc:0 "[recipient.GetShortUIName|U] may go to a [GetActivityType('activity_playdate').GetName] at other courts again."
+ mpie_kept_home_from_meet_peers_modifier:0 "Kept Home from Meet Peers"
+ mpie_kept_home_from_meet_peers_modifier_desc:0 "This child only goes to Meet Peers held at their own court, where no travel is involved."
+ mpie_kept_home_from_meet_peers_guest_tt:0 "Kept home by a parent: only joins a [GetActivityType('activity_playdate').GetName] held at their own court"

@@ -105,10 +105,12 @@ mpie_court_meet_peers_child_handover_trigger = {
 }
 
 # A child who could come to a court's Meet Peers as a guest right now: of age, healthy, not away at
-# an activity, and not invited to another Meet Peers (counted by mpie_court_meet_peers_pool_value)
-# this = the child
+# an activity, not invited to another Meet Peers, and not kept home by a parent unless they live at
+# this court (counted by mpie_court_meet_peers_pool_value)
+# this = the child, root = the ruler whose court would host
 mpie_court_meet_peers_free_guest_trigger = {
 	mpie_meet_peers_guest_available_trigger = yes
+	mpie_meet_peers_not_kept_home_trigger = { HOST = root }
 	NOT = { any_invited_activity = { has_activity_type = activity_playdate } }
 }
 

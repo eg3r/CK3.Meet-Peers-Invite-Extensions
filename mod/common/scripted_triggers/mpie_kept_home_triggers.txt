@@ -1,0 +1,51 @@
+﻿# Meet Peers - Invite Extensions: children kept home from Meet Peers
+#
+# A player can keep a child of their family home, one child at a time
+# (mpie_keep_home_from_meet_peers_interaction, common/character_interactions/mpie_kept_home_interactions.txt).
+# The child gets mpie_kept_home_from_meet_peers_modifier (no effects, shown in the character window) and
+# from then on only joins Meet Peers held at their own court, where no travel is involved. The playdate's
+# can_be_activity_guest checks it, so the child never gets on another host's guest list.
+# Lifted with mpie_allow_meet_peers_visits_interaction, and at 16 (mpie_kept_home_grown_up_on_action).
+# Only AI children are ever held back: a kept-home child who becomes a player decides for themselves.
+
+# Is a Meet Peers hosted by $HOST$ held at this child's own court? Yes when the host is the ruler of the
+# court the child lives at, or another child of that court (a court Meet Peers planned by its ruler,
+# held at the ruler's capital). A ruler's host is the ruler, a courtier's host is their ruler.
+# this = the child, $HOST$ = the Meet Peers host
+mpie_meet_peers_at_own_court_trigger = {
+	exists = host
+	$HOST$.host ?= this.host
+}
+
+# May this child join a Meet Peers hosted by $HOST$? Always, unless a parent kept them home: then only
+# at their own court. Used by the playdate can_be_activity_guest and mpie_court_meet_peers_free_guest_trigger.
+# this = the child, $HOST$ = the Meet Peers host
+mpie_meet_peers_not_kept_home_trigger = {
+	trigger_if = {
+		limit = {
+			is_ai = yes
+			has_character_modifier = mpie_kept_home_from_meet_peers_modifier
+		}
+		custom_tooltip = {
+			text = mpie_kept_home_from_meet_peers_guest_tt
+			mpie_meet_peers_at_own_court_trigger = { HOST = $HOST$ }
+		}
+	}
+}
+
+# May $ACTOR$ keep this child home, or let them go again? AI children who aren't adults: the actor's
+# children and grandchildren wherever they live, and other close or extended family at the actor's
+# court (after a succession, the new ruler's younger siblings, so a setting can still be lifted).
+# this = the child, $ACTOR$ = the player
+mpie_can_keep_home_trigger = {
+	is_ai = yes
+	is_adult = no
+	OR = {
+		is_child_of = $ACTOR$
+		is_grandchild_of = $ACTOR$
+		AND = {
+			is_courtier_of = $ACTOR$
+			is_close_or_extended_family_of = $ACTOR$
+		}
+	}
+}

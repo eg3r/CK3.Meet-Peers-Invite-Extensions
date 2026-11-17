@@ -205,3 +205,13 @@
  # A trait refused by the game is distinct from losing the random roll.
  mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
  mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
+
+ # Keep a child home from Meet Peers (common/character_interactions/mpie_kept_home_interactions.txt)
+ mpie_keep_home_from_meet_peers_interaction:0 "他所の遊戯会に行かせない"
+ mpie_keep_home_from_meet_peers_interaction_desc:0 "[recipient.GetShortUIName]は自分の宮廷で開かれる遊戯会にのみ参加し、旅には出ません。"
+ mpie_keep_home_from_meet_peers_effect_tt:0 "今後、[recipient.GetShortUIName]は自分の宮廷で開かれる遊戯会にのみ参加します。他所からの招待は断り、すでに向かっている場合は帰ってきます。"
+ mpie_allow_meet_peers_visits_interaction:0 "他所の遊戯会への参加を許す"
+ mpie_allow_meet_peers_visits_interaction_desc:0 "[recipient.GetShortUIName]は再び他の宮廷の遊戯会に参加できます。"
+ mpie_kept_home_from_meet_peers_modifier:0 "他所の遊戯会に行かない"
+ mpie_kept_home_from_meet_peers_modifier_desc:0 "この子供は自分の宮廷で開かれる遊戯会にのみ参加し、旅には出ません。"
+ mpie_kept_home_from_meet_peers_guest_tt:0 "親の意向により、自分の宮廷の遊戯会にのみ参加"

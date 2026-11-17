@@ -205,3 +205,13 @@
  # A trait refused by the game is distinct from losing the random roll.
  mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
  mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
+
+ # Keep a child home from Meet Peers (common/character_interactions/mpie_kept_home_interactions.txt)
+ mpie_keep_home_from_meet_peers_interaction:0 "Zakaż Spotkań z rówieśnikami poza domem"
+ mpie_keep_home_from_meet_peers_interaction_desc:0 "[recipient.GetShortUIName|U] bierze udział tylko w Spotkaniach z rówieśnikami na własnym dworze, bez podróży."
+ mpie_keep_home_from_meet_peers_effect_tt:0 "Odtąd [recipient.GetShortUIName] bierze udział tylko w Spotkaniach z rówieśnikami na własnym dworze. Zaproszenia z innych miejsc są odrzucane, a jeśli dziecko jest już w drodze na jedno z nich, wraca do domu."
+ mpie_allow_meet_peers_visits_interaction:0 "Zezwól na Spotkania z rówieśnikami poza domem"
+ mpie_allow_meet_peers_visits_interaction_desc:0 "[recipient.GetShortUIName|U] znów może brać udział w Spotkaniach z rówieśnikami na innych dworach."
+ mpie_kept_home_from_meet_peers_modifier:0 "Bez Spotkań z rówieśnikami poza domem"
+ mpie_kept_home_from_meet_peers_modifier_desc:0 "To dziecko bierze udział tylko w Spotkaniach z rówieśnikami na własnym dworze, bez podróży."
+ mpie_kept_home_from_meet_peers_guest_tt:0 "Rodzic zezwala tylko na Spotkania z rówieśnikami na własnym dworze"

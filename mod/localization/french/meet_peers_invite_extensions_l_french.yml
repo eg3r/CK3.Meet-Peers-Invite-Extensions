@@ -205,3 +205,13 @@
  # A trait refused by the game is distinct from losing the random roll.
  mpie_peer_role_model_rejected_log_title:0 "$mpie_role_model_rejected_tt$"
  mpie_peer_role_model_rejected_log:0 "$mpie_peer_role_model_failed_log$"
+
+ # Keep a child home from Meet Peers (common/character_interactions/mpie_kept_home_interactions.txt)
+ mpie_keep_home_from_meet_peers_interaction:0 "Interdire les Rencontres des pairs ailleurs"
+ mpie_keep_home_from_meet_peers_interaction_desc:0 "[recipient.GetShortUIName|U] ne participe plus qu'aux Rencontres des pairs organisées à sa propre cour, où aucun voyage n'est nécessaire."
+ mpie_keep_home_from_meet_peers_effect_tt:0 "Désormais, [recipient.GetShortUIName] ne participe plus qu'aux Rencontres des pairs organisées à sa propre cour. Les invitations venues d'ailleurs sont refusées, et si l'enfant est déjà en route pour l'une d'elles, il rentre à la cour."
+ mpie_allow_meet_peers_visits_interaction:0 "Autoriser les Rencontres des pairs ailleurs"
+ mpie_allow_meet_peers_visits_interaction_desc:0 "[recipient.GetShortUIName|U] peut de nouveau participer aux Rencontres des pairs d'autres cours."
+ mpie_kept_home_from_meet_peers_modifier:0 "Pas de Rencontres des pairs ailleurs"
+ mpie_kept_home_from_meet_peers_modifier_desc:0 "Cet enfant ne participe qu'aux Rencontres des pairs organisées à sa propre cour, où aucun voyage n'est nécessaire."
+ mpie_kept_home_from_meet_peers_guest_tt:0 "Un parent n'autorise que les Rencontres des pairs de sa propre cour"
