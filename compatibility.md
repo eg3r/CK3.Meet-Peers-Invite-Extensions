@@ -14,7 +14,7 @@
 
 CK3 can't add to an activity type from another file: the invite options, goals (intents), special guests and AI settings all live inside the single `activity_playdate` definition. So the mod ships the whole file, at the vanilla path, and it replaces vanilla's file entirely.
 
-It's vanilla's file from CK3 1.20.1 (924 lines) with every change marked `# MPIE`. Everything not marked is vanilla, unchanged. With the "AI Meet Peers and Player Children" rule set to Off, every AI-related change below falls back to vanilla behaviour.
+It's vanilla's file from CK3 1.21.0 (914 lines) with every change marked `# MPIE`. Everything not marked is vanilla, unchanged. With the "AI Meet Peers and Player Children" rule set to Off, every AI-related change below falls back to vanilla behaviour.
 
 | Part of the activity | Vanilla | This mod |
 |---|---|---|
@@ -47,7 +47,7 @@ It's vanilla's file from CK3 1.20.1 (924 lines) with every change marked `# MPIE
 
   The only fix is a compatibility patch that merges both files (see below).
 
-**What this breaks in vanilla updates:** the file is a copy of CK3 1.20.1. If a game update changes vanilla Meet Peers, the mod keeps the old version until it's re-synced (see AGENTS.md, "Updating for a new CK3 version").
+**What this breaks in vanilla updates:** the file is a copy of CK3 1.21.0. If a game update changes vanilla Meet Peers, the mod keeps the old version until it's re-synced (see AGENTS.md, "Updating for a new CK3 version").
 
 ## What the mod adds (no conflicts)
 
@@ -118,5 +118,5 @@ The mod doesn't change these, but uses them. A mod that changes them changes how
 For another mod that also changes `playdate.txt`:
 
 1. Take the other mod's `playdate.txt`.
-2. Re-apply every change marked `# MPIE` from this mod's file (`diff` this file against vanilla 1.20.1 to list them).
+2. Re-apply every change marked `# MPIE` from this mod's file (`diff` this file against vanilla 1.21.0 to list them).
 3. Ship it as a third mod that loads after both, at the same path.

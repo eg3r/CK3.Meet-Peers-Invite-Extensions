@@ -1,4 +1,4 @@
-﻿# Meet Peers - Invite Extensions - full override of vanilla CK3 1.20.1
+﻿# Meet Peers - Invite Extensions - full override of vanilla CK3 1.21.0
 # common/activities/activity_types/playdate.txt (activity_playdate).
 # Only changes are marked "MPIE": extra guest_invite_rules entries, the script cooldown that replaces
 # the native one (var:mpie_meet_peers_cooldown, so the reset decision can clear it), the peer goals
@@ -525,11 +525,7 @@ activity_playdate = {
 		trigger = {
 			scope:host.location != scope:activity.activity_location
 			scope:host.location = {
-				terrain = farmlands
-				OR = {
-					terrain = terraced_hills
-					has_building_or_higher = paddy_fields_01
-				}
+				has_rice_fields_district = yes
 			}
 		}
 		texture = "gfx/interface/illustrations/event_scenes/tgp_rice_fields.dds"
@@ -974,13 +970,7 @@ activity_playdate = {
 				}
 			}
 
-			scripted_animation = {
-				triggered_animation = {
-					trigger = { scope:character = { has_trait = impatient } }
-					animation = { jockey_gallop }
-				}
-				animation = jockey_walk
-			}
+			scripted_animation = horse_camel_activity_travel_animation
 		}
 
 		guest = {

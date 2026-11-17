@@ -1,6 +1,12 @@
 Meet Peers - Invite Extensions - Changelog
 
 
+Version 1.21.0
+
+- Updated for CK3 1.21: the Meet Peers activity is re-synced with the game's new version. This fixes an error from a building the game removed (the rice paddies of the travel background) and brings the game's new horse and camel travel animation.
+- Silk and Silver isn't required.
+
+
 Version 1.20.4
 
 - Cleaned up diagnostic startup warnings and restricted extra prestige/invite log data to debug mode. Added the console-only reset shortcut `event mpie_debug.0001`; the original console command remains supported.

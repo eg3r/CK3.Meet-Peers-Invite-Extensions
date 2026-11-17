@@ -87,7 +87,7 @@ In vanilla, only children who hold a title can host Meet Peers, so the children 
 
 ## Compatibility
 
-- **CK3 Version**: 1.20.*
+- **CK3 Version**: 1.21.*
 - **Achievements**: stay available with the mod. Only two settings switch them off, like vanilla's cheat-like rules: the 1-year **Meet Peers Cooldown** and **Meet Peers Cooldown Reset** set to Enabled
 - **Save Game Compatible**: Yes
 - **Conflicts**: replaces vanilla `common/activities/activity_types/playdate.txt`, so it conflicts with other mods that change the Meet Peers activity
