@@ -1,6 +1,13 @@
 Meet Peers - Invite Extensions - Changelog
 
 
+Version 1.21.1
+
+- Fixed: with the Dukes and Above game rule, the children of a landless adventurer kept asking for a Meet Peers, though adventurers can't host one. Their children no longer ask, and Meet Peers no longer shows up in an adventurer's activities.
+- A promised Meet Peers is dropped once the ruler can no longer host one, for example after losing their land; the reminder disappears with it.
+- Children at court only ask rulers who have a place to hold a Meet Peers: a capital within their own realm, as the game requires.
+
+
 Version 1.21.0
 
 - Updated for CK3 1.21: the Meet Peers activity is re-synced with the game's new version. This fixes an error from a building the game removed (the rice paddies of the travel background) and brings the game's new horse and camel travel animation.

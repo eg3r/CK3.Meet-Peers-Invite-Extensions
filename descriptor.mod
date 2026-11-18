@@ -1,10 +1,11 @@
 name="Meet Peers - Invite Extensions"
-version="1.21.0"
+version="1.21.1"
 tags={
 	"Gameplay"
 }
 supported_version="1.21.*"
 path="mod/MeetPeersInviteExtensions"
+remote_file_id="3811076202"
 
 # Expands the "Meet Peers" activity:
 # extra guest invite options (neighboring children, nearby player children, children of court and vassals,

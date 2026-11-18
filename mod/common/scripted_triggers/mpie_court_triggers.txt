@@ -53,6 +53,27 @@ mpie_court_meet_peers_ruler_tier_trigger = {
 	}
 }
 
+# Can this ruler host a court Meet Peers at all? An adult of the rule's rank who meets what vanilla Meet Peers
+# asks of every host: can_start's landed, or landless administrative, republic or theocratic; and a place to
+# hold it, since the playdate only allows the host's capital (province_filter = capital), owned within the
+# host's own top realm (is_location_valid). Landless adventurers hold duke-tier titles and have a capital
+# (their camp's province), but fail both, so without this their children would ask every year under Dukes
+# and Above for a Meet Peers that can't be planned. The location rule also covers landless clergy whose
+# capital is just where they are, and noble families whose estate lies outside their realm.
+# Used for planning, the yearly request, the reminder and dropping stale promises.
+# this = the ruler
+mpie_court_meet_peers_ruler_can_host_trigger = {
+	is_adult = yes
+	mpie_court_meet_peers_enabled_trigger = yes
+	mpie_court_meet_peers_ruler_tier_trigger = yes
+	is_landed_or_landless_administrative_or_theocratic = yes
+	save_temporary_scope_as = mpie_court_host_candidate
+	capital_province ?= {
+		exists = province_owner
+		province_owner.top_liege = scope:mpie_court_host_candidate.top_liege
+	}
+}
+
 ########################
 # Children
 ########################
@@ -123,9 +144,7 @@ mpie_court_meet_peers_free_guest_trigger = {
 # yes (var:mpie_court_meet_peers_child), so AI rulers don't start planning Meet Peers on their own.
 # root = this = the ruler
 mpie_court_meet_peers_ruler_can_plan_trigger = {
-	is_adult = yes
-	mpie_court_meet_peers_enabled_trigger = yes
-	mpie_court_meet_peers_ruler_tier_trigger = yes
+	mpie_court_meet_peers_ruler_can_host_trigger = yes
 	trigger_if = {
 		limit = { is_ai = yes }
 		exists = var:mpie_court_meet_peers_child
@@ -145,10 +164,7 @@ mpie_court_meet_peers_not_on_court_cooldown_trigger = {
 # A ruler whose children may ask now (checked on the yearly pulse)
 # this = the ruler
 mpie_court_meet_peers_ruler_can_be_asked_trigger = {
-	is_adult = yes
-	mpie_court_meet_peers_enabled_trigger = yes
-	mpie_court_meet_peers_ruler_tier_trigger = yes
-	exists = capital_province
+	mpie_court_meet_peers_ruler_can_host_trigger = yes # includes the capital
 	NOR = {
 		has_variable = mpie_court_meet_peers_cooldown
 		has_variable = mpie_court_meet_peers_child

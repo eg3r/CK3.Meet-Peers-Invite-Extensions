@@ -3,8 +3,9 @@
 # A child at court asked for a Meet Peers and the player ruler said yes (var:mpie_court_meet_peers_child,
 # 365 days): a reminder to plan it, modelled on vanilla's action_grand_wedding_can_marry. Clicking it opens
 # the Meet Peers planner, where the special guest mpie_host_child_promised already holds the child.
-# Hidden while the planner is open, while the ruler is planning or hosting a Meet Peers, and when the
-# child can't host right now (away, aged out, ...). Gone once the Meet Peers starts (the handover clears the
+# Hidden while the planner is open, while the ruler is planning or hosting a Meet Peers, when the
+# child can't host right now (away, aged out, ...), and when the ruler can no longer host one
+# (mpie_court_meet_peers_ruler_can_host_trigger, e.g. lost the land). Gone once the Meet Peers starts (the handover clears the
 # variable) or the promise runs out.
 mpie_action_plan_court_meet_peers = {
 	type = alert
@@ -14,6 +15,7 @@ mpie_action_plan_court_meet_peers = {
 		if = {
 			limit = {
 				exists = var:mpie_court_meet_peers_child
+				mpie_court_meet_peers_ruler_can_host_trigger = yes # e.g. lost the land: the planner couldn't start it
 				var:mpie_court_meet_peers_child = { mpie_court_meet_peers_child_trigger = { RULER = root } }
 				NOR = {
 					involved_activity ?= { has_activity_type = activity_playdate }

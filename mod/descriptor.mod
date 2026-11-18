@@ -1,9 +1,10 @@
 name="Meet Peers - Invite Extensions"
-version="1.21.0"
+version="1.21.1"
 tags={
 	"Gameplay"
 }
 supported_version="1.21.*"
+remote_file_id="3811076202"
 
 # Mod Description
 # Expands the "Meet Peers" activity:
